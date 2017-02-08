@@ -1,0 +1,88 @@
+<resources>
+    <string name="app_name">aTaxi</string>
+
+    <string name="captionMainActivityNewOrder">Откуда Вас забрать</string>
+    <string name="captionMainActivitySearchDriver">Ищем Вам автомобиль</string>
+    <string name="captionMainActivityDriveToClient">Автомобиль подъезжает</string>
+    <string name="captionMainActivityDriverAtClient">Вас ожидает</string>
+    <string name="captionMainActivityClientInCar">В пути</string>
+    <string name="captionSearchAddress">Поиск адреса &#8230;</string>
+
+
+    <string name="btnPickUpMainActivity">Заказать</string>
+    <string name="btnPickUpMainActivitySearch">Ищем Вас &#8230;</string>
+    <string name="btnFind">Поиск</string>
+
+
+    <string name="tv_order_time_caption_default">Сейчас</string>
+
+    <!-- ActivityLogin -->
+    <string name="edActivityLoginPhone">Номер телефона</string>
+    <string name="edActivityLoginPassword">Код из СМС</string>
+    <string name="btnActivityLoginGetToken">Вход</string>
+    <string name="btnActivityLoginGetPassword">Получить код</string>
+    <string name="errorPhoneNotEntered">Не введен номер телефона</string>
+    <string name="errorPasswordNotEntered">Не введен код из СМС</string>
+    <string name="smsWait">Ожидаем СМС. Повторный запрос доступен через</string>
+    <string name="reductionSek">сек</string>
+    <!-- SplashActivity -->
+    <string name="tvSplashActionConnect">Подключение к серверу &#8230;</string>
+    <string name="tvSplashActionGetData">Получение данных &#8230;</string>
+    <string name="tvSplashActionPlayConnect">Подключение к Play сервису &#8230;</string>
+    <!-- AccountActivity -->
+    <string name="titleAccountActivity">Настройка профиля</string>
+    <string name="dlgAccountActivitySaveData">Сохранить измененные данные?</string>
+    <string name="dlgAccountActivitySaveDataSuccess">Новые данные профиля успешно сохранены.</string>
+    <string name="dlgAccountActivitySaveDataUnSuccess">Ошибка при сохранении данных профиля, попробуйте еще раз.</string>
+    <string name="dlgAccountActivityPhoneChange">Для измнения номера телефона необходимо подтвердить новый номер?</string>
+    <string name="dlgAccountActivityPhoneChangeConfirm">Получить код</string>
+    <string name="toastAccountActivityCodeSendSuccess">Код выслан Вам, пожалуйста ожидайте.</string>
+    <string name="pdSaveAccountDataTask">Сохранение данных профиля &#8230;</string>
+    <string name="edAccountActivityName">Как к Вам обращаться</string>
+    <string name="edAccountActivityMail">Элек. адрес</string>
+    <string name="edAccountActivityMailError">Не корректный адрес электронной почты</string>
+    <string name="edAccountActivityPhone">Телефон</string>
+    <string name="edAccountActivityCode">Код из смс</string>
+    <string name="btnAccountActivityConfirmPhone">Подтвердить номер телефона</string>
+
+    <!-- DrawerItems -->
+    <string name="menuBalanceItem">Бонусы</string>
+    <string name="menuHistoryItem">История</string>
+    <string name="menuMapTypeItem">Спутник</string>
+    <!-- RoutePointItem -->
+    <string name="edRoutePointNote">Место встречи, вход</string>
+    <!-- OrdersItems -->
+    <string-array name="order_service_type">
+        <item>Эконом</item>
+    </string-array>
+    <string-array name="order_payment_type">
+        <item>Наличные</item>
+    </string-array>
+    <!-- NewOrderActivity -->
+    <string name="btnNewOrderActivityWish">Пожелания к заказу</string>
+    <string name="btnNewOrderActivityAddCaption">Заказать</string>
+    <string name="dlgNewOrderActivityNotHavePaymentTypes">В Вашем регионе доступен заказ только за наличный расчет</string>
+    <string name="dlgNewOrderActivityNotHaveTaximeter">В Вашем регионе заказ по таксометру не доступен, пожалуйста выберите куда Вам необходимо ехать</string>
+
+
+    <string name="errorConnection">Что-то пошло не так, возможно нет интеренета. Проверьте интернет и повторите попытку.</string>
+    <string name="errorRest">Что-то пошло не так, но мы уже разбираемся. Повторите попытку попозже</string>
+    <string name="errorPhoneWrong">Не корректный номер телефона</string>>
+    <string name="errorPasswordWrong">Не верные авторизационные данные</string>
+    <string name="errorDriverWrong">Водитель с данным номером не зарегестрирован</string>
+    <string name="errorIdentification">Ошибка идентификации приложения</string>
+    <string name="errorNewVersion">Для дальнейшей работы необходимо обновить версию</string>
+    <string name="errorGPSNotFixed">Ожидание GPS данных &#8230;</string>
+    <string name="errorGPSOff">Для работы программы необходимо включить GPS &#8230;</string>
+    <string name="gps_network_not_enabled">Для корректной работы программы необходимо включить GPS приемник</string>
+
+    <string name="btnDateTimePickerOk">Выбрать</string>
+    <string name="btnDateTimePickerCancel">Сейчас</string>
+    <string name="pdCheckData">Обработка данных &#8230;</string>
+    <string name="dlgCheckData">Обработка данных &#8230;</string>
+    <string name="strNull">&#8230;</string>
+
+    <string name="dlgYes">Да</string>
+    <string name="dlgNo">Нет</string>
+    <string name="dlgOk">Хорошо</string>
+</resources>

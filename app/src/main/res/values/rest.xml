@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="mainRestIP">92.50.171.110</string>
+    <string name="reserveRestIP">62.133.173.81</string>
+    <string name="restPort">5876</string>
+    <string name="places_api_key">AIzaSyDNlWvQbTGsMB7BOpeC1EmK9nxwXz9dqhY</string>
+</resources>

@@ -2,6 +2,7 @@ package org.toptaxi.ataxibooking.tools;
 
 
 import android.location.Location;
+import android.util.Log;
 
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
@@ -28,6 +29,53 @@ import java.util.concurrent.TimeUnit;
 
 public class PlacesAPI {
     private static String TAG = "#########" + PlacesAPI.class.getName();
+
+
+    public static ArrayList<RoutePoint> getHouseSearch(RoutePoint streetRoutePoint, String house, String splash){
+        GoogleApiClient mGoogleApiClient = MainApplication.getInstance().getGoogleApiClient();
+        ArrayList<RoutePoint> resultList = new ArrayList<>();
+        String searchString = "";
+        String[] splitString = streetRoutePoint.getFullAddress().split(", ");
+        for (int itemID = 0; itemID < splitString.length; itemID++){
+            searchString += splitString[itemID];
+            if (itemID == 0){searchString += ", " + house;
+                if (!splash.equals(""))searchString += "/" + splash;
+            }
+            if (itemID < (splitString.length - 1)){searchString += ", ";}
+        }
+
+        Location mLocation = MainApplication.getInstance().getLocation();
+        LatLngBounds mLatLngBounds = null;
+        if (mLocation != null){
+            LatLng southWest = new LatLng((mLocation.getLatitude() - 0.2), (mLocation.getLongitude() - 0.2));
+            LatLng northEast = new LatLng((mLocation.getLatitude() + 0.2), (mLocation.getLongitude() + 0.2));
+            mLatLngBounds = new LatLngBounds(southWest, northEast);
+        }
+
+        AutocompleteFilter autocompleteFilter = new AutocompleteFilter.Builder()
+                .setTypeFilter(AutocompleteFilter.TYPE_FILTER_ADDRESS)
+                .build();
+        PendingResult<AutocompletePredictionBuffer> result = Places.GeoDataApi.getAutocompletePredictions(mGoogleApiClient, searchString, mLatLngBounds, autocompleteFilter);
+        AutocompletePredictionBuffer autocompletePredictions = result.await(10, TimeUnit.SECONDS);
+        Status status = autocompletePredictions.getStatus();
+        if (status.isSuccess()){
+            for (AutocompletePrediction prediction : autocompletePredictions) {
+                Log.d(TAG, "getHouseSearch prediction = " + prediction.getFullText(null) + ";" + prediction.getPlaceId() + ";" + prediction.getPlaceTypes().toString() + ";" + RoutePoint.getRoutePointType(prediction.getPlaceTypes()));
+                if (RoutePoint.getRoutePointType(prediction.getPlaceTypes()) != Constants.ROUTE_POINT_TYPE_UNKNOWN){
+                    RoutePoint routePoint = RoutePoint.getFromPlaceId(prediction.getPlaceId());
+                    if (routePoint != null){
+                        if (routePoint.isAddSearch(MainApplication.getInstance().getLocation())){
+                            Log.d(TAG, "getHouseSearch routePoint = " + routePoint.getFullAddress());
+                            resultList.add(routePoint);
+                        }
+                    }
+                }
+            }
+        }
+        autocompletePredictions.release();
+
+        return resultList;
+    }
 
     public static ArrayList<RoutePoint> getBySearch(String searchString){
         GoogleApiClient mGoogleApiClient = MainApplication.getInstance().getGoogleApiClient();

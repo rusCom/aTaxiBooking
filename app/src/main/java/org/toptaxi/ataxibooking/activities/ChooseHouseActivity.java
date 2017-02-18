@@ -21,6 +21,9 @@ import com.google.android.gms.maps.SupportMapFragment;
 import org.toptaxi.ataxibooking.data.Constants;
 import org.toptaxi.ataxibooking.data.RoutePoint;
 import org.toptaxi.ataxibooking.R;
+import org.toptaxi.ataxibooking.tools.PlacesAPI;
+
+import java.util.ArrayList;
 
 public class ChooseHouseActivity extends FragmentActivity implements OnMapReadyCallback {
 
@@ -40,6 +43,7 @@ public class ChooseHouseActivity extends FragmentActivity implements OnMapReadyC
         ((EditText)findViewById(R.id.edTitle)).setHint(streetRoutePoint.getName());
 
         findViewById(R.id.btnTitleLeft).setBackgroundResource(R.drawable.ic_arrow_back);
+        findViewById(R.id.btnTitleRight).setBackgroundResource(R.drawable.ic_check);
 
         findViewById(R.id.btnTitleLeft).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -78,7 +82,7 @@ public class ChooseHouseActivity extends FragmentActivity implements OnMapReadyC
         ProgressDialog progressDialog;
         Context mContext;
 
-        public CheckHouseNumberTask(Context mContext) {
+        CheckHouseNumberTask(Context mContext) {
             this.mContext = mContext;
             progressDialog = new ProgressDialog(mContext);
             progressDialog.setMessage("Обработка данных ...");
@@ -91,6 +95,9 @@ public class ChooseHouseActivity extends FragmentActivity implements OnMapReadyC
         }
         @Override
         protected RoutePoint doInBackground(String... params) {
+
+            //PlacesAPI.getHouseSearch(streetRoutePoint, params[0], params[1]);
+
             return RoutePoint.checkHouseNumber(streetRoutePoint, params[0], params[1]);
         }
 
@@ -110,7 +117,37 @@ public class ChooseHouseActivity extends FragmentActivity implements OnMapReadyC
         }
     }
 
+    private class GetHousesTask extends AsyncTask<String, Void, ArrayList<RoutePoint>>{
+        ProgressDialog progressDialog;
+        Context mContext;
+
+        GetHousesTask(Context mContext) {
+            this.mContext = mContext;
+            progressDialog = new ProgressDialog(mContext);
+            progressDialog.setMessage("Обработка данных ...");
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            progressDialog.show();
+        }
+        @Override
+        protected ArrayList<RoutePoint> doInBackground(String... params) {
+            return PlacesAPI.getHouseSearch(streetRoutePoint, params[0], params[1]);
+        }
+
+        @Override
+        protected void onPostExecute(ArrayList<RoutePoint> routePoints) {
+            progressDialog.dismiss();
+
+
+        }
+    }
+
     public void showDialog(){
+
+
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
         alertDialog.setMessage("Этот номер дома не известен системе. Вы уверены, что ввели правильный адрес?");
         alertDialog.setPositiveButton("Да", new DialogInterface.OnClickListener() {

@@ -18,7 +18,12 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.CardView;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.view.animation.LinearInterpolator;
+import android.view.animation.RotateAnimation;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -154,7 +159,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 
         btnSetPickup = (ImageButton) findViewById(R.id.btnSetPickUp);
         edMainActivityTitle = (EditText) findViewById(R.id.edTitle);
-        mRadarView = (RadarView) findViewById(R.id.radarView);
+        //mRadarView = (RadarView) findViewById(R.id.radarView);
         ivCentralPickUp = (ImageView) findViewById(R.id.ivMainActivityCentralPickUp);
 
         (findViewById(R.id.btnSetPickUp)).setEnabled(false);
@@ -196,6 +201,35 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
             }
         });
 
+        Animation animationRotateCenter = AnimationUtils.loadAnimation(
+                this, R.anim.rotate_center);
+
+        DisplayMetrics displaymetrics = getResources().getDisplayMetrics();
+        int width = (int) (displaymetrics.widthPixels * 0.8);
+        RelativeLayout.LayoutParams l = new RelativeLayout.LayoutParams(width, width);
+        l.addRule(RelativeLayout.CENTER_IN_PARENT);
+
+
+        ImageView imgview = (ImageView) findViewById(R.id.ivRadar);
+        imgview.setLayoutParams(l);
+        imgview.startAnimation(animationRotateCenter);
+
+        /*
+
+        DisplayMetrics displaymetrics = getResources().getDisplayMetrics();
+
+        RotateAnimation rAnim = new RotateAnimation(0, 360, displaymetrics.widthPixels/2, di);
+        rAnim.setRepeatMode(Animation.REVERSE);
+        rAnim.setRepeatCount(Animation.INFINITE);
+        rAnim.setInterpolator(new LinearInterpolator());
+        rAnim.setDuration(1000L);
+
+        ImageView imgview = (ImageView) findViewById(R.id.ivRadar);
+        imgview.startAnimation(rAnim);
+        */
+
+        /*
+
 
         mRadarView.setShowCircles(true);
 
@@ -205,6 +239,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         l.addRule(RelativeLayout.CENTER_IN_PARENT);
         mRadarView.setLayoutParams(l);
         mRadarView.startAnimation();
+        */
 
         fabSearchAddress = (FloatingActionButton)findViewById(R.id.fabMainActivitySearchAddress);
         fabSearchAddress.setOnClickListener(new View.OnClickListener() {
@@ -376,6 +411,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         fabCancelOrder.setVisibility(View.GONE);
         fabSearchAddress.setVisibility(View.GONE);
         edMainActivityTitle.getText().clear();
+        if (mMap != null)mMap.getUiSettings().setScrollGesturesEnabled(true);
         // Если статус заказа новый заказ
         if (MainApplication.getInstance().getOrder().getStatus() == Constants.ORDER_STATE_NEW_ORDER){
             edMainActivityTitle.setHint(getString(R.string.captionMainActivityNewOrder));
@@ -409,6 +445,8 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
             setRouteDataView();
             if (mMap != null){
                 if (MainApplication.getInstance().getOrder().getRoutePoint(0) != null)mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(MainApplication.getInstance().getOrder().getRoutePoint(0).getLatLng(), 16));
+                //mMap.setTrafficEnabled(true);
+                mMap.getUiSettings().setScrollGesturesEnabled(false);
                 mMap.clear();
                 for (int itemID = 0; itemID < MainApplication.getInstance().getDrivers().getCount(); itemID++){
                     LatLng driverPoint = MainApplication.getInstance().getDrivers().getDriver(itemID).getLatLng();

@@ -21,12 +21,23 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:id="@+id/rlMainActivityOrderSearchDriver">
+            <ImageView
+                android:id="@+id/ivRadar"
+                android:layout_width="240dp"
+                android:layout_height="240dp"
+                android:src="@mipmap/radar_to_rotate"
+                android:layout_centerVertical="true"
+                android:layout_centerHorizontal="true" />
+            <!--
+
             <org.toptaxi.ataxibooking.tools.RadarView
                 android:id="@+id/radarView"
                 android:layout_width="240dp"
                 android:layout_height="240dp"
                 android:layout_centerVertical="true"
                 android:layout_centerHorizontal="true"/>
+                -->
+
         </RelativeLayout>
 
 

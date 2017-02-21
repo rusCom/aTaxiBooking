@@ -25,9 +25,9 @@ import org.toptaxi.ataxibooking.tools.PlacesAPI;
 
 import java.util.ArrayList;
 
-public class ChooseHouseActivity extends FragmentActivity implements OnMapReadyCallback {
+public class ChooseHouseActivity extends FragmentActivity  {
 
-    private GoogleMap mMap;
+
     RoutePoint streetRoutePoint;
     AlertDialog dialog;
 
@@ -36,9 +36,7 @@ public class ChooseHouseActivity extends FragmentActivity implements OnMapReadyC
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_choose_house);
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.mapChooseHouse);
-        mapFragment.getMapAsync(this);
+
         streetRoutePoint = getIntent().getParcelableExtra(RoutePoint.class.getCanonicalName());
         ((EditText)findViewById(R.id.edTitle)).setHint(streetRoutePoint.getName());
 
@@ -72,11 +70,6 @@ public class ChooseHouseActivity extends FragmentActivity implements OnMapReadyC
         super.onPause();
     }
 
-    @Override
-    public void onMapReady(GoogleMap googleMap) {
-        mMap = googleMap;
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(streetRoutePoint.getLatLng(), 16));
-    }
 
     private class CheckHouseNumberTask extends AsyncTask<String, Void, RoutePoint> {
         ProgressDialog progressDialog;

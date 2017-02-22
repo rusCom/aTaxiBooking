@@ -169,7 +169,7 @@ public class Order {
         if (Price == 0){result = "По таксометру";}
         else {result = new DecimalFormat("##0").format(Price) + " " + rub;}
 
-        //result += "(" + getDistance() + ")";
+        result += "(" + getDistance() + ")";
         return result;
     }
 

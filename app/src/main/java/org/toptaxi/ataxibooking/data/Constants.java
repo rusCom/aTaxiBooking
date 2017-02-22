@@ -42,6 +42,7 @@ public class Constants {
 
     public static final int ROUTE_POINT_ADAPTER_VIEW_ORDER          = 1;
     public static final int ROUTE_POINT_ADAPTER_FAST_ROUTE_POINT    = 2;
+    public static final int ROUTE_POINT_ADAPTER_HOUSES              = 3;
 
 
     public static final int DOT_HTTP_ERROR      = 101;

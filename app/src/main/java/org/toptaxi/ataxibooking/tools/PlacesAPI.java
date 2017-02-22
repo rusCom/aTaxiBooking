@@ -44,6 +44,9 @@ public class PlacesAPI {
             if (itemID < (splitString.length - 1)){searchString += ", ";}
         }
 
+        searchString = splitString[0] + " " + house + " " + splash;
+        Log.d(TAG, "getHouseSearch searchString = " + searchString);
+
         Location mLocation = MainApplication.getInstance().getLocation();
         LatLngBounds mLatLngBounds = null;
         if (mLocation != null){

@@ -14,6 +14,7 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="@dimen/activity_margin"
         android:layout_marginRight="@dimen/activity_margin"
+        android:id="@+id/cvChooseHouseActivityHouseNumber"
 
         app:cardCornerRadius="@dimen/card_view_corner_radius"
         android:layout_below="@+id/cvTitle">
@@ -45,6 +46,13 @@
         </LinearLayout>
 
     </android.support.v7.widget.CardView>
+
+    <android.support.v7.widget.RecyclerView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="8dp"
+        android:layout_below="@+id/cvChooseHouseActivityHouseNumber"
+        android:id="@+id/rvChooseHouseActivityHouses"/>
 
 
 

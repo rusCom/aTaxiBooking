@@ -8,6 +8,11 @@ import android.os.AsyncTask;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
@@ -18,18 +23,26 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 
+import org.toptaxi.ataxibooking.adapters.RoutePointsAdapter;
 import org.toptaxi.ataxibooking.data.Constants;
 import org.toptaxi.ataxibooking.data.RoutePoint;
 import org.toptaxi.ataxibooking.R;
 import org.toptaxi.ataxibooking.tools.PlacesAPI;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
-public class ChooseHouseActivity extends FragmentActivity  {
-
-
+public class ChooseHouseActivity extends FragmentActivity implements RoutePointsAdapter.OnRoutePointClickListener {
+    private static String TAG = "#########" + ChooseHouseActivity.class.getName();
+    RecyclerView rvRoutePoints;
+    RoutePointsAdapter routePointsAdapter;
     RoutePoint streetRoutePoint;
     AlertDialog dialog;
+    EditText edNumber, edSplash;
+    private Timer timer = new Timer();
+    private final int DELAY = 500; //milliseconds of delay for timer
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,6 +52,51 @@ public class ChooseHouseActivity extends FragmentActivity  {
 
         streetRoutePoint = getIntent().getParcelableExtra(RoutePoint.class.getCanonicalName());
         ((EditText)findViewById(R.id.edTitle)).setHint(streetRoutePoint.getName());
+
+        routePointsAdapter = new RoutePointsAdapter();
+        routePointsAdapter.setOnRoutePointClickListener(this);
+        rvRoutePoints = (RecyclerView)findViewById(R.id.rvChooseHouseActivityHouses);
+        rvRoutePoints.setLayoutManager(new LinearLayoutManager(this));
+        rvRoutePoints.setAdapter(routePointsAdapter);
+
+        edNumber = (EditText)findViewById(R.id.edChooseHouseActivityHouseNumber);
+        edSplash = (EditText)findViewById(R.id.edChooseHouseActivityHouseSplash);
+
+        edNumber.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                getHouses();
+
+            }
+        });
+
+        edSplash.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                getHouses();
+
+            }
+        });
 
         findViewById(R.id.btnTitleLeft).setBackgroundResource(R.drawable.ic_arrow_back);
         findViewById(R.id.btnTitleRight).setBackgroundResource(R.drawable.ic_check);
@@ -51,15 +109,45 @@ public class ChooseHouseActivity extends FragmentActivity  {
             }
         });
 
+
+
         findViewById(R.id.btnTitleRight).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 String[] params = new String[]{((EditText)findViewById(R.id.edChooseHouseActivityHouseNumber)).getText().toString(),
                         ((EditText)findViewById(R.id.edChooseHouseActivityHouseSplash)).getText().toString()
                 };
-                new CheckHouseNumberTask(ChooseHouseActivity.this).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, params);
+                //new CheckHouseNumberTask(ChooseHouseActivity.this).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, params);
             }
         });
+    }
+
+    public void getHouses(){
+        if (!edNumber.getText().toString().trim().equals("")){
+            timer.cancel();
+            timer = new Timer();
+            timer.schedule(
+                    new TimerTask() {
+                        @Override
+                        public void run() {
+                            Log.d(TAG, "start search");
+                            final List<RoutePoint> routePoints = PlacesAPI.getHouseSearch(streetRoutePoint, edNumber.getText().toString().trim(), edSplash.getText().toString().trim());
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    routePointsAdapter.setRoutePoints(routePoints, Constants.ROUTE_POINT_ADAPTER_FAST_ROUTE_POINT);
+                                    routePointsAdapter.notifyDataSetChanged();
+                                    rvRoutePoints.setVisibility(View.VISIBLE);
+
+                                    Log.d(TAG, "stop search");
+                                }
+                            });
+                        }
+                    },
+                    DELAY
+            );
+
+        }
     }
 
     @Override
@@ -68,6 +156,20 @@ public class ChooseHouseActivity extends FragmentActivity  {
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
         super.onPause();
+    }
+
+    @Override
+    public void RoutePointClick(RoutePoint routePoint, int position) {
+        if (routePoint != null){
+            Intent intent = new Intent();
+            setResult(RESULT_OK, intent);
+            intent.putExtra(RoutePoint.class.getCanonicalName(), routePoint);
+            finish();
+        }
+        else {
+
+        }
+
     }
 
 

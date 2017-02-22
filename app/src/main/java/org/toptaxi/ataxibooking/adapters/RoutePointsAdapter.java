@@ -42,6 +42,7 @@ public class RoutePointsAdapter extends RecyclerView.Adapter<RoutePointsAdapter.
         if (routePoints != null){
             result = routePoints.size();
             if (viewType == Constants.ROUTE_POINT_ADAPTER_VIEW_ORDER)result++;
+            if (viewType == Constants.ROUTE_POINT_ADAPTER_HOUSES)result++;
         }
         return result;
     }
@@ -67,6 +68,25 @@ public class RoutePointsAdapter extends RecyclerView.Adapter<RoutePointsAdapter.
                 routeViewHolder.tvDescription.setText("Выберите следующую точку маршрута, что бы узнать стоимость");
                 if (getItemCount() == 2)routeViewHolder.tvName.setText("Куда");
                 else routeViewHolder.tvName.setText("Добавить адрес");
+                routeViewHolder.tvName.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        if (onRoutePointClickListener != null)onRoutePointClickListener.RoutePointClick(null, position);
+                    }
+                });
+                routeViewHolder.tvDescription.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        if (onRoutePointClickListener != null)onRoutePointClickListener.RoutePointClick(null, position);
+                    }
+                });
+                return;
+            }
+
+            if ((viewType == Constants.ROUTE_POINT_ADAPTER_HOUSES) && (position == (getItemCount() - 1))){
+                routeViewHolder.ivType.setImageResource(R.mipmap.ic_conformation_destination_ne);
+                routeViewHolder.tvName.setText("Указать на карте");
+                routeViewHolder.tvDescription.setText("Адрес не найден. Я могу указать местоположение на карте");
                 routeViewHolder.tvName.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {

@@ -190,9 +190,10 @@ public class PlacesAPI {
                     //Log.d(TAG, "getByLocation point = " + point.toString());
                     JSONArray address_components = point.getJSONArray("address_components");
                     String Name = "", HouseNumber = "", StreetName = "";
+                    JSONArray types = new JSONArray();
                     for (int itemID = 0; itemID < address_components.length(); itemID++){
                         JSONObject address_component = address_components.getJSONObject(itemID);
-                        JSONArray types = address_component.getJSONArray("types");
+                        types = address_component.getJSONArray("types");
                         if (types.toString().contains("street_number")){
                             HouseNumber = address_component.getString("short_name");
                             PlaceType = Constants.ROUTE_POINT_TYPE_HOUSE;
@@ -225,7 +226,7 @@ public class PlacesAPI {
                         Double lat = point.getJSONObject("geometry").getJSONObject("location").getDouble("lat");
                         Double lng = point.getJSONObject("geometry").getJSONObject("location").getDouble("lng");
                         RoutePoint routePoint = new RoutePoint();
-                        routePoint.setAllData(point.getString("place_id"), Name, Description, lat, lng, PlaceType);
+                        routePoint.setAllData(point.getString("place_id"), Name, Description, lat, lng, PlaceType, types.toString());
                         routePoints.add(routePoint);
                     }
                 }
@@ -237,5 +238,10 @@ public class PlacesAPI {
         }
 
         return resultRoutePoint;
+    }
+
+
+    public static void SetGetByLocationCache(Double Latitude, Double Longitude, RoutePoint routePoint){
+        
     }
 }

@@ -37,6 +37,8 @@ public class Order {
     Driver driver;
     boolean IsMapDriverAnimate;
     private PayType payType;
+    private Integer WishValueAddition = -1;
+    private Boolean WishCheck = false, WishConditioner = false, WishSmoke = false, WishNoSmoke = false, WishChildren = false;
 
 
     public Order() {
@@ -47,6 +49,54 @@ public class Order {
 
     public String getServiceTypeName() {
         return MainApplication.getInstance().getResources().getStringArray(R.array.order_service_type)[ServiceType];
+    }
+
+    public Integer getWishValueAddition() {
+        return WishValueAddition;
+    }
+
+    public void setWishValueAddition(Integer wishValueAddition) {
+        WishValueAddition = wishValueAddition;
+    }
+
+    public Boolean getWishCheck() {
+        return WishCheck;
+    }
+
+    public void setWishCheck(Boolean wishCheck) {
+        WishCheck = wishCheck;
+    }
+
+    public Boolean getWishConditioner() {
+        return WishConditioner;
+    }
+
+    public void setWishConditioner(Boolean wishConditioner) {
+        WishConditioner = wishConditioner;
+    }
+
+    public Boolean getWishSmoke() {
+        return WishSmoke;
+    }
+
+    public void setWishSmoke(Boolean wishSmoke) {
+        WishSmoke = wishSmoke;
+    }
+
+    public Boolean getWishNoSmoke() {
+        return WishNoSmoke;
+    }
+
+    public void setWishNoSmoke(Boolean wishNoSmoke) {
+        WishNoSmoke = wishNoSmoke;
+    }
+
+    public Boolean getWishChildren() {
+        return WishChildren;
+    }
+
+    public void setWishChildren(Boolean wishChildren) {
+        WishChildren = wishChildren;
     }
 
     public List<RoutePoint> getRoutePoints() {

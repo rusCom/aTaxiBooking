@@ -41,6 +41,7 @@ public class RoutePoint implements Parcelable {
     private String PlaceId = "", Name = "", Description = "", HouseNumber = "";
     private Double Latitude = 0.0, Longitude = 0.0;
     private Integer PlaceType = 0;
+    private String PlaceTypes = "";
 
     public RoutePoint() {
 
@@ -57,13 +58,26 @@ public class RoutePoint implements Parcelable {
         return result;
     }
 
-    public void setAllData(String PlaceID, String Name, String Description, Double Latitude, Double Longitude, Integer PlaceType){
+    public JSONObject getJSON() throws JSONException {
+        JSONObject data = new JSONObject();
+        data.put("place_id", PlaceId);
+        data.put("name", Name);
+        data.put("dsc", Description);
+        data.put("lt", Latitude);
+        data.put("ln", Longitude);
+        data.put("type", PlaceType);
+        data.put("types", PlaceTypes);
+        return data;
+    }
+
+    public void setAllData(String PlaceID, String Name, String Description, Double Latitude, Double Longitude, Integer PlaceType, String Types){
         this.PlaceId = PlaceID;
         this.Name = Name;
         this.Description = Description;
         this.Latitude = Latitude;
         this.Longitude = Longitude;
         this.PlaceType = PlaceType;
+        this.PlaceTypes = Types;
 
     }
 
@@ -91,6 +105,7 @@ public class RoutePoint implements Parcelable {
                 Latitude = place.getLatLng().latitude;
                 Longitude = place.getLatLng().longitude;
                 PlaceType = getRoutePointType(place.getPlaceTypes());
+                PlaceTypes = place.getPlaceTypes().toString();
             }
         }
         places.release();
@@ -215,6 +230,10 @@ public class RoutePoint implements Parcelable {
         Latitude = data.getLatLng().latitude;
         Longitude = data.getLatLng().longitude;
         PlaceType = getRoutePointType(data.getPlaceTypes());
+        PlaceTypes = data.getPlaceTypes().toString();
+
+        Log.d(TAG, "setFromPlace Name = " + Name + "; PlaceID = " + PlaceId);
+
         /*
         for (int itemID = 0; itemID < data.getPlaceTypes().size(); itemID++){
             if (data.getPlaceTypes().get(itemID) == 1020){PlaceType = Constants.ROUTE_POINT_TYPE_STREET;}
@@ -293,7 +312,8 @@ public class RoutePoint implements Parcelable {
                             cursor.getString(cursor.getColumnIndex("Address")),
                             cursor.getDouble(cursor.getColumnIndex("Latitude")),
                             cursor.getDouble(cursor.getColumnIndex("Longitude")),
-                            cursor.getInt(cursor.getColumnIndex("PlaceType"))
+                            cursor.getInt(cursor.getColumnIndex("PlaceType")),
+                            ""
                     );
                     resultList.add(routePoint);
                 }while (cursor.moveToNext());
@@ -331,7 +351,7 @@ public class RoutePoint implements Parcelable {
                 Log.d(TAG, "getBySearch prediction = " + prediction.getPrimaryText(null) + ";" + prediction.getPlaceTypes().toString());
                 if (getRoutePointType(prediction.getPlaceTypes()) != Constants.ROUTE_POINT_TYPE_UNKNOWN){
                     RoutePoint routePoint = new RoutePoint();
-                    routePoint.setAllData(prediction.getPlaceId(), prediction.getPrimaryText(null).toString(), prediction.getSecondaryText(null).toString(), null, null, getRoutePointType(prediction.getPlaceTypes()));
+                    routePoint.setAllData(prediction.getPlaceId(), prediction.getPrimaryText(null).toString(), prediction.getSecondaryText(null).toString(), null, null, getRoutePointType(prediction.getPlaceTypes()), prediction.getPlaceTypes().toString());
                     resultList.add(routePoint);
                 }
 
@@ -471,6 +491,8 @@ public class RoutePoint implements Parcelable {
                     routePoint = new RoutePoint();
                     routePoint.setFromPlace(place);
                 }
+
+
 
                 //Log.d(TAG, "getFromPlaceId place = " + place.getName() + ";" + place.getAddress() + ";" + place.getPlaceTypes());
             }

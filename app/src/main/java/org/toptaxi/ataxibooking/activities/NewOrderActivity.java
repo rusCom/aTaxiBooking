@@ -36,6 +36,7 @@ public class NewOrderActivity extends AppCompatActivity implements DateTimePicke
     RoutePointsAdapter routePointsAdapter;
     RecyclerView rvRoutePoints;
     ImageButton btnAddOrder;
+    Button btnWishList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,6 +44,7 @@ public class NewOrderActivity extends AppCompatActivity implements DateTimePicke
         setContentView(R.layout.activity_new_order);
 
         btnAddOrder = (ImageButton) findViewById(R.id.btnNewOrderActivityAddOrder);
+        btnWishList = (Button) findViewById(R.id.btnNewOrderActivityWishList);
         //btnAddOrder.setEnabled(false);
 
 
@@ -181,6 +183,9 @@ public class NewOrderActivity extends AppCompatActivity implements DateTimePicke
             findViewById(R.id.ivNewOrderActivityPriceDivider).setVisibility(View.VISIBLE);
             ((TextView)findViewById(R.id.tvNewOrderActivityCost)).setText(MainApplication.getInstance().getOrder().getPriceString());
         }
+
+        if (MainApplication.getInstance().getPreferences().IsWishList())btnWishList.setVisibility(View.VISIBLE);
+        else btnWishList.setVisibility(View.GONE);
 
     }
 

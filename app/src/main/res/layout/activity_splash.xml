@@ -24,18 +24,13 @@
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true" />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/tvSplashAction"
-        android:layout_above="@+id/tvSplashVersion"
-        android:layout_centerHorizontal="true" />
+
 
     <ProgressBar
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/pbSplash"
-        android:layout_above="@+id/tvSplashAction"
+        android:layout_above="@+id/tvSplashVersion"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
 

@@ -14,7 +14,7 @@ public class Driver {
     private static String TAG = "#########" + Driver.class.getName();
     Double Latitude = 0.0, Longitude = 0.0;
     Integer Distance, Bearing = 0, Speed;
-    String Name, CarName, Phone;
+    String Name, CarName, Phone, Category;
 
     public Driver(JSONObject data) throws JSONException {
         setFromJSON(data);
@@ -30,12 +30,17 @@ public class Driver {
     public void setFromJSON(JSONObject data) throws JSONException {
         if (data.has("lt"))this.Latitude = data.getDouble("lt");
         if (data.has("ln"))this.Longitude = data.getDouble("ln");
-        if (data.has("dis"))this.Distance = data.getInt("dis");
-        if (data.has("bearing"))this.Bearing = data.getInt("bearing");
-        if (data.has("speed"))this.Speed = data.getInt("speed");
+        if (data.has("br"))this.Bearing = data.getInt("br");
+        if (data.has("sp"))this.Speed = data.getInt("sp");
+        if (data.has("category"))this.Category = data.getString("category");
+
+        if (data.has("car"))this.CarName = data.getString("car");
+        if (data.has("phone"))this.Phone = data.getString("phone");
+        /*
         if (data.has("name"))this.Name = data.getString("name");
         if (data.has("car_name"))this.CarName = data.getString("car_name");
         if (data.has("phone"))this.Phone = data.getString("phone");
+        */
         //Log.d(TAG, "setFromJSON data = " + data);
 
     }

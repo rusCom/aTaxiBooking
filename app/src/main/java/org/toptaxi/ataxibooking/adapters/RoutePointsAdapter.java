@@ -117,12 +117,12 @@ public class RoutePointsAdapter extends RecyclerView.Adapter<RoutePointsAdapter.
                 }
                 else {
                     switch (routePoint.getPlaceType()){
-                        case Constants.ROUTE_POINT_TYPE_STREET:routeViewHolder.ivType.setImageResource(R.mipmap.ic_conformation_street);break;
-                        case Constants.ROUTE_POINT_TYPE_HOUSE:routeViewHolder.ivType.setImageResource(R.mipmap.ic_conformation_hause);break;
+                        case Constants.ROUTE_POINT_TYPE_STREET:routeViewHolder.ivType.setImageResource(R.mipmap.ic_conformation_road);break;
+                        case Constants.ROUTE_POINT_TYPE_HOUSE:routeViewHolder.ivType.setImageResource(R.mipmap.ic_conformation_address);break;
                         case Constants.ROUTE_POINT_TYPE_LOCALITY:routeViewHolder.ivType.setImageResource(R.mipmap.ic_conformation_locality);break;
-                        case Constants.ROUTE_POINT_TYPE_POINT:routeViewHolder.ivType.setImageResource(R.mipmap.ic_conformation_point_of_interest);break;
+                        case Constants.ROUTE_POINT_TYPE_POINT:routeViewHolder.ivType.setImageResource(R.mipmap.ic_conformation_point);break;
                         case Constants.ROUTE_POINT_TYPE_AIRPORT:routeViewHolder.ivType.setImageResource(R.mipmap.ic_conformation_airport);break;
-                        case Constants.ROUTE_POINT_TYPE_STATION:routeViewHolder.ivType.setImageResource(R.mipmap.ic_conformation_station);break;
+                        case Constants.ROUTE_POINT_TYPE_STATION:routeViewHolder.ivType.setImageResource(R.mipmap.ic_conformation_railway_station);break;
                         default:routeViewHolder.ivType.setImageResource(R.mipmap.ic_conformation_address);
                     }
 

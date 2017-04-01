@@ -1,5 +1,6 @@
 package org.toptaxi.ataxibooking.activities;
 
+import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -8,14 +9,13 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
-import android.os.Build;
+import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.telephony.PhoneNumberFormattingTextWatcher;
 import android.telephony.SmsMessage;
 import android.view.View;
@@ -24,9 +24,12 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.toptaxi.ataxibooking.MainApplication;
-import org.toptaxi.ataxibooking.data.Constants;
 import org.toptaxi.ataxibooking.R;
+import org.toptaxi.ataxibooking.data.Constants;
+import org.toptaxi.ataxibooking.tools.DOTResponse;
 
 public class LoginActivity extends AppCompatActivity {
     private static final String SMS_ACTION = "android.provider.Telephony.SMS_RECEIVED";
@@ -77,7 +80,7 @@ public class LoginActivity extends AppCompatActivity {
         super.onPause();
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString("accountPhone", edActivityLoginPhone.getText().toString().trim());
-        editor.commit();
+        editor.apply();
     }
 
     @Override
@@ -112,11 +115,7 @@ public class LoginActivity extends AppCompatActivity {
         if (!validatePhone())return;
         if (!validatePassword())return;
         String[] params = {edActivityLoginPhone.getText().toString(), edActivityLoginPassword.getText().toString()};
-        GetTokenTask getTokenTask = new GetTokenTask();
-        if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.HONEYCOMB)
-            getTokenTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, params);
-        else
-            getTokenTask.execute(params);
+        new GetTokenTask(this).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, params);
     }
 
     private boolean validatePassword(){
@@ -147,11 +146,8 @@ public class LoginActivity extends AppCompatActivity {
     public void getPassword(View view) {
         if (validatePhone()){
             if (IsFirstGetPassword){
-                GetPasswordTask getPasswordTask = new GetPasswordTask();
-                if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.HONEYCOMB)
-                    getPasswordTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, edActivityLoginPhone.getText().toString().trim());
-                else
-                    getPasswordTask.execute(edActivityLoginPhone.getText().toString().trim());
+                new GetPasswordTask(this).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, edActivityLoginPhone.getText().toString().trim());
+
             }
             else {
                 new AlertDialog.Builder(this)
@@ -162,11 +158,7 @@ public class LoginActivity extends AppCompatActivity {
                         {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                GetPasswordTask getPasswordTask = new GetPasswordTask();
-                                if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.HONEYCOMB)
-                                    getPasswordTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, edActivityLoginPhone.getText().toString().trim());
-                                else
-                                    getPasswordTask.execute(edActivityLoginPhone.getText().toString().trim());
+                                new GetPasswordTask(LoginActivity.this).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, edActivityLoginPhone.getText().toString().trim());
                             }
 
                         })
@@ -178,50 +170,86 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
-    private class GetPasswordTask extends AsyncTask<String, Void, Integer>{
+    private class GetPasswordTask extends AsyncTask<String, Void, DOTResponse>{
+        ProgressDialog progressDialog;
 
-        @Override
-        protected Integer doInBackground(String... strings) {
-            return MainApplication.getInstance().getDOT().getPassword(strings[0]);
+        GetPasswordTask(Context mContext) {
+            progressDialog = new ProgressDialog(mContext);
+            progressDialog.setMessage(getResources().getString(R.string.pdCheckData));
         }
 
         @Override
-        protected void onPostExecute(Integer result) {
+        protected void onPreExecute() {
+            super.onPreExecute();
+            progressDialog.show();
+        }
+
+        @Override
+        protected DOTResponse doInBackground(String... strings) {
+            return MainApplication.getInstance().getnDot().profile_login(strings[0]);
+        }
+
+        @Override
+        protected void onPostExecute(DOTResponse result) {
             super.onPostExecute(result);
-            if (result == Constants.DOT_REST_OK){
+            if (progressDialog.isShowing())progressDialog.dismiss();
+            if (result.getCode() == 200){
                 if (smsReceive == null){
                     smsReceive = new SMSReceive();
                     IntentFilter intentFilter = new IntentFilter(SMS_ACTION);
                     registerReceiver(smsReceive, intentFilter);
                 }
-                TimerTask timerTask = new TimerTask();
-                if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.HONEYCOMB)
-                    timerTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-                else
-                    timerTask.execute();
+                new TimerTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                 IsFirstGetPassword = false;
             }
+            else if ((result.getCode() == 400) && (!result.getBody().equals("")))  {
+                MainApplication.getInstance().showToast(result.getBody());
+            }
             else {
-                MainApplication.getInstance().showToastType(result);
+                MainApplication.getInstance().showToast("HTTP Error");
             }
         }
     }
 
-    private class GetTokenTask extends AsyncTask<String, Void, Integer>{
+    private class GetTokenTask extends AsyncTask<String, Void, DOTResponse>{
+        ProgressDialog progressDialog;
 
-        @Override
-        protected Integer doInBackground(String... params) {
-            return MainApplication.getInstance().getDOT().getToken(params[0], params[1]);
+        GetTokenTask(Context mContext) {
+            progressDialog = new ProgressDialog(mContext);
+            progressDialog.setMessage(getResources().getString(R.string.pdCheckData));
         }
 
         @Override
-        protected void onPostExecute(Integer result) {
+        protected void onPreExecute() {
+            super.onPreExecute();
+            progressDialog.show();
+        }
+
+        @Override
+        protected DOTResponse doInBackground(String... params) {
+            return MainApplication.getInstance().getnDot().profile_registration(params[0], params[1]);
+        }
+
+        @Override
+        protected void onPostExecute(DOTResponse result) {
             super.onPostExecute(result);
-            if (result == Constants.DOT_REST_OK){
+            if (progressDialog.isShowing())progressDialog.dismiss();
+            if (result.getCode() == 200){
+                try {
+                    JSONObject response = new JSONObject(result.getBody());
+                    MainApplication.getInstance().getAccount().setToken(response.getString("token"));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
                 setResult(RESULT_OK);
                 finish();
             }
-            else MainApplication.getInstance().showToastType(result);
+            else if ((result.getCode() == 400) && (!result.getBody().equals("")))  {
+                MainApplication.getInstance().showToast(result.getBody());
+            }
+            else {
+                MainApplication.getInstance().showToast("HTTP Error");
+            }
         }
     }
 

@@ -39,6 +39,7 @@ public class Constants {
     public static final int MENU_BALANCE        = 1;
     public static final int MENU_HISTORY        = 2;
     public static final int MENU_MAP_TYPE       = 3;
+    public static final int MENU_PROFILE        = 4;
 
     public static final int ROUTE_POINT_ADAPTER_VIEW_ORDER          = 1;
     public static final int ROUTE_POINT_ADAPTER_FAST_ROUTE_POINT    = 2;

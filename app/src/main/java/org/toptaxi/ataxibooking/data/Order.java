@@ -3,6 +3,7 @@ package org.toptaxi.ataxibooking.data;
 
 import android.os.Build;
 import android.text.Html;
+import android.util.Log;
 
 import com.google.android.gms.maps.model.LatLng;
 
@@ -44,7 +45,7 @@ public class Order {
     public Order() {
         routePoints = new ArrayList<>();
         driver = new Driver();
-        payType = new PayType("type_cash");
+        payType = new PayType("cash");
     }
 
     public String getServiceTypeName() {
@@ -109,29 +110,38 @@ public class Order {
 
     public void setFromJSON(JSONObject data) throws JSONException {
         //Log.d(TAG, "setFromJSON ID=" + this.ID + "("+data.getInt("id")+") status=" + this.Status + "("+ data.getInt("status") +")");
-        if (data.has("id")){
-            if (data.getInt("id") != this.ID){
+        if (data.has("uid")){
+            if (data.getInt("uid") != this.ID){
                 //Log.d(TAG, "setFromJSON changeID");
                 setMapDriverAnimate(false);
                 this.Status = Constants.ORDER_STATE_NEW_ORDER;
             }
-            this.ID = data.getInt("id");
+            this.ID = data.getInt("uid");
         }
         if (data.has("status")){
-            if (data.getInt("status") != this.Status){
+            Integer status = Constants.ORDER_STATE_NEW_ORDER;
+            switch (data.getString("status")){
+                case "search_car":status = Constants.ORDER_STATE_SEARCH_DRIVER;break;
+                case "drive_to_client":status = Constants.ORDER_STATE_DRIVE_TO_CLIENT;break;
+                case "drive_at_client":status = Constants.ORDER_STATE_DRIVER_AT_CLIENT;break;
+                case "driver_expect_client":status = Constants.ORDER_STATE_DRIVER_AT_CLIENT;break;
+                case "paid_idle":status = Constants.ORDER_STATE_DRIVER_AT_CLIENT;break;
+                case "client_in_car":status = Constants.ORDER_STATE_CLIENT_IN_CAR;break;
+            }
+            if (status != this.Status){
                 //Log.d(TAG, "setFromJSON changeStatus");
                 setMapDriverAnimate(false);
-                if (data.getInt("status") == Constants.ORDER_STATE_DRIVE_TO_CLIENT)MainApplication.getInstance().playSoundAssign();
-                if (data.getInt("status") == Constants.ORDER_STATE_DRIVER_AT_CLIENT)MainApplication.getInstance().playSoundDriveToClient();
-                if (data.getInt("status") == Constants.ORDER_STATE_CLIENT_IN_CAR)MainApplication.getInstance().playSoundAssign();
+                if (status == Constants.ORDER_STATE_DRIVE_TO_CLIENT)MainApplication.getInstance().playSoundAssign();
+                if (status == Constants.ORDER_STATE_DRIVER_AT_CLIENT)MainApplication.getInstance().playSoundDriveToClient();
+                if (status == Constants.ORDER_STATE_CLIENT_IN_CAR)MainApplication.getInstance().playSoundAssign();
 
             }
-            this.Status = data.getInt("status");
+            this.Status = status;
         }
-        if (data.has("driver"))this.driver.setFromJSON(data.getJSONArray("driver").getJSONObject(0));
+        if (data.has("driver"))this.driver.setFromJSON(data.getJSONObject("driver"));
         routePoints.clear();
-        if (data.has("RoutePoints")){
-            JSONArray route = data.getJSONArray("RoutePoints");
+        if (data.has("route")){
+            JSONArray route = data.getJSONArray("route");
             for (int itemID = 0; itemID < route.length(); itemID++){
                 RoutePoint routePoint = new RoutePoint();
                 routePoint.setFromJSON(route.getJSONObject(itemID));
@@ -180,7 +190,7 @@ public class Order {
         Duration = 0;
         Price = 0;
         IsMapDriverAnimate = false;
-        payType.setType("type_cash");
+        payType.setType("cash");
     }
 
     public boolean isMapDriverAnimate() {
@@ -266,6 +276,54 @@ public class Order {
         return result;
     }
 
+    public Boolean setCalcData(String dataString){
+        Boolean result = false;
+        try {
+            JSONObject data = new JSONObject(dataString);
+            Price = data.getInt("price");
+            CalcID = data.getString("uid");
+            if (data.has("distance"))Distance = data.getInt("distance");
+            if (data.has("duration"))Duration = data.getInt("duration");
+            result = true;
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+
+    public String getCalcJSON()  {
+        JSONObject data = new JSONObject();
+        try {
+            if (WorkDate != null){
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:00");
+                data.put("date", sdf.format(WorkDate.getTime()));
+            }
+            data.put("category", "economy");
+            data.put("distance", Distance);
+            data.put("duration", Duration);
+            data.put("pay", payType.getType());
+            JSONObject wish = new JSONObject();
+            if (WishValueAddition > 0){wish.put("value_addition", String.valueOf(WishValueAddition));}
+            if (WishCheck)wish.put("check", "true");
+            if (WishConditioner)wish.put("conditioner", "true");
+            if (WishSmoke)wish.put("smoke", "true");
+            if (WishNoSmoke)wish.put("no_smoke", "true");
+            if (WishChildren)wish.put("children", "true");
+            data.put("wish", wish);
+            JSONArray route = new JSONArray();
+            for (int itemID = 0; itemID < routePoints.size(); itemID++){
+                route.put(routePoints.get(itemID).getCalcJSON());
+            }
+            data.put("route", route);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        Log.d(TAG, "getCalcJSON " + data.toString());
+
+        return data.toString();
+    }
+
     private String getCalcString(){
         String result = MainApplication.getInstance().getPackageName() + "|";
         result += MainApplication.getInstance().getAccount().getToken() + "|";
@@ -333,7 +391,7 @@ public class Order {
         return result;
     }
 
-    private boolean calcDistance(){
+    public boolean calcDistance(){
         boolean isCalc = false;
         Distance = 0;
         Duration = 0;

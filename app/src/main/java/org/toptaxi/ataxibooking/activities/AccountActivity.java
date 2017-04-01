@@ -19,6 +19,7 @@ import org.json.JSONObject;
 import org.toptaxi.ataxibooking.MainApplication;
 import org.toptaxi.ataxibooking.data.Constants;
 import org.toptaxi.ataxibooking.R;
+import org.toptaxi.ataxibooking.tools.DOTResponse;
 
 public class AccountActivity extends AppCompatActivity {
     private static String TAG = "#########" + AccountActivity.class.getName();
@@ -35,6 +36,8 @@ public class AccountActivity extends AppCompatActivity {
         edName = (EditText)findViewById(R.id.edAccountActivityName);
         edPhone = (EditText)findViewById(R.id.edAccountActivityPhone);
         edCode = (EditText)findViewById(R.id.edAccountActivityCode);
+
+        findViewById(R.id.btnTitleRight).setBackgroundResource(R.drawable.ic_check);
 
         llConfirmPhone = (LinearLayout)findViewById(R.id.llAccountActivityConfirmPhone);
 
@@ -87,7 +90,8 @@ public class AccountActivity extends AppCompatActivity {
     }
 
     public void btnAccountActivityConfirmPhoneClick(View view){
-        new CheckPasswordTask(this).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, edCode.getText().toString());
+        String[] params = {edPhone.getText().toString(), edCode.getText().toString()};
+                new CheckPasswordTask(this).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, params); //edCode.getText().toString());
 
     }
 
@@ -114,8 +118,15 @@ public class AccountActivity extends AppCompatActivity {
                 dialog = alertDialog.show();
             }
             else if (isChangeData()){
-                String accountData = edName.getText().toString() + "|" + edMail.getText().toString() + "|";
-                (new SaveAccountDataTask(this)).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, accountData);
+                JSONObject data = new JSONObject();
+                try {
+                    data.put("name", edName.getText().toString());
+                    data.put("email", edMail.getText().toString());
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                //String accountData = edName.getText().toString() + "|" + edMail.getText().toString() + "|";
+                (new SaveAccountDataTask(this)).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, data.toString());
             }
 
         }
@@ -156,10 +167,10 @@ public class AccountActivity extends AppCompatActivity {
         else {super.onBackPressed();}
     }
 
-    private class CheckPasswordTask extends AsyncTask<String, Void, String>{
+    private class CheckPasswordTask extends AsyncTask<String, Void, DOTResponse>{
         ProgressDialog progressDialog;
 
-        public CheckPasswordTask(Context mContext) {
+        CheckPasswordTask(Context mContext) {
             progressDialog = new ProgressDialog(mContext);
             progressDialog.setMessage(getResources().getString(R.string.pdCheckData));
         }
@@ -171,36 +182,34 @@ public class AccountActivity extends AppCompatActivity {
         }
 
         @Override
-        protected String doInBackground(String... strings) {
-            return MainApplication.getInstance().getDOT().getDataType("check_new_phone_code", strings[0]);
+        protected DOTResponse doInBackground(String... strings) {
+            return MainApplication.getInstance().getnDot().profile_check_phone_code(strings[0], strings[1]);
+            //return MainApplication.getInstance().getDOT().getDataType("check_new_phone_code", strings[0]);
         }
 
         @Override
-        protected void onPostExecute(String results) {
-            super.onPostExecute(results);
+        protected void onPostExecute(DOTResponse result) {
+            super.onPostExecute(result);
             if (progressDialog.isShowing())progressDialog.dismiss();
-            JSONObject result = null;
-            try {
-                result = new JSONObject(results);
-                MainApplication.getInstance().showToast(result.getString("value"));
-                if (result.getString("response").equals("error")){llConfirmPhone.setVisibility(View.VISIBLE);;}
-                else {
-                    llConfirmPhone.setVisibility(View.GONE);
-                    MainApplication.getInstance().getAccount().setPhone(result.getString("phone"));
-                    edPhone.setText(MainApplication.getInstance().getAccount().getPhone());
-                    edCode.setText("");
-                }
-            } catch (JSONException e) {
-                e.printStackTrace();
-                MainApplication.getInstance().showToastType(Constants.DOT_HTTP_ERROR);
+            if (result.getCode() == 200){
+                llConfirmPhone.setVisibility(View.GONE);
+                MainApplication.getInstance().getAccount().setPhone(edPhone.getText().toString());
+                //edPhone.setText(MainApplication.getInstance().getAccount().getPhone());
+                edCode.setText("");
+            }
+            else if ((result.getCode() == 400) && (!result.getBody().equals("")))  {
+                MainApplication.getInstance().showToast(result.getBody());
+            }
+            else {
+                MainApplication.getInstance().showToast("HTTP Error " + String.valueOf(result.getCode()));
             }
         }
     }
 
-    private class GetPasswordTask extends AsyncTask<String, Void, String>{
+    private class GetPasswordTask extends AsyncTask<String, Void, DOTResponse>{
         ProgressDialog progressDialog;
 
-        public GetPasswordTask(Context mContext) {
+        GetPasswordTask(Context mContext) {
             progressDialog = new ProgressDialog(mContext);
             progressDialog.setMessage(getResources().getString(R.string.pdCheckData));
         }
@@ -212,33 +221,33 @@ public class AccountActivity extends AppCompatActivity {
         }
 
         @Override
-        protected String doInBackground(String... strings) {
-            return MainApplication.getInstance().getDOT().getDataType("check_new_phone", strings[0]);
+        protected DOTResponse doInBackground(String... strings) {
+            return MainApplication.getInstance().getnDot().profile_check_phone(strings[0]);
+            //return MainApplication.getInstance().getDOT().getDataType("check_new_phone", strings[0]);
         }
 
         @Override
-        protected void onPostExecute(String results) {
-            super.onPostExecute(results);
+        protected void onPostExecute(DOTResponse result) {
+            super.onPostExecute(result);
             if (progressDialog.isShowing())progressDialog.dismiss();
-            JSONObject result = null;
-            try {
-                result = new JSONObject(results);
-                MainApplication.getInstance().showToast(result.getString("value"));
-                if (result.getString("response").equals("ok")){llConfirmPhone.setVisibility(View.VISIBLE);;}
-                else {llConfirmPhone.setVisibility(View.GONE);}
-            } catch (JSONException e) {
-                e.printStackTrace();
-                MainApplication.getInstance().showToastType(Constants.DOT_HTTP_ERROR);
+            if (result.getCode() == 200){
+                llConfirmPhone.setVisibility(View.VISIBLE);
+            }
+            else if ((result.getCode() == 400) && (!result.getBody().equals("")))  {
+                MainApplication.getInstance().showToast(result.getBody());
+            }
+            else {
+                MainApplication.getInstance().showToast("HTTP Error " + String.valueOf(result.getCode()));
             }
         }
     }
 
 
 
-    private class SaveAccountDataTask extends AsyncTask<String, Void, Boolean>{
+    private class SaveAccountDataTask extends AsyncTask<String, Void, DOTResponse>{
         ProgressDialog progressDialog;
 
-        public SaveAccountDataTask(Context mContext) {
+        SaveAccountDataTask(Context mContext) {
             progressDialog = new ProgressDialog(mContext);
             progressDialog.setMessage(getResources().getString(R.string.pdSaveAccountDataTask));
         }
@@ -250,7 +259,9 @@ public class AccountActivity extends AppCompatActivity {
         }
 
         @Override
-        protected Boolean doInBackground(String... strings) {
+        protected DOTResponse doInBackground(String... strings) {
+            return MainApplication.getInstance().getnDot().profile_set(strings[0]);
+            /*
             Boolean result = false;
             try {
                 JSONObject resultData = new JSONObject(MainApplication.getInstance().getDOT().getDataType("set_account_data", strings[0]));
@@ -261,14 +272,14 @@ public class AccountActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
             return result;
+            */
         }
 
         @Override
-        protected void onPostExecute(Boolean result) {
+        protected void onPostExecute(DOTResponse result) {
             super.onPostExecute(result);
             if (progressDialog.isShowing())progressDialog.dismiss();
-            showResultDialog(result);
-
+            showResultDialog(result.getCode() == 200);
         }
     }
 

@@ -39,6 +39,7 @@ import org.json.JSONObject;
 import org.toptaxi.ataxibooking.data.Constants;
 import org.toptaxi.ataxibooking.data.DOT;
 import org.toptaxi.ataxibooking.data.Preferences;
+import org.toptaxi.ataxibooking.tools.DOTResponse;
 import org.toptaxi.ataxibooking.tools.OnMainDataChangeListener;
 import org.toptaxi.ataxibooking.data.Account;
 import org.toptaxi.ataxibooking.data.Drivers;
@@ -73,6 +74,7 @@ public class MainApplication extends Application implements LocationListener {
     MediaPlayer mpOrderStateAssign, mpOrderStateDriveToClient;
     SQLiteDatabase dataBase;
     int mapViewType = 0;
+    private org.toptaxi.ataxibooking.tools.DOT nDot;
 
     @Override
     public void onCreate() {
@@ -170,6 +172,13 @@ public class MainApplication extends Application implements LocationListener {
         return mDOT;
     }
 
+    public org.toptaxi.ataxibooking.tools.DOT getnDot() {
+        if (nDot == null){
+            nDot = new org.toptaxi.ataxibooking.tools.DOT(this);
+        }
+        return nDot;
+    }
+
     public Account getAccount() {
         if (mAccount == null){
             SharedPreferences sPref = PreferenceManager.getDefaultSharedPreferences(this);
@@ -203,12 +212,13 @@ public class MainApplication extends Application implements LocationListener {
     }
 
     public void parseData(JSONObject dataJSON) throws JSONException {
+        //Log.d(TAG, "parseData data = " + dataJSON.toString());
         if (dataJSON.has("preferences")){
-            getPreferences().setFromJSON(dataJSON.getJSONArray("preferences").getJSONObject(0));
+            getPreferences().setFromJSON(dataJSON.getJSONObject("preferences"));
 
         }
-        if (dataJSON.has("account")){
-            getAccount().setFromJSON(dataJSON.getJSONArray("account").getJSONObject(0));
+        if (dataJSON.has("profile")){
+            getAccount().setFromJSON(dataJSON.getJSONObject("profile"));
             if (onMainDataChangeListener != null) {
                 uiHandler.post(new Runnable() {
                     @Override
@@ -218,7 +228,7 @@ public class MainApplication extends Application implements LocationListener {
                 });
             }
         }
-        if (dataJSON.has("order")){getOrder().setFromJSON(dataJSON.getJSONArray("order").getJSONObject(0));IsLastHaveOrderData = true;}
+        if (dataJSON.has("order")){getOrder().setFromJSON(dataJSON.getJSONObject("order"));IsLastHaveOrderData = true;}
         else if (IsLastHaveOrderData){
             IsLastHaveOrderData = false;
             getOrder().clear();
@@ -300,7 +310,16 @@ public class MainApplication extends Application implements LocationListener {
             while (IsGetDataThread){
                 if (onMainDataChangeListener != null){
                     //Log.d(TAG, "GetDataThread run");
-                    MainApplication.getInstance().getDOT().getData();
+                    //MainApplication.getInstance().getDOT().getData();
+                    DOTResponse dotResponse = MainApplication.getInstance().getnDot().data();
+                    if (dotResponse.getCode() == 200){
+                        try {
+                            MainApplication.getInstance().parseData(new JSONObject(dotResponse.getBody()));
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+
 
                 }
                 else {Log.d(TAG, "GetDataThread run onMainDataChangeListener = null");}

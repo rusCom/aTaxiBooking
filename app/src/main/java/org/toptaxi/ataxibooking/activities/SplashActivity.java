@@ -25,11 +25,13 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.places.Places;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.toptaxi.ataxibooking.MainActivity;
 import org.toptaxi.ataxibooking.MainApplication;
 import org.toptaxi.ataxibooking.R;
 import org.toptaxi.ataxibooking.data.Constants;
-
+import org.toptaxi.ataxibooking.tools.DOTResponse;
 
 
 public class SplashActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
@@ -117,8 +119,6 @@ public class SplashActivity extends AppCompatActivity implements GoogleApiClient
         else {
             // подключаемся к сервису playMarket
             if (!isGooglePlayConnect){
-                //Log.d(TAG, "init connecting to play service");
-                ((TextView)findViewById(R.id.tvSplashAction)).setText(getString(R.string.tvSplashActionPlayConnect));
                 // Create an instance of GoogleAPIClient.
                 if (mGoogleApiClient == null) {
                     mGoogleApiClient = new GoogleApiClient.Builder(this)
@@ -150,28 +150,24 @@ public class SplashActivity extends AppCompatActivity implements GoogleApiClient
             // Если подключение к плей сервсиу уже есть
             else {
                 //startMainActivity();
-                GetPreferencesTask getPreferencesTask = new GetPreferencesTask();
-                if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.HONEYCOMB)
-                    getPreferencesTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-                else
-                    getPreferencesTask.execute();
+                new GetPreferencesTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
             }
 
         }
 
     }
 
-    private class GetPreferencesTask extends AsyncTask<Void, Void, Integer>{
+    private class GetPreferencesTask extends AsyncTask<Void, Void, DOTResponse>{
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
             curTask = this;
-            ((TextView)findViewById(R.id.tvSplashAction)).setText(getString(R.string.tvSplashActionConnect));
+            //((TextView)findViewById(R.id.tvSplashAction)).setText(getString(R.string.tvSplashActionConnect));
         }
 
         @Override
-        protected Integer doInBackground(Void... voids) {
-            return MainApplication.getInstance().getDOT().getPreferences();
+        protected DOTResponse doInBackground(Void... voids) {
+            return MainApplication.getInstance().getnDot().preferences();
         }
 
         @Override
@@ -181,11 +177,28 @@ public class SplashActivity extends AppCompatActivity implements GoogleApiClient
         }
 
         @Override
-        protected void onPostExecute(Integer result) {
+        protected void onPostExecute(DOTResponse result) {
             super.onPostExecute(result);
             if (isCancelled()){
                 finish();
             }
+            if (result.getCode() == 200){
+                try {
+                    MainApplication.getInstance().parseData(new JSONObject(result.getBody()));
+                    Intent intent = new Intent(SplashActivity.this, MainActivity.class);
+                    startActivity(intent);
+                    finish();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+            else if ((result.getCode() == 400) && (!result.getBody().equals("")))  {
+                MainApplication.getInstance().showToast(result.getBody());
+            }
+            else {
+                MainApplication.getInstance().showToast("HTTP Error");
+            }
+            /*
             if (result == Constants.DOT_REST_OK){
                 GetDataTask getDataTask = new GetDataTask();
                 if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.HONEYCOMB)
@@ -197,6 +210,7 @@ public class SplashActivity extends AppCompatActivity implements GoogleApiClient
                 MainApplication.getInstance().showToastType(result);
                 finish();
             }
+            */
         }
     }
 
@@ -205,7 +219,6 @@ public class SplashActivity extends AppCompatActivity implements GoogleApiClient
         protected void onPreExecute() {
             super.onPreExecute();
             curTask = this;
-            ((TextView)findViewById(R.id.tvSplashAction)).setText(getString(R.string.tvSplashActionGetData));
         }
 
         @Override

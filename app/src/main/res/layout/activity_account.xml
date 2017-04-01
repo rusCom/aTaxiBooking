@@ -13,6 +13,8 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/activity_margin"
+        android:layout_marginRight="@dimen/activity_margin"
         android:orientation="vertical"
         android:layout_below="@+id/cvTitle"
         android:id="@+id/llAccountActivityData">
@@ -55,6 +57,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
+        android:layout_marginLeft="@dimen/activity_margin"
+        android:layout_marginRight="@dimen/activity_margin"
         android:id="@+id/llAccountActivityConfirmPhone"
         android:layout_below="@+id/llAccountActivityData">
         <android.support.design.widget.TextInputLayout

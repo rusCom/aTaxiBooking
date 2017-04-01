@@ -12,6 +12,8 @@
     <android.support.v7.widget.RecyclerView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_marginLeft="@dimen/activity_margin"
+        android:layout_marginRight="@dimen/activity_margin"
         android:layout_below="@+id/cvTitle"
         android:id="@+id/rvAddressActivityRoutePoints"
         android:visibility="gone"/>

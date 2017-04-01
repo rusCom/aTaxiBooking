@@ -10,33 +10,46 @@ import java.util.List;
 
 public class Preferences {
     private static String TAG = "#########" + Preferences.class.getName();
-    private Boolean PayTypeBonus, CalcTypeTaximeter;
+    private Boolean PayTypeBonus, CalcTypeTaximeter, PaTypePromoCode, PriorOrder;
     private List<PayType> payTypes;
-    private Integer WishValueAddition = -1, WishCheck = -1, WishConditioner = -1, WishSmoke = -1, WishNoSmoke = -1, WishChildren = -1;
+    private Integer WishValueAddition = -1, WishValueAdditionStep = 20, WishCheck = -1, WishConditioner = -1, WishSmoke = -1, WishNoSmoke = -1, WishChildren = -1;
 
 
     public Preferences() {
         PayTypeBonus = false;
         CalcTypeTaximeter = false;
+        PaTypePromoCode = false;
+        PriorOrder = false;
         payTypes = new ArrayList<>();
-        payTypes.add(new PayType("type_cash"));
+        payTypes.add(new PayType("cash"));
     }
 
     public void setFromJSON(JSONObject data) throws JSONException {
-        //Log.d(TAG, "setFromJSON data = " + data.toString());
+        Log.d(TAG, "setFromJSON data = " + data.toString());
         payTypes.clear();
-        payTypes.add(new PayType("type_cash"));
-        if (data.has("pay_type_corporate")) if (data.getBoolean("pay_type_corporate")) payTypes.add(new PayType("type_corporate"));
-        if (data.has("pay_type_bonus"))     if (data.getBoolean("pay_type_bonus")) {payTypes.add(new PayType("type_bonus"));PayTypeBonus = true;}
-        if (data.has("pay_type_card"))      if (data.getBoolean("pay_type_card")) payTypes.add(new PayType("type_card"));
+        JSONObject PayTypes = data.getJSONObject("pay_types");
+
+
+        if (PayTypes.has("cash"))      if (PayTypes.getBoolean("cash")) payTypes.add(new PayType("cash"));
+        if (PayTypes.has("corporate")) if (PayTypes.getBoolean("corporate")) payTypes.add(new PayType("corporate"));
+        if (PayTypes.has("bonus"))     if (PayTypes.getBoolean("bonus")) {payTypes.add(new PayType("bonus"));PayTypeBonus = true;}
+        if (PayTypes.has("promo_code"))if (PayTypes.getBoolean("promo_code")) {PaTypePromoCode = true;}
+        if (PayTypes.has("card"))      if (PayTypes.getBoolean("card")) payTypes.add(new PayType("card"));
+
+
         if (data.has("calc_type_taximeter"))CalcTypeTaximeter = data.getBoolean("calc_type_taximeter");
+        if (data.has("prior"))PriorOrder = data.getBoolean("prior");
         // Доп Услуги по заказам
-        if (data.has("wish_value_addition")){WishValueAddition  = data.getInt("wish_value_addition");}
-        if (data.has("wish_check"))         {WishCheck          = data.getInt("wish_check");}
-        if (data.has("wish_conditioner"))   {WishConditioner    = data.getInt("wish_conditioner");}
-        if (data.has("wish_smoke"))         {WishSmoke          = data.getInt("wish_smoke");}
-        if (data.has("wish_no_smoke"))      {WishNoSmoke        = data.getInt("wish_no_smoke");}
-        if (data.has("wish_children"))      {WishChildren       = data.getInt("wish_children");}
+
+        JSONObject wishTaxi = data.getJSONObject("wish").getJSONObject("taxi");
+
+        if (wishTaxi.has("value_addition")){WishValueAddition      = wishTaxi.getInt("value_addition");}
+        if (wishTaxi.has("addition_step")) {WishValueAdditionStep  = wishTaxi.getInt("addition_step");}
+        if (wishTaxi.has("check"))         {WishCheck              = wishTaxi.getInt("check");}
+        if (wishTaxi.has("conditioner"))   {WishConditioner        = wishTaxi.getInt("conditioner");}
+        if (wishTaxi.has("smoke"))         {WishSmoke              = wishTaxi.getInt("smoke");}
+        if (wishTaxi.has("no_smoke"))      {WishNoSmoke            = wishTaxi.getInt("no_smoke");}
+        if (wishTaxi.has("children"))      {WishChildren           = wishTaxi.getInt("children");}
     }
 
     public Boolean IsWishList(){
@@ -49,6 +62,8 @@ public class Preferences {
         if (getWishChildren() >=0)      result = true;
         return result;
     }
+
+    public Boolean IsPrior(){return  PriorOrder;}
 
     public Integer getWishValueAddition() {
         return WishValueAddition;

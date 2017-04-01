@@ -630,7 +630,8 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
             drawer.addItem(menuBalanceItem);
         }
 
-        drawer.addItem(new PrimaryDrawerItem().withName(getString(R.string.menuHistoryItem)).withIcon(FontAwesome.Icon.faw_history).withSelectable(false).withIdentifier(Constants.MENU_HISTORY));
+        //drawer.addItem(new PrimaryDrawerItem().withName(getString(R.string.menuHistoryItem)).withIcon(FontAwesome.Icon.faw_history).withSelectable(false).withIdentifier(Constants.MENU_HISTORY));\
+        drawer.addItem(new PrimaryDrawerItem().withName(getString(R.string.menuProfileItem)).withIcon(FontAwesome.Icon.faw_address_card).withSelectable(false).withIdentifier(Constants.MENU_PROFILE));
         menuMapTypeItem = new PrimaryDrawerItem().withName(getString(R.string.menuMapTypeItem)).withIcon(FontAwesome.Icon.faw_map).withSelectable(false).withIdentifier(Constants.MENU_MAP_TYPE);
         drawer.addItem(menuMapTypeItem);
         drawer.addItem(new DividerDrawerItem());
@@ -654,6 +655,9 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                 drawer.updateItem(menuMapTypeItem);
                 break;
             }
+            case Constants.MENU_PROFILE:
+                startActivity(new Intent(MainActivity.this, AccountActivity.class));
+                break;
 
         }
         return false;

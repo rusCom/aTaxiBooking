@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">aTaxi</string>
+    <string name="app_name">Заказ такси Уфа</string>
 
     <string name="captionMainActivityNewOrder">Откуда Вас забрать</string>
     <string name="captionMainActivitySearchDriver">Ищем Вам автомобиль</string>
@@ -49,6 +49,7 @@
     <string name="menuBalanceItem">Бонусы</string>
     <string name="menuHistoryItem">История</string>
     <string name="menuMapTypeItem">Спутник</string>
+    <string name="menuProfileItem">Профиль</string>
     <!-- RoutePointItem -->
     <string name="edRoutePointNote">Место встречи, вход</string>
     <!-- OrdersItems -->

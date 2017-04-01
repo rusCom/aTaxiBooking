@@ -28,6 +28,7 @@ import org.toptaxi.ataxibooking.data.Constants;
 import org.toptaxi.ataxibooking.data.RoutePoint;
 import org.toptaxi.ataxibooking.dialogs.DateTimePickerDialog;
 import org.toptaxi.ataxibooking.R;
+import org.toptaxi.ataxibooking.tools.DOTResponse;
 
 import java.util.Calendar;
 
@@ -36,7 +37,7 @@ public class NewOrderActivity extends AppCompatActivity implements DateTimePicke
     RoutePointsAdapter routePointsAdapter;
     RecyclerView rvRoutePoints;
     ImageButton btnAddOrder;
-    Button btnWishList;
+    Button btnWishList, btnPrior, btnPayType;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +46,8 @@ public class NewOrderActivity extends AppCompatActivity implements DateTimePicke
 
         btnAddOrder = (ImageButton) findViewById(R.id.btnNewOrderActivityAddOrder);
         btnWishList = (Button) findViewById(R.id.btnNewOrderActivityWishList);
+        btnPrior    = (Button) findViewById(R.id.btnNewOrderActivityTime);
+        btnPayType  = (Button) findViewById(R.id.btnNewOrderActivityPaymentType);
         //btnAddOrder.setEnabled(false);
 
 
@@ -163,22 +166,28 @@ public class NewOrderActivity extends AppCompatActivity implements DateTimePicke
 
         if (MainApplication.getInstance().getOrder().getRouteCount() == 1){
             ((EditText)findViewById(R.id.edTitle)).setHint("Куда поедите");
-            //btnAddOrder.setEnabled(false);
+            btnPrior.setEnabled(MainApplication.getInstance().getPreferences().getCalcTypeTaximeter());
+            btnWishList.setEnabled(MainApplication.getInstance().getPreferences().getCalcTypeTaximeter());
+            btnPayType.setEnabled(MainApplication.getInstance().getPreferences().getCalcTypeTaximeter());
+            btnAddOrder.setEnabled(MainApplication.getInstance().getPreferences().getCalcTypeTaximeter());
         }
         else {
             ((EditText)findViewById(R.id.edTitle)).setHint("Добавить адрес");
-            //btnAddOrder.setEnabled(true);
+            btnPrior.setEnabled(true);
+            btnWishList.setEnabled(true);
+            btnPayType.setEnabled(true);
+            btnAddOrder.setEnabled(true);
         }
 
         ((Button)findViewById(R.id.btnNewOrderActivityTime)).setText(MainApplication.getInstance().getOrder().getPriorInfo());
         ((Button)findViewById(R.id.btnNewOrderActivityServiceType)).setText(MainApplication.getInstance().getOrder().getServiceTypeName());
         ((Button)findViewById(R.id.btnNewOrderActivityPaymentType)).setText(MainApplication.getInstance().getOrder().getPayType().getCaption());
-        ((Button)findViewById(R.id.btnNewOrderActivityPaymentType)).setCompoundDrawablesWithIntrinsicBounds(null, ContextCompat.getDrawable(this, MainApplication.getInstance().getOrder().getPayType().getButtonImage()) , null, null);
+        ((Button)findViewById(R.id.btnNewOrderActivityPaymentType)).setCompoundDrawablesWithIntrinsicBounds(null, ContextCompat.getDrawable(this, MainApplication.getInstance().getOrder().getPayType().getCardImage()) , null, null);
         if (MainApplication.getInstance().getOrder().getRouteCount() == 1){
             findViewById(R.id.tvNewOrderActivityCost).setVisibility(View.GONE);
             findViewById(R.id.ivNewOrderActivityPriceDivider).setVisibility(View.GONE);
         }
-        else {
+        else if (!MainApplication.getInstance().getPreferences().getCalcTypeTaximeter()) {
             findViewById(R.id.tvNewOrderActivityCost).setVisibility(View.VISIBLE);
             findViewById(R.id.ivNewOrderActivityPriceDivider).setVisibility(View.VISIBLE);
             ((TextView)findViewById(R.id.tvNewOrderActivityCost)).setText(MainApplication.getInstance().getOrder().getPriceString());
@@ -186,6 +195,14 @@ public class NewOrderActivity extends AppCompatActivity implements DateTimePicke
 
         if (MainApplication.getInstance().getPreferences().IsWishList())btnWishList.setVisibility(View.VISIBLE);
         else btnWishList.setVisibility(View.GONE);
+
+        if (MainApplication.getInstance().getPreferences().IsPrior())btnPrior.setVisibility(View.VISIBLE);
+        else btnPrior.setVisibility(View.GONE);
+
+        if (MainApplication.getInstance().getPreferences().getPayTypes().size() == 1)btnPayType.setVisibility(View.GONE);
+        else {btnPayType.setVisibility(View.VISIBLE);}
+
+
 
     }
 
@@ -285,7 +302,7 @@ public class NewOrderActivity extends AppCompatActivity implements DateTimePicke
         }
     }
 
-    private class CalcOrderTask extends AsyncTask<Void, Void, Boolean> {
+    private class CalcOrderTask extends AsyncTask<Void, Void, DOTResponse> {
         ProgressDialog progressDialog;
         Context mContext;
 
@@ -302,21 +319,27 @@ public class NewOrderActivity extends AppCompatActivity implements DateTimePicke
         }
 
         @Override
-        protected Boolean doInBackground(Void... voids) {
-            try {
-                return MainApplication.getInstance().getOrder().calcOrder();
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-            return false;
+        protected DOTResponse doInBackground(Void... voids) {
+            MainApplication.getInstance().getOrder().calcDistance();
+            return MainApplication.getInstance().getnDot().calc(MainApplication.getInstance().getOrder().getCalcJSON());
         }
 
         @Override
-        protected void onPostExecute(Boolean result) {
+        protected void onPostExecute(DOTResponse result) {
             super.onPostExecute(result);
             if (progressDialog.isShowing())progressDialog.dismiss();
+            if (result.getCode() == 200){
+                if (!MainApplication.getInstance().getOrder().setCalcData(result.getBody())){
+                    MainApplication.getInstance().showToast("Ошибка при расчете стоимости");
+                }
+            }
+            else if ((result.getCode() == 400) && (!result.getBody().equals("")))  {
+                MainApplication.getInstance().showToast(result.getBody());
+            }
+            else {
+                MainApplication.getInstance().showToast("HTTP Error");
+            }
             generateView();
-
         }
 
     }

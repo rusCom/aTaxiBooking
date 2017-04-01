@@ -38,7 +38,7 @@ import java.util.concurrent.TimeUnit;
 
 public class RoutePoint implements Parcelable {
     private static String TAG = "#########" + RoutePoint.class.getName();
-    private String PlaceId = "", Name = "", Description = "", HouseNumber = "";
+    private String PlaceId = "", Name = "", Description = "", HouseNumber = "", Note = "";
     private Double Latitude = 0.0, Longitude = 0.0;
     private Integer PlaceType = 0;
     private String PlaceTypes = "";
@@ -56,6 +56,15 @@ public class RoutePoint implements Parcelable {
         result += Longitude + "|";
         //result += PlaceId + "|";
         return result;
+    }
+
+    public JSONObject getCalcJSON() throws JSONException {
+        JSONObject data = new JSONObject();
+        data.put("address", Name);
+        if (!Note.equals(""))data.put("note", Note);
+        data.put("lt", String.valueOf(Latitude));
+        data.put("ln", String.valueOf(Longitude));
+        return data;
     }
 
     public JSONObject getJSON() throws JSONException {
@@ -86,10 +95,11 @@ public class RoutePoint implements Parcelable {
     }
 
     public void setFromJSON(JSONObject data) throws JSONException {
-        if (data.has("Name"))this.Name = data.getString("Name");
-        if (data.has("Description"))this.Description = data.getString("Description");
-        if (data.has("Latitude"))this.Latitude = data.getDouble("Latitude");
-        if (data.has("Longitude"))this.Longitude = data.getDouble("Longitude");
+        if (data.has("address"))this.Name = data.getString("address");
+        if (data.has("dsc"))this.Description = data.getString("dsc");
+        if (data.has("lt"))this.Latitude = data.getDouble("lt");
+        if (data.has("ln"))this.Longitude = data.getDouble("ln");
+        if (data.has("note"))this.Note = data.getString("note");
 
     }
 

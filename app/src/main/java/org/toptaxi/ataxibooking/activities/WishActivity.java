@@ -1,11 +1,15 @@
 package org.toptaxi.ataxibooking.activities;
 
+import android.media.Image;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.CardView;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.Switch;
 
@@ -90,6 +94,54 @@ public class WishActivity extends AppCompatActivity {
         swNoSmoke.setChecked(MainApplication.getInstance().getOrder().getWishNoSmoke());
         swChildren.setChecked(MainApplication.getInstance().getOrder().getWishChildren());
 
+        setIcons();
+
+        spValueAddition.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                setIcons();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+                setIcons();
+
+            }
+        });
+
+        swCheck.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                setIcons();
+            }
+        });
+        swConditioner.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                setIcons();
+            }
+        });
+        swSmoke.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                setIcons();
+            }
+        });
+        swNoSmoke.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                setIcons();
+            }
+        });
+        swChildren.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                setIcons();
+            }
+        });
+
+        //if (swCheck.isChecked())f
+
         findViewById(R.id.btnTitleRight).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -122,5 +174,20 @@ public class WishActivity extends AppCompatActivity {
         });
 
 
+    }
+
+    public void setIcons(){
+        if (spValueAddition.getSelectedItemPosition() == 0)((ImageView)findViewById(R.id.ivWishActivityValueAddition)).setImageBitmap(MainApplication.getBitmap(this, R.mipmap.ic_conformation_wish_value_addition_ne));
+        else ((ImageView)findViewById(R.id.ivWishActivityValueAddition)).setImageBitmap(MainApplication.getBitmap(this, R.mipmap.ic_conformation_wish_value_addition));
+        if (swCheck.isChecked())((ImageView)findViewById(R.id.ivWishActivityCheck)).setImageBitmap(MainApplication.getBitmap(this, R.mipmap.ic_conformation_wish_check));
+        else ((ImageView)findViewById(R.id.ivWishActivityCheck)).setImageBitmap(MainApplication.getBitmap(this, R.mipmap.ic_conformation_wish_check_ne));
+        if (swConditioner.isChecked())((ImageView)findViewById(R.id.ivWishActivityConditioner)).setImageBitmap(MainApplication.getBitmap(this, R.mipmap.ic_conformation_wish_conditioner));
+        else ((ImageView)findViewById(R.id.ivWishActivityConditioner)).setImageBitmap(MainApplication.getBitmap(this, R.mipmap.ic_conformation_wish_conditioner_ne));
+        if (swSmoke.isChecked())((ImageView)findViewById(R.id.ivWishActivitySmoke)).setImageBitmap(MainApplication.getBitmap(this, R.mipmap.ic_conformation_wish_smoke));
+        else ((ImageView)findViewById(R.id.ivWishActivitySmoke)).setImageBitmap(MainApplication.getBitmap(this, R.mipmap.ic_conformation_wish_smoke_ne));
+        if (swNoSmoke.isChecked())((ImageView)findViewById(R.id.ivWishActivityNoSmoke)).setImageBitmap(MainApplication.getBitmap(this, R.mipmap.ic_conformation_wish_no_smoke));
+        else ((ImageView)findViewById(R.id.ivWishActivityNoSmoke)).setImageBitmap(MainApplication.getBitmap(this, R.mipmap.ic_conformation_wish_no_smoke_ne));
+        if (swChildren.isChecked())((ImageView)findViewById(R.id.ivWishActivityChildren)).setImageBitmap(MainApplication.getBitmap(this, R.mipmap.ic_conformation_wish_children));
+        else ((ImageView)findViewById(R.id.ivWishActivityChildren)).setImageBitmap(MainApplication.getBitmap(this, R.mipmap.ic_conformation_wish_children_ne));
     }
 }

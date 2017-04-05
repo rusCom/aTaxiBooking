@@ -91,7 +91,7 @@ public class AccountActivity extends AppCompatActivity {
 
     public void btnAccountActivityConfirmPhoneClick(View view){
         String[] params = {edPhone.getText().toString(), edCode.getText().toString()};
-                new CheckPasswordTask(this).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, params); //edCode.getText().toString());
+        new CheckPasswordTask(this).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, params); //edCode.getText().toString());
 
     }
 

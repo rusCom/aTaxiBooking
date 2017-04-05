@@ -56,6 +56,6 @@ public class Constants {
     public static final int DOT_NEW_VERSION     = 108;
     public static final int DOT_BLOCKED         = 109;
 
-    public static final int DATABASE_VERSION    = 2;
+    public static final int DATABASE_VERSION    = 4;
 
 }

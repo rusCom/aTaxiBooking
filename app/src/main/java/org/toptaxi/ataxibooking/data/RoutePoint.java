@@ -4,6 +4,7 @@ package org.toptaxi.ataxibooking.data;
 import android.content.ContentValues;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.location.Location;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -39,7 +40,7 @@ import java.util.concurrent.TimeUnit;
 public class RoutePoint implements Parcelable {
     private static String TAG = "#########" + RoutePoint.class.getName();
     private String PlaceId = "", Name = "", Description = "", HouseNumber = "", Note = "";
-    private Double Latitude = 0.0, Longitude = 0.0;
+    private Double Latitude = 0.0, Longitude = 0.0, MapLatitude = 0.0, MapLongitude = 0.0;
     private Integer PlaceType = 0;
     private String PlaceTypes = "";
 
@@ -62,8 +63,10 @@ public class RoutePoint implements Parcelable {
         JSONObject data = new JSONObject();
         data.put("address", Name);
         if (!Note.equals(""))data.put("note", Note);
-        data.put("lt", String.valueOf(Latitude));
-        data.put("ln", String.valueOf(Longitude));
+        if (MapLatitude == 0.0)data.put("lt", String.valueOf(Latitude));
+        else data.put("lt", String.valueOf(MapLatitude));
+        if (MapLongitude == 0.0)data.put("ln", String.valueOf(Longitude));
+        else data.put("ln", String.valueOf(MapLongitude));
         data.put("dsc", String.valueOf(Description));
         return data;
     }
@@ -80,8 +83,30 @@ public class RoutePoint implements Parcelable {
         return data;
     }
 
+    public void setMapLocation(LatLng target){
+        this.MapLatitude = target.latitude;
+        this.MapLongitude = target.longitude;
+
+    }
+
     public void setNote(String note) {
         Note = note;
+        //String SQL = "insert"
+
+        String[] args = {PlaceId, Note};
+        MainApplication.getInstance().getDataBase().execSQL("INSERT OR REPLACE INTO RoutePointNote (Id, Note) VALUES (?, ?)", args);
+        //Log.d(TAG, "set Note = " + Note + " to database");
+    }
+
+    public void setNoteFromHistory(){
+        String SQL = "select * from RoutePointNote where ID = ?";
+        Cursor cursor = MainApplication.getInstance().getDataBase().rawQuery(SQL, new String[]{PlaceId});
+        if (cursor.moveToFirst()){
+            this.Note = cursor.getString(cursor.getColumnIndex("Note"));
+            //Log.d(TAG, "get Note = " + Note + " from database");
+        }
+        cursor.close();
+
     }
 
     public String getNote() {

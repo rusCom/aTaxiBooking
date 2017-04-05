@@ -114,6 +114,7 @@ public class RoutePointsAdapter extends RecyclerView.Adapter<RoutePointsAdapter.
                     if (position == 0){
                         routeViewHolder.ivType.setImageResource(R.mipmap.ic_conformation_pickup);
                         routeViewHolder.edNote.setVisibility(View.VISIBLE);
+                        routeViewHolder.edNote.setText(routePoint.getNote());
                         routeViewHolder.edNote.addTextChangedListener(new TextWatcher() {
                             @Override
                             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {

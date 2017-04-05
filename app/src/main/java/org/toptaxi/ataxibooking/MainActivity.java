@@ -200,7 +200,12 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
             @Override
             public void onClick(View view) {
 
-                addRoutePoint(viewRoutePoint);
+                //addRoutePoint(viewRoutePoint);
+                viewRoutePoint.setMapLocation(mMap.getCameraPosition().target);
+                viewRoutePoint.setNoteFromHistory();
+                MainApplication.getInstance().getOrder().addRoutePoint(viewRoutePoint);
+                Intent intent = new Intent(MainActivity.this, NewOrderActivity.class);
+                startActivityForResult(intent, Constants.ACTIVITY_NEW_ORDER);
             }
         });
 

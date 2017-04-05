@@ -40,6 +40,7 @@ public class Order {
     private PayType payType;
     private Integer WishValueAddition = -1;
     private Boolean WishCheck = false, WishConditioner = false, WishSmoke = false, WishNoSmoke = false, WishChildren = false;
+    private Boolean IsCanAdd = false, IsCalcSucces = false;
 
 
     public Order() {
@@ -106,6 +107,24 @@ public class Order {
 
     public Driver getDriver() {
         return driver;
+    }
+
+    public Boolean getCanAdd() {
+        if (MainApplication.getInstance().getPreferences().getCalcTypeTaximeter())return true;
+        return IsCalcSucces;
+        /*
+        if (IsCalcSucces){
+            if (getRouteCount() == 1){
+                MainApplication.getInstance().getPreferences().getCalcTypeTaximeter()))return true;
+            }
+            else return true;
+        }
+        else return false;
+        */
+    }
+
+    public void setCalcSucces(Boolean calcSucces) {
+        IsCalcSucces = calcSucces;
     }
 
     public void setFromJSON(JSONObject data) throws JSONException {
@@ -191,6 +210,7 @@ public class Order {
         Price = 0;
         IsMapDriverAnimate = false;
         payType.setType("cash");
+        IsCalcSucces = false;
     }
 
     public boolean isMapDriverAnimate() {
@@ -288,6 +308,7 @@ public class Order {
         } catch (JSONException e) {
             e.printStackTrace();
         }
+        setCalcSucces(result);
         return result;
     }
 

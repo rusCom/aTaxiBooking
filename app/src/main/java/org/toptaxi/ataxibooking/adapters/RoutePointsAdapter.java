@@ -2,6 +2,8 @@ package org.toptaxi.ataxibooking.adapters;
 
 
 import android.support.v7.widget.RecyclerView;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,6 +11,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import org.toptaxi.ataxibooking.MainApplication;
 import org.toptaxi.ataxibooking.data.Constants;
 import org.toptaxi.ataxibooking.R;
 import org.toptaxi.ataxibooking.data.RoutePoint;
@@ -111,6 +114,23 @@ public class RoutePointsAdapter extends RecyclerView.Adapter<RoutePointsAdapter.
                     if (position == 0){
                         routeViewHolder.ivType.setImageResource(R.mipmap.ic_conformation_pickup);
                         routeViewHolder.edNote.setVisibility(View.VISIBLE);
+                        routeViewHolder.edNote.addTextChangedListener(new TextWatcher() {
+                            @Override
+                            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                            }
+
+                            @Override
+                            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                            }
+
+                            @Override
+                            public void afterTextChanged(Editable editable) {
+                                MainApplication.getInstance().getOrder().getRoutePoint(0).setNote(editable.toString());
+
+                            }
+                        });
                     }
                     else if (position == (getItemCount() - 2))routeViewHolder.ivType.setImageResource(R.mipmap.ic_conformation_destination);
                     else routeViewHolder.ivType.setImageResource(R.mipmap.ic_conformation_address);

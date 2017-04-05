@@ -130,6 +130,9 @@ public class NewOrderActivity extends AppCompatActivity implements DateTimePicke
         if (requestCode == Constants.ACTIVITY_PAY_TYPE && resultCode == RESULT_OK){
             new CalcOrderTask(this).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         }
+        if (requestCode == Constants.ACTIVITY_WISH && resultCode == RESULT_OK){
+            new CalcOrderTask(this).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        }
     }
 
     @Override
@@ -169,28 +172,28 @@ public class NewOrderActivity extends AppCompatActivity implements DateTimePicke
             btnPrior.setEnabled(MainApplication.getInstance().getPreferences().getCalcTypeTaximeter());
             btnWishList.setEnabled(MainApplication.getInstance().getPreferences().getCalcTypeTaximeter());
             btnPayType.setEnabled(MainApplication.getInstance().getPreferences().getCalcTypeTaximeter());
-            btnAddOrder.setEnabled(MainApplication.getInstance().getPreferences().getCalcTypeTaximeter());
         }
         else {
             ((EditText)findViewById(R.id.edTitle)).setHint("Добавить адрес");
             btnPrior.setEnabled(true);
             btnWishList.setEnabled(true);
             btnPayType.setEnabled(true);
-            btnAddOrder.setEnabled(true);
         }
+        btnAddOrder.setEnabled(MainApplication.getInstance().getOrder().getCanAdd());
 
         ((Button)findViewById(R.id.btnNewOrderActivityTime)).setText(MainApplication.getInstance().getOrder().getPriorInfo());
         ((Button)findViewById(R.id.btnNewOrderActivityServiceType)).setText(MainApplication.getInstance().getOrder().getServiceTypeName());
         ((Button)findViewById(R.id.btnNewOrderActivityPaymentType)).setText(MainApplication.getInstance().getOrder().getPayType().getCaption());
         ((Button)findViewById(R.id.btnNewOrderActivityPaymentType)).setCompoundDrawablesWithIntrinsicBounds(null, ContextCompat.getDrawable(this, MainApplication.getInstance().getOrder().getPayType().getCardImage()) , null, null);
-        if (MainApplication.getInstance().getOrder().getRouteCount() == 1){
-            findViewById(R.id.tvNewOrderActivityCost).setVisibility(View.GONE);
-            findViewById(R.id.ivNewOrderActivityPriceDivider).setVisibility(View.GONE);
-        }
-        else if (!MainApplication.getInstance().getPreferences().getCalcTypeTaximeter()) {
+
+        if (MainApplication.getInstance().getOrder().getCanAdd()){
             findViewById(R.id.tvNewOrderActivityCost).setVisibility(View.VISIBLE);
             findViewById(R.id.ivNewOrderActivityPriceDivider).setVisibility(View.VISIBLE);
             ((TextView)findViewById(R.id.tvNewOrderActivityCost)).setText(MainApplication.getInstance().getOrder().getPriceString());
+        }
+        else {
+            findViewById(R.id.tvNewOrderActivityCost).setVisibility(View.GONE);
+            findViewById(R.id.ivNewOrderActivityPriceDivider).setVisibility(View.GONE);
         }
 
         if (MainApplication.getInstance().getPreferences().IsWishList())btnWishList.setVisibility(View.VISIBLE);
@@ -213,6 +216,17 @@ public class NewOrderActivity extends AppCompatActivity implements DateTimePicke
     }
 
     public void btnNewOrderActivityAddOrderClick(View view){
+        if (MainApplication.getInstance().getOrder().getRoutePoint(0).getNote().equals("")){
+            AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
+            alertDialog.setMessage("Необходимо заполнить поле Место встречи, вход!");
+            alertDialog.setPositiveButton(getString(R.string.dlgOk), null);
+            alertDialog.create();
+            alertDialog.show();
+        }
+        else {
+            new AddOrderTask(this).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        }
+        /*
         if (MainApplication.getInstance().getOrder().getRouteCount() == 1){
             if (MainApplication.getInstance().getPreferences().getCalcTypeTaximeter())new AddOrderTask(this).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
             else {
@@ -225,6 +239,7 @@ public class NewOrderActivity extends AppCompatActivity implements DateTimePicke
 
         }
         else new AddOrderTask(this).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        */
     }
 
     public void btnPayTypeClick(View view){
@@ -266,7 +281,7 @@ public class NewOrderActivity extends AppCompatActivity implements DateTimePicke
         }
     }
 
-    private class AddOrderTask extends AsyncTask<Void, Void, String>{
+    private class AddOrderTask extends AsyncTask<Void, Void, DOTResponse>{
         ProgressDialog progressDialog;
         AddOrderTask(Context mContext){
             progressDialog = new ProgressDialog(mContext);
@@ -281,24 +296,29 @@ public class NewOrderActivity extends AppCompatActivity implements DateTimePicke
         }
 
         @Override
-        protected String doInBackground(Void... voids) {
-            return MainApplication.getInstance().getDOT().sendData("add_order", MainApplication.getInstance().getOrder().getCalcID());
+        protected DOTResponse doInBackground(Void... voids) {
+            return MainApplication.getInstance().getnDot().orders_add(MainApplication.getInstance().getOrder().getRoutePoint(0).getNote());
         }
 
         @Override
-        protected void onPostExecute(String results) {
-            super.onPostExecute(results);
+        protected void onPostExecute(DOTResponse result) {
+            super.onPostExecute(result);
             if (progressDialog.isShowing())progressDialog.dismiss();
-            try {
-                JSONObject result = new JSONObject(results);
-                if (result.getString("response").equals("ok")){finish();}
-                else {
-                    MainApplication.getInstance().showToast(result.getString("value"));
+            if (result.getCode() == 200){
+                try {
+                    MainApplication.getInstance().parseData(new JSONObject(result.getBody()));
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
-            } catch (JSONException e) {
-                e.printStackTrace();
-                MainApplication.getInstance().showToast(getResources().getString(R.string.errorRest));
+                finish();
             }
+            else if ((result.getCode() == 400) && (!result.getBody().equals("")))  {
+                MainApplication.getInstance().showToast(result.getBody());
+            }
+            else {
+                MainApplication.getInstance().showToast("HTTP Error");
+            }
+
         }
     }
 
@@ -321,7 +341,7 @@ public class NewOrderActivity extends AppCompatActivity implements DateTimePicke
         @Override
         protected DOTResponse doInBackground(Void... voids) {
             MainApplication.getInstance().getOrder().calcDistance();
-            return MainApplication.getInstance().getnDot().calc(MainApplication.getInstance().getOrder().getCalcJSON());
+            return MainApplication.getInstance().getnDot().orders_calc(MainApplication.getInstance().getOrder().getCalcJSON());
         }
 
         @Override
@@ -331,13 +351,16 @@ public class NewOrderActivity extends AppCompatActivity implements DateTimePicke
             if (result.getCode() == 200){
                 if (!MainApplication.getInstance().getOrder().setCalcData(result.getBody())){
                     MainApplication.getInstance().showToast("Ошибка при расчете стоимости");
+                    MainApplication.getInstance().getOrder().setCalcSucces(false);
                 }
             }
             else if ((result.getCode() == 400) && (!result.getBody().equals("")))  {
                 MainApplication.getInstance().showToast(result.getBody());
+                MainApplication.getInstance().getOrder().setCalcSucces(false);
             }
             else {
                 MainApplication.getInstance().showToast("HTTP Error");
+                MainApplication.getInstance().getOrder().setCalcSucces(false);
             }
             generateView();
         }

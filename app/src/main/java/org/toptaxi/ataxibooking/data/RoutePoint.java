@@ -64,6 +64,7 @@ public class RoutePoint implements Parcelable {
         if (!Note.equals(""))data.put("note", Note);
         data.put("lt", String.valueOf(Latitude));
         data.put("ln", String.valueOf(Longitude));
+        data.put("dsc", String.valueOf(Description));
         return data;
     }
 
@@ -77,6 +78,14 @@ public class RoutePoint implements Parcelable {
         data.put("type", PlaceType);
         data.put("types", PlaceTypes);
         return data;
+    }
+
+    public void setNote(String note) {
+        Note = note;
+    }
+
+    public String getNote() {
+        return Note;
     }
 
     public void setAllData(String PlaceID, String Name, String Description, Double Latitude, Double Longitude, Integer PlaceType, String Types){

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="mainRestIP">192.168.1.34</string>
+    <string name="mainRestIP">92.50.171.110</string>
     <string name="reserveRestIP">192.168.1.34</string>
     <string name="restPort">5876</string>
     <string name="restToken">550DCB8D5A47292CF7A5B67D639C09A6</string>

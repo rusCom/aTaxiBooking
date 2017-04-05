@@ -1,6 +1,8 @@
 package org.toptaxi.ataxibooking;
 
 import android.Manifest;
+import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -53,6 +55,7 @@ import com.mikepenz.materialdrawer.model.interfaces.IProfile;
 
 import org.toptaxi.ataxibooking.data.Constants;
 import org.toptaxi.ataxibooking.data.Driver;
+import org.toptaxi.ataxibooking.tools.DOTResponse;
 import org.toptaxi.ataxibooking.tools.OnMainDataChangeListener;
 import org.toptaxi.ataxibooking.tools.RadarView;
 import org.toptaxi.ataxibooking.activities.AccountActivity;
@@ -590,13 +593,61 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
             alertDialog.setPositiveButton("Да", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
-                    MainApplication.getInstance().getDOT().sendDataResult("order_deny", "");
+                    //MainApplication.getInstance().getDOT().sendDataResult("order_deny", "");
+                    //MainApplication.getInstance().getnDot().orders_deny();
+                    new OrderDenyTask(MainActivity.this).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                 }
             });
             alertDialog.setNegativeButton("Нет" , null);
             alertDialog.create();
             alertDialog.show();
         }
+    }
+
+    private class OrderDenyTask extends AsyncTask<Void, Void, DOTResponse> {
+        ProgressDialog progressDialog;
+        Context mContext;
+
+        OrderDenyTask(Context mContext) {
+            this.mContext = mContext;
+            progressDialog = new ProgressDialog(mContext);
+            progressDialog.setMessage(getResources().getString(R.string.dlgCheckData));
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            progressDialog.show();
+        }
+
+        @Override
+        protected DOTResponse doInBackground(Void... voids) {
+            return MainApplication.getInstance().getnDot().orders_deny();
+        }
+
+        @Override
+        protected void onPostExecute(DOTResponse result) {
+            super.onPostExecute(result);
+            if (progressDialog.isShowing())progressDialog.dismiss();
+            /*
+            if (result.getCode() == 200){
+                if (!MainApplication.getInstance().getOrder().setCalcData(result.getBody())){
+                    MainApplication.getInstance().showToast("Ошибка при расчете стоимости");
+                    MainApplication.getInstance().getOrder().setCalcSucces(false);
+                }
+            }
+            else if ((result.getCode() == 400) && (!result.getBody().equals("")))  {
+                MainApplication.getInstance().showToast(result.getBody());
+                MainApplication.getInstance().getOrder().setCalcSucces(false);
+            }
+            else {
+                MainApplication.getInstance().showToast("HTTP Error");
+                MainApplication.getInstance().getOrder().setCalcSucces(false);
+            }
+            generateView();
+            */
+        }
+
     }
 
     public void generateDrawer(){

@@ -63,8 +63,8 @@ public class WishActivity extends AppCompatActivity {
         }
         else cvValueAddition.setVisibility(View.GONE);
 
-        if (MainApplication.getInstance().getPreferences().getWishCheck() < 0)cvConditioner.setVisibility(View.GONE);
-        else if (MainApplication.getInstance().getPreferences().getWishCheck() > 0)swConditioner.setText(String.valueOf(MainApplication.getInstance().getPreferences().getWishCheck()) + " " + MainApplication.getRubSymbol());
+        if (MainApplication.getInstance().getPreferences().getWishCheck() < 0)cvCheck.setVisibility(View.GONE);
+        else if (MainApplication.getInstance().getPreferences().getWishCheck() > 0)swCheck.setText(String.valueOf(MainApplication.getInstance().getPreferences().getWishCheck()) + " " + MainApplication.getRubSymbol());
 
         if (MainApplication.getInstance().getPreferences().getWishConditioner() < 0)cvConditioner.setVisibility(View.GONE);
         else if (MainApplication.getInstance().getPreferences().getWishConditioner() > 0)swConditioner.setText(String.valueOf(MainApplication.getInstance().getPreferences().getWishConditioner()) + " " + MainApplication.getRubSymbol());

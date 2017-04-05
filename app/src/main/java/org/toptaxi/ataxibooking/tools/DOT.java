@@ -87,13 +87,37 @@ public class DOT {
         return httpGet(method, params);
     }
 
-    public DOTResponse calc(String calcJSON){
+    public DOTResponse orders_calc(String calcJSON){
         String params = "token=" + MainApplication.getInstance().getAccount().getToken();
         if (MainApplication.getInstance().getLocation() != null){
             params += "&lt=" + String.valueOf(MainApplication.getInstance().getLocation().getLatitude());
             params += "&ln=" + String.valueOf(MainApplication.getInstance().getLocation().getLongitude());
         }
         return httpPost("orders/calc", params, calcJSON);
+    }
+
+    public DOTResponse orders_add(String note){
+        String params = "token=" + MainApplication.getInstance().getAccount().getToken();
+        if (MainApplication.getInstance().getLocation() != null){
+            params += "&lt=" + String.valueOf(MainApplication.getInstance().getLocation().getLatitude());
+            params += "&ln=" + String.valueOf(MainApplication.getInstance().getLocation().getLongitude());
+        }
+        try {
+            params += "&note=" + URLEncoder.encode(note, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        return httpGet("orders/add", params);
+    }
+
+    public DOTResponse orders_deny(){
+        String params = "token=" + MainApplication.getInstance().getAccount().getToken();
+        if (MainApplication.getInstance().getLocation() != null){
+            params += "&lt=" + String.valueOf(MainApplication.getInstance().getLocation().getLatitude());
+            params += "&ln=" + String.valueOf(MainApplication.getInstance().getLocation().getLongitude());
+        }
+
+        return httpGet("orders/deny", params);
     }
 
     public DOTResponse preferences(){

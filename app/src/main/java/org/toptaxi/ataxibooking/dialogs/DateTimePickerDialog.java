@@ -3,7 +3,10 @@ package org.toptaxi.ataxibooking.dialogs;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.support.annotation.IntDef;
+import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.NumberPicker;
 import android.widget.TextView;
 
@@ -13,10 +16,14 @@ import org.toptaxi.ataxibooking.tools.DateTimeTools;
 
 import java.util.Calendar;
 
-public class DateTimePickerDialog extends Dialog implements View.OnClickListener {
+public class DateTimePickerDialog extends Dialog implements View.OnClickListener, NumberPicker.OnValueChangeListener {
     protected static String TAG = "#########" + DateTimePickerDialog.class.getName();
-    private TextView tvDateTimePickerDate;
+    private TextView tvDateTimePickerDate, tvError;
     private NumberPicker pckDate, pckHour, pckMinute;
+    private Button btnOk;
+
+
+
 
     public interface OnDateTimePickerDialogListener{
         void DateTimePickerDialogChose(Calendar date);
@@ -32,6 +39,10 @@ public class DateTimePickerDialog extends Dialog implements View.OnClickListener
         this.setContentView(R.layout.date_time_picker_dialog);
         this.onDateTimePickerDialogListener = onDateTimePickerDialogListener;
         setTitle("Выбор времени заказа");
+        btnOk = (Button)findViewById(R.id.btnDateTimePickerOk);
+        tvError = (TextView)findViewById(R.id.tvDateTimePickerError);
+        tvError.setText("Предварительный заказа принимается на позже чем за " + MainApplication.getInstance().getPreferences().getPriorTime() + " мин.");
+        tvError.setVisibility(View.GONE);
 
         findViewById(R.id.btnDateTimePickerOk).setOnClickListener(this);
         findViewById(R.id.btnDateTimePickerCancel).setOnClickListener(this);
@@ -43,22 +54,50 @@ public class DateTimePickerDialog extends Dialog implements View.OnClickListener
         pckDate.setDisplayedValues(Date);
 
 
+
+
         pckHour = (NumberPicker)findViewById(R.id.pckHour);
         pckHour.setMinValue(0);
         pckHour.setMaxValue(Hour.length - 1);
         pckHour.setDisplayedValues(Hour);
+
 
         pckMinute = (NumberPicker)findViewById(R.id.pckMinute);
         pckMinute.setMinValue(0);
         pckMinute.setMaxValue(Minute.length - 1);
         pckMinute.setDisplayedValues(Minute);
 
+
+        pckDate.setOnValueChangedListener(this);
+        pckHour.setOnValueChangedListener(this);
+        pckMinute.setOnValueChangedListener(this);
+
         setDate(MainApplication.getInstance().getOrder().getWorkDate());
 
     }
 
+    @Override
+    public void onValueChange(NumberPicker numberPicker, int i, int i1) {
+        Long curDate = Calendar.getInstance().getTimeInMillis()/1000/60;
+        Long userDate = getTime().getTimeInMillis()/1000/60;
+        Long diff = userDate - curDate;
 
-    public void setDate(Calendar date){
+        if (diff < MainApplication.getInstance().getPreferences().getPriorTime()){
+            btnOk.setEnabled(false);
+            tvError.setVisibility(View.VISIBLE);
+        }
+        else {
+            btnOk.setEnabled(true);
+            tvError.setVisibility(View.GONE);
+        }
+
+
+        //Log.d(TAG, "onValueChange curDate = " + curDate + "; userDate = " + userDate + " diff = " + (userDate - curDate));
+
+    }
+
+
+    private void setDate(Calendar date){
         if (date != null){
             if (DateTimeTools.isTomorrow(date)){pckDate.setValue(1);}
             if (DateTimeTools.isAfterTomorrow(date)){pckDate.setValue(2);}
@@ -80,7 +119,7 @@ public class DateTimePickerDialog extends Dialog implements View.OnClickListener
         }
         else {
             Calendar calendar = Calendar.getInstance();
-            calendar.add(Calendar.MINUTE, 45);
+            calendar.add(Calendar.MINUTE, MainApplication.getInstance().getPreferences().getPriorTime());
             pckHour.setValue(calendar.get(Calendar.HOUR_OF_DAY));
             if (calendar.get(Calendar.MINUTE) < 5){pckMinute.setValue(0);}
             else if (calendar.get(Calendar.MINUTE) < 10){pckMinute.setValue(1);}
@@ -99,7 +138,7 @@ public class DateTimePickerDialog extends Dialog implements View.OnClickListener
     }
 
 
-    public Calendar getTime(){
+    private Calendar getTime(){
         //Log.d(TAG, "getTime pckMinute = " + Minute[pckMinute.getValue()]);
 
         Calendar calendar = Calendar.getInstance();

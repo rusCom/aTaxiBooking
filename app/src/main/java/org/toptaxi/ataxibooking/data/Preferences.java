@@ -10,16 +10,18 @@ import java.util.List;
 
 public class Preferences {
     private static String TAG = "#########" + Preferences.class.getName();
-    private Boolean PayTypeBonus, CalcTypeTaximeter, PaTypePromoCode, PriorOrder;
+    private Boolean PayTypeBonus, CalcTypeTaximeter, PaTypePromoCode, PriorOrder, ViewDistance = false;
     private List<PayType> payTypes;
-    private Integer WishValueAddition = -1, WishValueAdditionStep = 20, WishCheck = -1, WishConditioner = -1, WishSmoke = -1, WishNoSmoke = -1, WishChildren = -1;
+    private Integer WishValueAddition = -1, WishValueAdditionStep = 20, WishCheck = -1, WishConditioner = -1, WishSmoke = -1, WishNoSmoke = -1, WishChildren = -1, PriorTime = 45;
 
 
     public Preferences() {
-        PayTypeBonus = false;
-        CalcTypeTaximeter = false;
-        PaTypePromoCode = false;
-        PriorOrder = false;
+        PayTypeBonus        = false;
+        CalcTypeTaximeter   = false;
+        PaTypePromoCode     = false;
+        PriorOrder          = false;
+        ViewDistance        = false;
+        PriorTime           = 45;
         payTypes = new ArrayList<>();
         payTypes.add(new PayType("cash"));
     }
@@ -38,7 +40,9 @@ public class Preferences {
 
 
         if (data.has("calc_type_taximeter"))CalcTypeTaximeter = data.getBoolean("calc_type_taximeter");
-        if (data.has("prior"))PriorOrder = data.getBoolean("prior");
+        if (data.has("prior"))              PriorOrder = data.getBoolean("prior");
+        if (data.has("prior_time"))         PriorTime = data.getInt("prior_time");
+        if (data.has("view_distance"))      ViewDistance = data.getBoolean("view_distance");
         // Доп Услуги по заказам
 
         JSONObject wishTaxi = data.getJSONObject("wish").getJSONObject("taxi");
@@ -61,6 +65,14 @@ public class Preferences {
         if (getWishNoSmoke() >=0)       result = true;
         if (getWishChildren() >=0)      result = true;
         return result;
+    }
+
+    public Boolean getViewDistance() {
+        return ViewDistance;
+    }
+
+    public Integer getPriorTime() {
+        return PriorTime;
     }
 
     public Boolean IsPrior(){return  PriorOrder;}

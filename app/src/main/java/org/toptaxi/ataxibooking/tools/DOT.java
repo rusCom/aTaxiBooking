@@ -73,6 +73,10 @@ public class DOT {
         return httpGet(method, params);
     }
 
+    public DOTResponse profile_get(){
+        return httpPost("profile/get", "token=" + MainApplication.getInstance().getAccount().getToken(), "");
+    }
+
     public DOTResponse profile_set(String data){
         return httpPost("profile/set", "token=" + MainApplication.getInstance().getAccount().getToken(), data);
     }
@@ -102,11 +106,7 @@ public class DOT {
             params += "&lt=" + String.valueOf(MainApplication.getInstance().getLocation().getLatitude());
             params += "&ln=" + String.valueOf(MainApplication.getInstance().getLocation().getLongitude());
         }
-        try {
-            params += "&note=" + URLEncoder.encode(note, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
+        if (!note.equals(""))params += "&note=" + note;
         return httpGet("orders/add", params);
     }
 

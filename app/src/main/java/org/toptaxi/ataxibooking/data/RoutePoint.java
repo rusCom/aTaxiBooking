@@ -31,6 +31,8 @@ import org.toptaxi.ataxibooking.MainApplication;
 import org.toptaxi.ataxibooking.R;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;

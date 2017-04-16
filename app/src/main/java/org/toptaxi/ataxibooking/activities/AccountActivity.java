@@ -10,6 +10,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.telephony.PhoneNumberFormattingTextWatcher;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -260,7 +261,19 @@ public class AccountActivity extends AppCompatActivity {
 
         @Override
         protected DOTResponse doInBackground(String... strings) {
-            return MainApplication.getInstance().getnDot().profile_set(strings[0]);
+            DOTResponse res = MainApplication.getInstance().getnDot().profile_set(strings[0]);
+            if (res.getCode() == 200){
+                DOTResponse res2 = MainApplication.getInstance().getnDot().profile_get();
+                if (res2.getCode() == 200){
+                    try {
+                        MainApplication.getInstance().parseData(new JSONObject(res2.getBody()));
+                        Log.d(TAG, "res2 = " + res2.getBody());
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+            return res;
             /*
             Boolean result = false;
             try {
@@ -295,7 +308,7 @@ public class AccountActivity extends AppCompatActivity {
             });
             alertDialog.create();
             alertDialog.show();
-            MainApplication.getInstance().getDOT().getDataTypeTask("account", "");
+            //MainApplication.getInstance().getDOT().getDataTypeTask("account", "");
         }
         else {
             AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);

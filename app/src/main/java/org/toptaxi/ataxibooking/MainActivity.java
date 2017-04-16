@@ -53,6 +53,8 @@ import com.mikepenz.materialdrawer.model.ProfileDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IProfile;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.toptaxi.ataxibooking.data.Constants;
 import org.toptaxi.ataxibooking.data.Driver;
 import org.toptaxi.ataxibooking.tools.DOTResponse;
@@ -634,6 +636,13 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         protected void onPostExecute(DOTResponse result) {
             super.onPostExecute(result);
             if (progressDialog.isShowing())progressDialog.dismiss();
+            if (result.getCode() == 200){
+                try {
+                    MainApplication.getInstance().parseData(new JSONObject(result.getBody()));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
             /*
             if (result.getCode() == 200){
                 if (!MainApplication.getInstance().getOrder().setCalcData(result.getBody())){

@@ -11,6 +11,14 @@
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:textStyle="bold"
         android:textAlignment="center" />
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Предварительный заказа принимается на позже чем за 45 минут!"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textStyle="bold"
+        android:id="@+id/tvDateTimePickerError"
+        android:textAlignment="center" />
 
     <LinearLayout
         android:orientation="horizontal"

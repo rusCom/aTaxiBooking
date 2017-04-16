@@ -18,6 +18,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -249,7 +250,7 @@ public class Order {
         if (Price == 0){result = "По таксометру";}
         else {result = new DecimalFormat("##0").format(Price) + " " + rub;}
 
-        result += "(" + getDistance() + ")";
+        if (MainApplication.getInstance().getPreferences().getViewDistance())result += "(" + getDistance() + ")";
         return result;
     }
 

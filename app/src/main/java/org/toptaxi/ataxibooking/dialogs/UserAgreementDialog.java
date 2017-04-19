@@ -6,14 +6,13 @@ import android.content.Context;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
 import android.view.View;
-import android.widget.Button;
 import android.widget.TextView;
 
 import org.toptaxi.ataxibooking.MainApplication;
 import org.toptaxi.ataxibooking.R;
 
 public class UserAgreementDialog extends Dialog implements View.OnClickListener {
-    protected static String TAG = "#########" + UserAgreementDialog.class.getName();
+    //protected static String TAG = "#########" + UserAgreementDialog.class.getName();
 
     public UserAgreementDialog(Context context) {
         super(context);

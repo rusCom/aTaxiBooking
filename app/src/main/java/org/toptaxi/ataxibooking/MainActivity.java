@@ -57,6 +57,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.toptaxi.ataxibooking.data.Constants;
 import org.toptaxi.ataxibooking.data.Driver;
+import org.toptaxi.ataxibooking.dialogs.NewVersionDialog;
 import org.toptaxi.ataxibooking.dialogs.UserAgreementDialog;
 import org.toptaxi.ataxibooking.tools.DOTResponse;
 import org.toptaxi.ataxibooking.tools.OnMainDataChangeListener;
@@ -110,6 +111,10 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         if (MainApplication.getInstance().getAccount().IsShowUserAgreement()){
             UserAgreementDialog userAgreementDialog = new UserAgreementDialog(this);
             userAgreementDialog.show();
+        }
+        // Проверим на наличие обновления
+        else if (MainApplication.getInstance().getAccount().IsShowUpgradeVersion()){
+            new NewVersionDialog(this).show();
         }
 
     }

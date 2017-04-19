@@ -13,7 +13,7 @@ public class Preferences {
     private Boolean PayTypeBonus, CalcTypeTaximeter, PaTypePromoCode, PriorOrder, ViewDistance = false;
     private List<PayType> payTypes;
     private Integer WishValueAddition = -1, WishValueAdditionStep = 20, WishCheck = -1, WishConditioner = -1, WishSmoke = -1, WishNoSmoke = -1, WishChildren = -1, PriorTime = 45;
-    private Integer UserAgreementVersion = 0;
+    private Integer UserAgreementVersion = 0, AndroidAppVersion = 0;
     private String UserAgreementLink = "";
 
 
@@ -51,10 +51,10 @@ public class Preferences {
             UserAgreementVersion = UserAgreement.getInt("version");
             UserAgreementLink = UserAgreement.getString("link");
         }
+        // Версия приложения
+        if (data.has("android_app_version"))AndroidAppVersion = data.getInt("android_app_version");
         // Доп Услуги по заказам
-
         JSONObject wishTaxi = data.getJSONObject("wish").getJSONObject("taxi");
-
         if (wishTaxi.has("value_addition")){WishValueAddition      = wishTaxi.getInt("value_addition");}
         if (wishTaxi.has("addition_step")) {WishValueAdditionStep  = wishTaxi.getInt("addition_step");}
         if (wishTaxi.has("check"))         {WishCheck              = wishTaxi.getInt("check");}
@@ -75,12 +75,16 @@ public class Preferences {
         return result;
     }
 
-    public Boolean getViewDistance() {
+    Boolean getViewDistance() {
         return ViewDistance;
     }
 
-    public Integer getUserAgreementVersion() {
+    Integer getUserAgreementVersion() {
         return UserAgreementVersion;
+    }
+
+    Integer getAndroidAppVersion() {
+        return AndroidAppVersion;
     }
 
     public String getUserAgreementLink() {

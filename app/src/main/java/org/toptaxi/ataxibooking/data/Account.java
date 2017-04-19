@@ -2,6 +2,7 @@ package org.toptaxi.ataxibooking.data;
 
 
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.preference.PreferenceManager;
 
 import org.json.JSONException;
@@ -36,6 +37,22 @@ public class Account {
         SharedPreferences.Editor editor = sPref.edit();
         editor.putInt("user_agreement_version", MainApplication.getInstance().getPreferences().getUserAgreementVersion());
         editor.apply();
+    }
+
+    public Boolean IsShowUpgradeVersion(){
+        Boolean result = false;
+        if (MainApplication.getInstance().getPreferences().getAndroidAppVersion() > 0){
+
+                try {
+                    Integer CurVersion = MainApplication.getInstance().getPackageManager().getPackageInfo(MainApplication.getInstance().getPackageName(), 0).versionCode;
+                    if (CurVersion < MainApplication.getInstance().getPreferences().getAndroidAppVersion()){
+                        result = true;
+                    }
+                } catch (PackageManager.NameNotFoundException e) {
+                    e.printStackTrace();
+                    }
+        }
+        return result;
     }
 
     public Boolean IsShowUserAgreement(){

@@ -50,7 +50,7 @@
     <string name="tvUserAgreementText">Что бы продолжить, пожалуйста, ознакомьтесь и примите наши Условия и Политику конфиденциальности.</string>
     <!-- NewVersionDialog -->
     <string name="tvNewVersionCaption">Новая версия</string>
-    <string name="tvNewVersionText">Доступна новая версия для приложения. Рекумендуется обновить версию приложения для нового функционала.</string>
+    <string name="tvNewVersionText">Доступна новая версия для приложения. Рекумендуется обновить версию приложения для нового функционала и/или исправления ошибок.</string>
     <string name="btnNewVersionCancel">Позже</string>
     <string name="btnNewVersionOk">Обновить</string>
 

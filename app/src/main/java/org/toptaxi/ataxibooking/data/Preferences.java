@@ -13,6 +13,8 @@ public class Preferences {
     private Boolean PayTypeBonus, CalcTypeTaximeter, PaTypePromoCode, PriorOrder, ViewDistance = false;
     private List<PayType> payTypes;
     private Integer WishValueAddition = -1, WishValueAdditionStep = 20, WishCheck = -1, WishConditioner = -1, WishSmoke = -1, WishNoSmoke = -1, WishChildren = -1, PriorTime = 45;
+    private Integer UserAgreementVersion = 0;
+    private String UserAgreementLink = "";
 
 
     public Preferences() {
@@ -43,6 +45,12 @@ public class Preferences {
         if (data.has("prior"))              PriorOrder = data.getBoolean("prior");
         if (data.has("prior_time"))         PriorTime = data.getInt("prior_time");
         if (data.has("view_distance"))      ViewDistance = data.getBoolean("view_distance");
+        // Пользовательское соглашение
+        if (data.has("user_agreement")){
+            JSONObject UserAgreement = data.getJSONObject("user_agreement");
+            UserAgreementVersion = UserAgreement.getInt("version");
+            UserAgreementLink = UserAgreement.getString("link");
+        }
         // Доп Услуги по заказам
 
         JSONObject wishTaxi = data.getJSONObject("wish").getJSONObject("taxi");
@@ -69,6 +77,14 @@ public class Preferences {
 
     public Boolean getViewDistance() {
         return ViewDistance;
+    }
+
+    public Integer getUserAgreementVersion() {
+        return UserAgreementVersion;
+    }
+
+    public String getUserAgreementLink() {
+        return UserAgreementLink;
     }
 
     public Integer getPriorTime() {

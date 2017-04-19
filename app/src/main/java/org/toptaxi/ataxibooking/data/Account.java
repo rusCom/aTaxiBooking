@@ -13,10 +13,14 @@ public class Account {
     private String Token, Name, eMail, Phone;
     private Double Balance;
     private Boolean PayTypeCorporate;
+    private Integer UserAgreementVersion = 0;
 
     public Account(String token) {
         Token = token;
         PayTypeCorporate = false;
+        SharedPreferences sPref = PreferenceManager.getDefaultSharedPreferences(MainApplication.getInstance());
+        UserAgreementVersion = sPref.getInt("user_agreement_version", 0);
+
     }
 
     public void setFromJSON(JSONObject data) throws JSONException {
@@ -25,6 +29,25 @@ public class Account {
         if (data.has("phone"))this.Phone = data.getString("phone");
         if (data.has("balance"))this.Balance = data.getDouble("balance");
         if (data.has("pay_type_corporate"))this.PayTypeCorporate = data.getBoolean("pay_type_corporate");
+    }
+
+    public void setUserAgreementApply(){
+        SharedPreferences sPref = PreferenceManager.getDefaultSharedPreferences(MainApplication.getInstance());
+        SharedPreferences.Editor editor = sPref.edit();
+        editor.putInt("user_agreement_version", MainApplication.getInstance().getPreferences().getUserAgreementVersion());
+        editor.apply();
+    }
+
+    public Boolean IsShowUserAgreement(){
+        Boolean result = false;
+        if (MainApplication.getInstance().getPreferences().getUserAgreementVersion() > 0){
+            if (!MainApplication.getInstance().getPreferences().getUserAgreementLink().equals("")){
+                if (MainApplication.getInstance().getPreferences().getUserAgreementVersion() > UserAgreementVersion){
+                    result = true;
+                }
+            }
+        }
+        return result;
     }
 
     public String getNameForDrawer(){
@@ -70,7 +93,7 @@ public class Account {
         SharedPreferences sPref = PreferenceManager.getDefaultSharedPreferences(MainApplication.getInstance());
         SharedPreferences.Editor editor = sPref.edit();
         editor.putString("accountToken", token);
-        editor.commit();
+        editor.apply();
         Token = token;
     }
 }

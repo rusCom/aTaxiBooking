@@ -30,16 +30,17 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="org.toptaxi.ataxibooking.MainActivity" />
-        <activity android:name="org.toptaxi.ataxibooking.activities.AddressActivity" />
-        <activity android:name="org.toptaxi.ataxibooking.activities.ChooseHouseActivity" />
+        <activity android:name="org.toptaxi.ataxibooking.MainActivity" android:screenOrientation="portrait"/>
+        <activity android:name="org.toptaxi.ataxibooking.activities.AddressActivity" android:screenOrientation="portrait"/>
+        <activity android:name="org.toptaxi.ataxibooking.activities.ChooseHouseActivity" android:screenOrientation="portrait"/>
         <activity
             android:name="org.toptaxi.ataxibooking.activities.NewOrderActivity"
-            android:windowSoftInputMode="adjustPan" />
-        <activity android:name="org.toptaxi.ataxibooking.activities.LoginActivity" />
-        <activity android:name="org.toptaxi.ataxibooking.activities.AccountActivity" />
-        <activity android:name="org.toptaxi.ataxibooking.activities.PayTypeActivity" />
-        <activity android:name="org.toptaxi.ataxibooking.activities.WishActivity"></activity>
+            android:windowSoftInputMode="adjustPan"
+            android:screenOrientation="portrait"/>
+        <activity android:name="org.toptaxi.ataxibooking.activities.LoginActivity" android:screenOrientation="portrait"/>
+        <activity android:name="org.toptaxi.ataxibooking.activities.AccountActivity" android:screenOrientation="portrait"/>
+        <activity android:name="org.toptaxi.ataxibooking.activities.PayTypeActivity" android:screenOrientation="portrait"/>
+        <activity android:name="org.toptaxi.ataxibooking.activities.WishActivity" android:screenOrientation="portrait"/>
     </application>
 
 </manifest>

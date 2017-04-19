@@ -45,6 +45,10 @@
     <string name="edAccountActivityCode">Код из смс</string>
     <string name="btnAccountActivityConfirmPhone">Подтвердить номер телефона</string>
 
+    <!-- UserAgreementDialog -->
+    <string name="tvUserAgreementCaption">Условия использование</string>
+    <string name="tvUserAgreementText">Что бы продолжить, пожалуйста, ознакомьтесь и примите наши Условия и Политику конфиденциальности.</string>
+
     <!-- DrawerItems -->
     <string name="menuBalanceItem">Бонусы</string>
     <string name="menuHistoryItem">История</string>

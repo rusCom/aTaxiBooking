@@ -57,6 +57,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.toptaxi.ataxibooking.data.Constants;
 import org.toptaxi.ataxibooking.data.Driver;
+import org.toptaxi.ataxibooking.dialogs.UserAgreementDialog;
 import org.toptaxi.ataxibooking.tools.DOTResponse;
 import org.toptaxi.ataxibooking.tools.OnMainDataChangeListener;
 import org.toptaxi.ataxibooking.tools.RadarView;
@@ -104,6 +105,13 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 
         initialInterface();
         generateDrawer();
+
+        // Проверяем на принятие пользовательского соглашение
+        if (MainApplication.getInstance().getAccount().IsShowUserAgreement()){
+            UserAgreementDialog userAgreementDialog = new UserAgreementDialog(this);
+            userAgreementDialog.show();
+        }
+
     }
 
     @Override

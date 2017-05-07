@@ -281,6 +281,22 @@ public class Order {
         return result;
     }
 
+    public String getWishsText(){
+        String result = "";
+        if (WishValueAddition > 0){result += "УВЕЛИЧЕНИЕ СТОИМОСТИ,";}
+        if (WishCheck){result += "БСО,";}
+        if (WishConditioner){result += "КОНДИЦИОНЕР,";}
+        if (WishSmoke){result += "КУРЯЩИЙ САЛОН,";}
+        if (WishNoSmoke){result += "НЕ КУРЯЩИЙ САЛОН,";}
+        if (WishChildren){result += "С РЕБЕНКОМ,";}
+        if (!result.equals("")){
+            result = result.substring(0, result.length() - 1);
+            //result = "(" + result + ")";
+        }
+        return result;
+
+    }
+
     public Integer getStatus() {
         return Status;
     }

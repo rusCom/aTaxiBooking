@@ -1,6 +1,5 @@
 package org.toptaxi.ataxibooking.activities;
 
-import android.media.Image;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.CardView;
@@ -14,7 +13,6 @@ import android.widget.Spinner;
 import android.widget.Switch;
 
 import org.toptaxi.ataxibooking.MainApplication;
-import org.toptaxi.ataxibooking.data.ValueAddition;
 import org.toptaxi.ataxibooking.R;
 
 import java.util.ArrayList;
@@ -125,18 +123,21 @@ public class WishActivity extends AppCompatActivity {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 setIcons();
+                if (b)swNoSmoke.setChecked(false);
             }
         });
         swNoSmoke.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 setIcons();
+                if(b)swSmoke.setChecked(false);
             }
         });
         swChildren.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 setIcons();
+                if (b)swNoSmoke.setChecked(true);
             }
         });
 
@@ -145,35 +146,46 @@ public class WishActivity extends AppCompatActivity {
         findViewById(R.id.btnTitleRight).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Boolean IsEdit = false;
-                Integer newValue = spValueAddition.getSelectedItemPosition()*20;
-                if (!MainApplication.getInstance().getOrder().getWishValueAddition().equals(newValue)){
-                    MainApplication.getInstance().getOrder().setWishValueAddition(newValue);
-                    IsEdit = true;
-                }
-
-                if ((MainApplication.getInstance().getOrder().getWishCheck() != swCheck.isChecked()) && (MainApplication.getInstance().getPreferences().getWishCheck() > 0))IsEdit = true;
-                MainApplication.getInstance().getOrder().setWishCheck(swCheck.isChecked());
-
-                if ((MainApplication.getInstance().getOrder().getWishConditioner() != swConditioner.isChecked()) && (MainApplication.getInstance().getPreferences().getWishConditioner() > 0))IsEdit = true;
-                MainApplication.getInstance().getOrder().setWishConditioner(swConditioner.isChecked());
-
-                if ((MainApplication.getInstance().getOrder().getWishSmoke() != swSmoke.isChecked()) && (MainApplication.getInstance().getPreferences().getWishSmoke() > 0))IsEdit = true;
-                MainApplication.getInstance().getOrder().setWishSmoke(swSmoke.isChecked());
-
-                if ((MainApplication.getInstance().getOrder().getWishNoSmoke() != swNoSmoke.isChecked()) && (MainApplication.getInstance().getPreferences().getWishNoSmoke() > 0))IsEdit = true;
-                MainApplication.getInstance().getOrder().setWishNoSmoke(swNoSmoke.isChecked());
-
-                if ((MainApplication.getInstance().getOrder().getWishChildren() != swChildren.isChecked()) && (MainApplication.getInstance().getPreferences().getWishChildren() > 0))IsEdit = true;
-                MainApplication.getInstance().getOrder().setWishChildren(swChildren.isChecked());
-
-                if (IsEdit)setResult(RESULT_OK);
-                else setResult(RESULT_CANCELED);
-                finish();
+                setWish();
             }
         });
 
+    }
 
+    @Override
+    public void onBackPressed() {
+        setWish();
+    }
+
+    public void setWish(){
+        Boolean IsEdit = false;
+        Integer newValue = spValueAddition.getSelectedItemPosition()*20;
+        if (!MainApplication.getInstance().getOrder().getWishValueAddition().equals(newValue)){
+            MainApplication.getInstance().getOrder().setWishValueAddition(newValue);
+            IsEdit = true;
+        }
+
+
+        if ((MainApplication.getInstance().getOrder().getWishCheck() != swCheck.isChecked()) && (MainApplication.getInstance().getPreferences().getWishCheck() > 0))IsEdit = true;
+        MainApplication.getInstance().getOrder().setWishCheck(swCheck.isChecked());
+
+        if ((MainApplication.getInstance().getOrder().getWishConditioner() != swConditioner.isChecked()) && (MainApplication.getInstance().getPreferences().getWishConditioner() > 0))IsEdit = true;
+        MainApplication.getInstance().getOrder().setWishConditioner(swConditioner.isChecked());
+
+        if ((MainApplication.getInstance().getOrder().getWishSmoke() != swSmoke.isChecked()) && (MainApplication.getInstance().getPreferences().getWishSmoke() > 0))IsEdit = true;
+        MainApplication.getInstance().getOrder().setWishSmoke(swSmoke.isChecked());
+
+        if ((MainApplication.getInstance().getOrder().getWishNoSmoke() != swNoSmoke.isChecked()) && (MainApplication.getInstance().getPreferences().getWishNoSmoke() > 0))IsEdit = true;
+        MainApplication.getInstance().getOrder().setWishNoSmoke(swNoSmoke.isChecked());
+
+        if ((MainApplication.getInstance().getOrder().getWishChildren() != swChildren.isChecked()) && (MainApplication.getInstance().getPreferences().getWishChildren() > 0))IsEdit = true;
+        MainApplication.getInstance().getOrder().setWishChildren(swChildren.isChecked());
+
+
+        if (IsEdit)setResult(RESULT_OK);
+        else setResult(RESULT_CANCELED);
+        setResult(RESULT_OK);
+        finish();
     }
 
     public void setIcons(){

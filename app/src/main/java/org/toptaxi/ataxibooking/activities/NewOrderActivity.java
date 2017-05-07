@@ -145,7 +145,7 @@ public class NewOrderActivity extends AppCompatActivity implements DateTimePicke
         }
         else {
             AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
-            alertDialog.setMessage("Внимание, все введенные данные пропадут.");
+            alertDialog.setMessage("Внимание, все введенные данные по заказу пропадут.");
             alertDialog.setPositiveButton("Да", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
@@ -196,7 +196,12 @@ public class NewOrderActivity extends AppCompatActivity implements DateTimePicke
             findViewById(R.id.ivNewOrderActivityPriceDivider).setVisibility(View.GONE);
         }
 
-        if (MainApplication.getInstance().getPreferences().IsWishList())btnWishList.setVisibility(View.VISIBLE);
+        if (MainApplication.getInstance().getPreferences().IsWishList()){
+            btnWishList.setVisibility(View.VISIBLE);
+            if (MainApplication.getInstance().getOrder().getWishsText().equals(""))btnWishList.setText("ПОЖЕЛАНИЯ К ЗАКАЗУ");
+            else {btnWishList.setText("ПОЖЕЛАНИЯ К ЗАКАЗУ\n" + MainApplication.getInstance().getOrder().getWishsText());}
+
+        }
         else btnWishList.setVisibility(View.GONE);
 
         if (MainApplication.getInstance().getPreferences().IsPrior())btnPrior.setVisibility(View.VISIBLE);

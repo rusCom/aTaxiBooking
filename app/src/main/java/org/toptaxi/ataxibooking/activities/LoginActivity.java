@@ -186,7 +186,7 @@ public class LoginActivity extends AppCompatActivity {
 
         @Override
         protected DOTResponse doInBackground(String... strings) {
-            return MainApplication.getInstance().getnDot().profile_login(strings[0]);
+            return MainApplication.getInstance().getnDot().profile_login(strings[0], "SMS");
         }
 
         @Override

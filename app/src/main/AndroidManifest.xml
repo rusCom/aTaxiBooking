@@ -11,7 +11,7 @@
     <uses-permission android:name="android.permission.SEND_SMS" />
 
     <application
-        android:name="org.toptaxi.ataxibooking.MainApplication"
+        android:name=".MainApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -22,7 +22,7 @@
             android:value="@string/google_maps_key" />
 
         <activity
-            android:name="org.toptaxi.ataxibooking.activities.SplashActivity"
+            android:name=".activities.SplashActivity"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -30,17 +30,33 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="org.toptaxi.ataxibooking.MainActivity" android:screenOrientation="portrait"/>
-        <activity android:name="org.toptaxi.ataxibooking.activities.AddressActivity" android:screenOrientation="portrait"/>
-        <activity android:name="org.toptaxi.ataxibooking.activities.ChooseHouseActivity" android:screenOrientation="portrait"/>
         <activity
-            android:name="org.toptaxi.ataxibooking.activities.NewOrderActivity"
-            android:windowSoftInputMode="adjustPan"
-            android:screenOrientation="portrait"/>
-        <activity android:name="org.toptaxi.ataxibooking.activities.LoginActivity" android:screenOrientation="portrait"/>
-        <activity android:name="org.toptaxi.ataxibooking.activities.AccountActivity" android:screenOrientation="portrait"/>
-        <activity android:name="org.toptaxi.ataxibooking.activities.PayTypeActivity" android:screenOrientation="portrait"/>
-        <activity android:name="org.toptaxi.ataxibooking.activities.WishActivity" android:screenOrientation="portrait"/>
+            android:name=".MainActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activities.AddressActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activities.ChooseHouseActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activities.NewOrderActivity"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustPan" />
+        <activity
+            android:name=".activities.LoginActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activities.AccountActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activities.PayTypeActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activities.WishActivity"
+            android:screenOrientation="portrait" />
+        <activity android:name=".activities.LoginPhoneActivity" />
+        <activity android:name=".activities.LoginGetTokenActivity"></activity>
     </application>
 
 </manifest>

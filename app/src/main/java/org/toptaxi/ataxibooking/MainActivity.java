@@ -157,12 +157,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                 @Override
                 public void onCameraIdle() {
                     //Log.d(TAG, "onCameraIdle " + mMap.getCameraPosition().toString());
-                    GetAddressByGPS getAddressByGPS = new GetAddressByGPS();
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-                        getAddressByGPS.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, mMap.getCameraPosition().target);
-                    } else {
-                        getAddressByGPS.execute(mMap.getCameraPosition().target);
-                    }
+                    (new GetAddressByGPS()).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, mMap.getCameraPosition().target);
                     MainApplication.getInstance().setMapLocation(mMap.getCameraPosition().target);
                 }
             });

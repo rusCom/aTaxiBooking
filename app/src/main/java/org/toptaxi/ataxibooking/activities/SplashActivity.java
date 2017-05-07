@@ -7,6 +7,7 @@ import android.content.pm.PackageManager;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.provider.Settings;
@@ -83,11 +84,10 @@ public class SplashActivity extends AppCompatActivity implements GoogleApiClient
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == Constants.ACTIVITY_LOGIN){
+        if (requestCode == Constants.ACTIVITY_LOGIN_PHONE){
             if (resultCode == RESULT_CANCELED)finish();
             else init();
         }
-
     }
 
     public static boolean isNetworkAvailable(Context context) {
@@ -113,8 +113,8 @@ public class SplashActivity extends AppCompatActivity implements GoogleApiClient
         //Log.d(TAG, "init MainApplication.getInstance().getAccount().getToken() = " + MainApplication.getInstance().getAccount().getToken());
 
         if (MainApplication.getInstance().getAccount().getToken().equals("")){
-            Intent loginIntent = new Intent(SplashActivity.this, LoginActivity.class);
-            startActivityForResult(loginIntent, Constants.ACTIVITY_LOGIN);
+            Intent loginIntent = new Intent(SplashActivity.this, LoginPhoneActivity.class);
+            startActivityForResult(loginIntent, Constants.ACTIVITY_LOGIN_PHONE);
         }
         else {
             // подключаемся к сервису playMarket
@@ -132,6 +132,7 @@ public class SplashActivity extends AppCompatActivity implements GoogleApiClient
                 }
 
             }
+            /*
             else if (!((LocationManager)getSystemService(Context.LOCATION_SERVICE)).isProviderEnabled(LocationManager.GPS_PROVIDER)){
                 AlertDialog.Builder dialog = new AlertDialog.Builder(this);
                 dialog.setMessage(getString(R.string.gps_network_not_enabled));
@@ -147,6 +148,7 @@ public class SplashActivity extends AppCompatActivity implements GoogleApiClient
                 });
                 dialog.show();
             }
+            */
             // Если подключение к плей сервсиу уже есть
             else {
                 //startMainActivity();
@@ -311,14 +313,49 @@ public class SplashActivity extends AppCompatActivity implements GoogleApiClient
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-        AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
-        alertDialog.setMessage(connectionResult.getErrorMessage());
-        alertDialog.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {finish();}
-        });
-        alertDialog.create();
-        alertDialog.show();
+        if (connectionResult.getErrorCode() == ConnectionResult.SERVICE_VERSION_UPDATE_REQUIRED){
+            AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
+            alertDialog.setMessage("Для корректной работы приложения необходимо обновить Сервисы Google Play");
+            alertDialog.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    Intent intent = new Intent(Intent.ACTION_VIEW);
+                    intent.setData(Uri.parse("market://details?id=com.google.android.gms"));
+                    startActivity(intent);
+                    setResult(RESULT_CANCELED);
+                    finish();
+                }
+            });
+            alertDialog.create();
+            alertDialog.show();
+        }
+        if (connectionResult.getErrorCode() == ConnectionResult.SERVICE_MISSING){
+            AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
+            alertDialog.setMessage("Для корректной работы приложения необходимо установить Сервисы Google Play");
+            alertDialog.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    Intent intent = new Intent(Intent.ACTION_VIEW);
+                    intent.setData(Uri.parse("market://details?id=com.google.android.gms"));
+                    startActivity(intent);
+                    setResult(RESULT_CANCELED);
+                    finish();
+                }
+            });
+            alertDialog.create();
+            alertDialog.show();
+        }
+        else {
+            AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
+            alertDialog.setMessage(connectionResult.getErrorCode() + " " + connectionResult.getErrorMessage());
+            alertDialog.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {finish();}
+            });
+            alertDialog.create();
+            alertDialog.show();
+
+        }
 
     }
 }

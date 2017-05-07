@@ -17,7 +17,7 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 
 public class DOT {
-    protected static String TAG = "#########" + org.toptaxi.ataxibooking.data.DOT.class.getName();
+    protected static String TAG = "#########" + org.toptaxi.ataxibooking.tools.DOT.class.getName();
     private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
     private Context mContext;
     private OkHttpClient httpClient;
@@ -27,7 +27,7 @@ public class DOT {
         httpClient = new OkHttpClient();
     }
 
-    public DOTResponse profile_login(String phone){
+    public DOTResponse profile_login(String phone, String type){
         String method = "profile/login";
         String params = "key=" + mContext.getResources().getString(R.string.restToken);
         try {
@@ -35,6 +35,7 @@ public class DOT {
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
+        params += "&type=" + type;
         return httpGet(method, params);
     }
 
@@ -128,7 +129,7 @@ public class DOT {
             params += "&ln=" + String.valueOf(MainApplication.getInstance().getLocation().getLongitude());
         }
         params += "&profile=true&data=true";
-        Log.d(TAG, "properties params=" + params);
+        //Log.d(TAG, "properties params=" + params);
 
         return httpGet(method, params);
     }

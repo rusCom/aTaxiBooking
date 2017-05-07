@@ -146,9 +146,10 @@ public class MainApplication extends Application implements LocationListener {
         this.mGoogleApiClient = mGoogleApiClient;
         //LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED){
-            lLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
             LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
             //Log.d(TAG, "setGoogleApiClient");
+            lLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+            //Log.d(TAG, "LastLocation = " + lLocation.toString());
 
         }
     }
@@ -188,8 +189,10 @@ public class MainApplication extends Application implements LocationListener {
     }
 
     public Location getLocation() {
-        if (mLocation == null) return lLocation;
-        return mLocation;
+        if (mLocation != null) return mLocation;
+        if (lLocation != null) return lLocation;
+        if (getPreferences().getLocation() != null)return getPreferences().getLocation();
+        return null;
     }
 
     public String getLocationData(){

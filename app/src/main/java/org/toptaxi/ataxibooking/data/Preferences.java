@@ -1,5 +1,6 @@
 package org.toptaxi.ataxibooking.data;
 
+import android.location.Location;
 import android.util.Log;
 
 import org.json.JSONException;
@@ -15,6 +16,7 @@ public class Preferences {
     private Integer WishValueAddition = -1, WishValueAdditionStep = 20, WishCheck = -1, WishConditioner = -1, WishSmoke = -1, WishNoSmoke = -1, WishChildren = -1, PriorTime = 45;
     private Integer UserAgreementVersion = 0, AndroidAppVersion = 0;
     private String UserAgreementLink = "";
+    private Location location;
 
 
     public Preferences() {
@@ -24,12 +26,13 @@ public class Preferences {
         PriorOrder          = false;
         ViewDistance        = false;
         PriorTime           = 45;
+        location            = null;
         payTypes = new ArrayList<>();
         payTypes.add(new PayType("cash"));
     }
 
     public void setFromJSON(JSONObject data) throws JSONException {
-        Log.d(TAG, "setFromJSON data = " + data.toString());
+        //Log.d(TAG, "setFromJSON data = " + data.toString());
         payTypes.clear();
         JSONObject PayTypes = data.getJSONObject("pay_types");
 
@@ -53,6 +56,14 @@ public class Preferences {
         }
         // Версия приложения
         if (data.has("android_app_version"))AndroidAppVersion = data.getInt("android_app_version");
+        // LastLocation
+        if (data.has("last_location")){
+            JSONObject LastLocation = data.getJSONObject("last_location");
+            location = new Location("LastLocation");
+            location.setLatitude(LastLocation.getDouble("lt"));
+            location.setLongitude(LastLocation.getDouble("ln"));
+            //Log.d(TAG, "LastLocation = " + location.toString());
+        }
         // Доп Услуги по заказам
         JSONObject wishTaxi = data.getJSONObject("wish").getJSONObject("taxi");
         if (wishTaxi.has("value_addition")){WishValueAddition      = wishTaxi.getInt("value_addition");}
@@ -62,6 +73,10 @@ public class Preferences {
         if (wishTaxi.has("smoke"))         {WishSmoke              = wishTaxi.getInt("smoke");}
         if (wishTaxi.has("no_smoke"))      {WishNoSmoke            = wishTaxi.getInt("no_smoke");}
         if (wishTaxi.has("children"))      {WishChildren           = wishTaxi.getInt("children");}
+    }
+
+    public Location getLocation() {
+        return location;
     }
 
     public Boolean IsWishList(){

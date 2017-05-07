@@ -263,7 +263,7 @@ public class Order {
     }
 
     public String getPriorInfo(){
-        String result = "Сейчас";
+        String result = "На время";
         if (WorkDate != null){
             String hour = String.valueOf(WorkDate.get(Calendar.HOUR_OF_DAY));
             if (WorkDate.get(Calendar.HOUR_OF_DAY) < 10){hour = "0" + String.valueOf(WorkDate.get(Calendar.HOUR_OF_DAY));}

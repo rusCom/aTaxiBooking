@@ -4,6 +4,7 @@ package org.toptaxi.ataxibooking.data;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.preference.PreferenceManager;
+import android.util.Log;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -21,6 +22,7 @@ public class Account {
         PayTypeCorporate = false;
         SharedPreferences sPref = PreferenceManager.getDefaultSharedPreferences(MainApplication.getInstance());
         UserAgreementVersion = sPref.getInt("user_agreement_version", 0);
+        Log.d(TAG, "UserAgreementVersion = " + UserAgreementVersion);
 
     }
 
@@ -36,6 +38,8 @@ public class Account {
         SharedPreferences sPref = PreferenceManager.getDefaultSharedPreferences(MainApplication.getInstance());
         SharedPreferences.Editor editor = sPref.edit();
         editor.putInt("user_agreement_version", MainApplication.getInstance().getPreferences().getUserAgreementVersion());
+        Log.d(TAG, "user_agreement_version = " + MainApplication.getInstance().getPreferences().getUserAgreementVersion());
+        UserAgreementVersion = MainApplication.getInstance().getPreferences().getUserAgreementVersion();
         editor.apply();
     }
 

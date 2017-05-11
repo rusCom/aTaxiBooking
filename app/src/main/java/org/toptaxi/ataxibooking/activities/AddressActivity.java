@@ -18,10 +18,12 @@ import android.text.TextWatcher;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 
+import org.toptaxi.ataxibooking.MainApplication;
 import org.toptaxi.ataxibooking.adapters.RoutePointsAdapter;
 import org.toptaxi.ataxibooking.data.Constants;
 import org.toptaxi.ataxibooking.data.RoutePoint;
@@ -44,6 +46,7 @@ public class AddressActivity extends AppCompatActivity implements RoutePointsAda
     private Timer timer = new Timer();
     private final int DELAY = 500; //milliseconds of delay for timer
     ProgressBar progressBar;
+    Button btnMap;
 
 
     @Override
@@ -57,6 +60,10 @@ public class AddressActivity extends AppCompatActivity implements RoutePointsAda
         edRoutePointSearch.setSingleLine(true);
 
         progressBar = (ProgressBar)findViewById(R.id.pbTitle);
+        btnMap      = (Button)findViewById(R.id.btnAddressActivityMap);
+
+        if (MainApplication.getInstance().getOrder().getRouteCount() == 0)btnMap.setVisibility(View.GONE);
+        else btnMap.setVisibility(View.VISIBLE);
 
         routePointsAdapter = new RoutePointsAdapter();
         routePointsAdapter.setOnRoutePointClickListener(this);
@@ -82,10 +89,12 @@ public class AddressActivity extends AppCompatActivity implements RoutePointsAda
                 rvRoutePoints.setVisibility(View.GONE);
                 if (edRoutePointSearch.getText().toString().equals("")){
                     rlFastRoutePoint.setVisibility(View.VISIBLE);
+                    if (MainApplication.getInstance().getOrder().getRouteCount() > 0)btnMap.setVisibility(View.VISIBLE);
                     progressBar.setVisibility(View.GONE);
                 }
                 else {
                     rlFastRoutePoint.setVisibility(View.GONE);
+                    btnMap.setVisibility(View.GONE);
                     if (edRoutePointSearch.getText().toString().length() > 2) {
                         progressBar.setVisibility(View.VISIBLE);
                         timer.cancel();
@@ -132,9 +141,19 @@ public class AddressActivity extends AppCompatActivity implements RoutePointsAda
             }
         });
 
+        btnMap.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent mapIntent = new Intent(AddressActivity.this, ChooseOnMapActivity.class);
+                startActivityForResult(mapIntent, Constants.ACTIVITY_CHOOSE_MAP);
+            }
+        });
+
         initViewPager();
 
     }
+
+
 
     @Override
     public void RoutePointClick(RoutePoint routePoint, int position) {
@@ -205,6 +224,15 @@ public class AddressActivity extends AppCompatActivity implements RoutePointsAda
         //Log.d(TAG, "onActivityResult requestCode = " + requestCode + ";resultCode = " + resultCode);
 
         if (requestCode == Constants.ACTIVITY_CHOOSE_HOUSE){
+            if (resultCode == RESULT_OK){
+                RoutePoint rroutePoint = data.getParcelableExtra(RoutePoint.class.getCanonicalName());
+                Intent intent = new Intent();
+                setResult(RESULT_OK, intent);
+                intent.putExtra(RoutePoint.class.getCanonicalName(), rroutePoint);
+                finish();
+            }
+        }
+        if (requestCode == Constants.ACTIVITY_CHOOSE_MAP){
             if (resultCode == RESULT_OK){
                 RoutePoint rroutePoint = data.getParcelableExtra(RoutePoint.class.getCanonicalName());
                 Intent intent = new Intent();

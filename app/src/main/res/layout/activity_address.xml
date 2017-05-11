@@ -8,13 +8,22 @@
     tools:context="org.toptaxi.ataxibooking.activities.AddressActivity">
 
     <include layout="@layout/item_title"/>
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/btnAddressActivityMap"
+        android:layout_marginLeft="@dimen/activity_margin"
+        android:layout_marginRight="@dimen/activity_margin"
+        android:text="Выбрать на карте"
+        android:layout_below="@+id/cvTitle"
+        android:background="@drawable/btn_main"/>
 
     <android.support.v7.widget.RecyclerView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginLeft="@dimen/activity_margin"
         android:layout_marginRight="@dimen/activity_margin"
-        android:layout_below="@+id/cvTitle"
+        android:layout_below="@+id/btnAddressActivityMap"
         android:id="@+id/rvAddressActivityRoutePoints"
         android:visibility="gone"/>
 
@@ -24,7 +33,7 @@
         android:layout_height="match_parent"
         android:layout_marginLeft="@dimen/activity_margin"
         android:layout_marginRight="@dimen/activity_margin"
-        android:layout_below="@+id/cvTitle">
+        android:layout_below="@+id/btnAddressActivityMap">
         <android.support.design.widget.TabLayout
             android:id="@+id/tabsAddressActivityFastRoutePoint"
             android:layout_width="match_parent"

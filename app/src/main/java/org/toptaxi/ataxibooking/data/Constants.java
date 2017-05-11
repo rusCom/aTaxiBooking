@@ -15,6 +15,7 @@ public class Constants {
     public static final int ACTIVITY_WISH         = 206;
     public static final int ACTIVITY_LOGIN_PHONE  = 207;
     public static final int ACTIVITY_LOGIN_TOKEN  = 208;
+    public static final int ACTIVITY_CHOOSE_MAP   = 209;
 
     public static final int ROUTE_POINT_TYPE_UNKNOWN        = 0;
     public static final int ROUTE_POINT_TYPE_STREET         = 1;

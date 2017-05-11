@@ -56,7 +56,8 @@
             android:name=".activities.WishActivity"
             android:screenOrientation="portrait" />
         <activity android:name=".activities.LoginPhoneActivity" />
-        <activity android:name=".activities.LoginGetTokenActivity"></activity>
+        <activity android:name=".activities.LoginGetTokenActivity" />
+        <activity android:name=".activities.ChooseOnMapActivity"></activity>
     </application>
 
 </manifest>

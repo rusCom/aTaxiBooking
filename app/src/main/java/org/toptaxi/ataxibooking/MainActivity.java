@@ -55,6 +55,7 @@ import com.mikepenz.materialdrawer.model.interfaces.IProfile;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.toptaxi.ataxibooking.activities.HisOrdersActivity;
 import org.toptaxi.ataxibooking.data.Constants;
 import org.toptaxi.ataxibooking.data.Driver;
 import org.toptaxi.ataxibooking.dialogs.NewVersionDialog;
@@ -461,7 +462,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
             rlOrderSearchDriver.setVisibility(View.VISIBLE);
             ivCentralPickUp.setVisibility(View.VISIBLE);
             llRoutePoints.setVisibility(View.VISIBLE);
-            fabCancelOrder.setVisibility(View.VISIBLE);
+            if (MainApplication.getInstance().getOrder().getCanDeny())fabCancelOrder.setVisibility(View.VISIBLE);
             setRouteDataView();
             if (mMap != null){
                 if (MainApplication.getInstance().getOrder().getRoutePoint(0) != null)mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(MainApplication.getInstance().getOrder().getRoutePoint(0).getLatLng(), 16));
@@ -488,7 +489,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
             llRoutePoints.setVisibility(View.VISIBLE);
             llCarInfo.setVisibility(View.VISIBLE);
             fabCallDriver.setVisibility(View.VISIBLE);
-            fabCancelOrder.setVisibility(View.VISIBLE);
+            if (MainApplication.getInstance().getOrder().getCanDeny())fabCancelOrder.setVisibility(View.VISIBLE);
             setRouteDataView();
             setDriverDataView();
             if (mMap != null){
@@ -511,7 +512,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
             llRoutePoints.setVisibility(View.VISIBLE);
             llCarInfo.setVisibility(View.VISIBLE);
             fabCallDriver.setVisibility(View.VISIBLE);
-            fabCancelOrder.setVisibility(View.VISIBLE);
+            if (MainApplication.getInstance().getOrder().getCanDeny())fabCancelOrder.setVisibility(View.VISIBLE);
             setRouteDataView();
             setDriverDataView();
             if (mMap != null){
@@ -530,7 +531,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
             llRoutePoints.setVisibility(View.VISIBLE);
             llCarInfo.setVisibility(View.VISIBLE);
             fabCallDriver.setVisibility(View.VISIBLE);
-            fabCancelOrder.setVisibility(View.VISIBLE);
+            if (MainApplication.getInstance().getOrder().getCanDeny())fabCancelOrder.setVisibility(View.VISIBLE);
             setRouteDataView();
             setDriverDataView();
             if (mMap != null){
@@ -705,8 +706,8 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
             drawer.addItem(menuBalanceItem);
         }
 
-        //drawer.addItem(new PrimaryDrawerItem().withName(getString(R.string.menuHistoryItem)).withIcon(FontAwesome.Icon.faw_history).withSelectable(false).withIdentifier(Constants.MENU_HISTORY));\
         drawer.addItem(new PrimaryDrawerItem().withName(getString(R.string.menuProfileItem)).withIcon(FontAwesome.Icon.faw_address_card).withSelectable(false).withIdentifier(Constants.MENU_PROFILE));
+        //drawer.addItem(new PrimaryDrawerItem().withName(getString(R.string.menuHistoryItem)).withIcon(FontAwesome.Icon.faw_history).withSelectable(false).withIdentifier(Constants.MENU_HISTORY));
         menuMapTypeItem = new PrimaryDrawerItem().withName(getString(R.string.menuMapTypeItem)).withIcon(FontAwesome.Icon.faw_map).withSelectable(false).withIdentifier(Constants.MENU_MAP_TYPE);
         drawer.addItem(menuMapTypeItem);
         drawer.addItem(new DividerDrawerItem());
@@ -732,6 +733,9 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
             }
             case Constants.MENU_PROFILE:
                 startActivity(new Intent(MainActivity.this, AccountActivity.class));
+                break;
+            case Constants.MENU_HISTORY:
+                startActivity(new Intent(MainActivity.this, HisOrdersActivity.class));
                 break;
 
         }

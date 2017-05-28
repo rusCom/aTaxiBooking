@@ -13,5 +13,8 @@
     <color name="fabCancelOrder">#c70b27</color>
     <color name="account_header_text">#212121</color>
     <color name="BlackDivider">#25000000</color>
+
+    <color name="orderComplete">#FBC02D</color>
+    <color name="orderDeny">#4d5481</color>
     
 </resources>

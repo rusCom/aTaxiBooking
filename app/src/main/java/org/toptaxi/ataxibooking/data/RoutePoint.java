@@ -126,6 +126,8 @@ public class RoutePoint implements Parcelable {
 
     }
 
+
+
     public String getPlaceId() {
         return PlaceId;
     }

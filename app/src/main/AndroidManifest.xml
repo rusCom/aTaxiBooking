@@ -57,7 +57,8 @@
             android:screenOrientation="portrait" />
         <activity android:name=".activities.LoginPhoneActivity" />
         <activity android:name=".activities.LoginGetTokenActivity" />
-        <activity android:name=".activities.ChooseOnMapActivity"></activity>
+        <activity android:name=".activities.ChooseOnMapActivity" />
+        <activity android:name=".activities.HisOrdersActivity"></activity>
     </application>
 
 </manifest>

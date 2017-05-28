@@ -92,6 +92,13 @@ public class DOT {
         return httpGet(method, params);
     }
 
+    public DOTResponse orders_history(String guid){
+        String method = "orders/history";
+        String params = "token=" + MainApplication.getInstance().getAccount().getToken();
+        if (!guid.equals(""))params += "&guid=" + guid;
+        return httpGet(method, params);
+    }
+
     public DOTResponse orders_calc(String calcJSON){
         String params = "token=" + MainApplication.getInstance().getAccount().getToken();
         if (MainApplication.getInstance().getLocation() != null){

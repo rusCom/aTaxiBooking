@@ -22,7 +22,7 @@
             android:src="@mipmap/ic_conformation_pickup"
             android:padding="@dimen/confirmation_image_margin"/>
         <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:layout_weight="1">

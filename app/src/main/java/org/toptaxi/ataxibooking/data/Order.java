@@ -22,6 +22,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.sql.Timestamp;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -41,7 +42,9 @@ public class Order {
     private PayType payType;
     private Integer WishValueAddition = -1;
     private Boolean WishCheck = false, WishConditioner = false, WishSmoke = false, WishNoSmoke = false, WishChildren = false;
-    private Boolean IsCanAdd = false, IsCalcSucces = false;
+    private Boolean IsCanAdd = false, IsCalcSucces = false, CanDeny = false;
+    private String GUID = "", State = "";
+
 
 
     public Order() {
@@ -124,6 +127,10 @@ public class Order {
         */
     }
 
+    public Boolean getCanDeny() {
+        return CanDeny;
+    }
+
     public void setCalcSucces(Boolean calcSucces) {
         IsCalcSucces = calcSucces;
     }
@@ -158,6 +165,18 @@ public class Order {
             }
             this.Status = status;
         }
+
+        if (data.has("can_deny")){this.CanDeny = data.getBoolean("can_deny");}
+        else {this.CanDeny = false;}
+
+        if (data.has("guid"))this.GUID = data.getString("guid");
+        if (data.has("date")){
+            WorkDate = Calendar.getInstance();
+            WorkDate.setTimeInMillis(Timestamp.valueOf(data.getString("date")).getTime());
+        }
+        else {WorkDate = null;}
+        if (data.has("state"))this.State = data.getString("state");
+
         if (data.has("driver"))this.driver.setFromJSON(data.getJSONObject("driver"));
         routePoints.clear();
         if (data.has("route")){
@@ -168,6 +187,41 @@ public class Order {
                 addRoutePoint(routePoint);
             }
         }
+    }
+
+    public String getStateName(){
+        return State;
+    }
+
+    public int getCaptionColor(){
+        switch (State){
+            case "complete":return R.color.orderComplete;
+        }
+        return R.color.orderDeny;
+    }
+
+    public String getDate(){
+        return new SimpleDateFormat("HH:mm dd.MM.yy", Locale.getDefault()).format(WorkDate.getTime());
+    }
+
+    public String getGUID() {
+        return GUID;
+    }
+
+    public String getFirstPointInfo(){
+        if (routePoints != null)
+            if (routePoints.size() > 0){
+                return routePoints.get(0).getName();
+            }
+        return null;
+    }
+
+    public String getLastPointInfo(){
+        if (routePoints != null)
+            if (routePoints.size() > 1){
+                return routePoints.get(routePoints.size() - 1).getName();
+            }
+        return null;
     }
 
     public PayType getPayType() {

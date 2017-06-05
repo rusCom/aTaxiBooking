@@ -1,6 +1,7 @@
 package org.toptaxi.ataxibooking.tools;
 
 import android.content.Context;
+import android.location.Location;
 import android.util.Log;
 
 import org.toptaxi.ataxibooking.MainApplication;
@@ -21,11 +22,70 @@ public class DOT {
     private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
     private Context mContext;
     private OkHttpClient httpClient;
+    private String GEOIP = "";
+    private Integer GEOPort = 0;
 
     public DOT(Context mContext) {
         this.mContext = mContext;
         httpClient = new OkHttpClient();
     }
+
+    public void setGEO(String GEOIP, Integer GEOPort) {
+        this.GEOIP = GEOIP;
+        this.GEOPort = GEOPort;
+    }
+
+    DOTResponse geo_set_search_cache(String data){
+        String method = "set_android_cache_data";
+        return httpPostGEO(method, "", data);
+    }
+
+    DOTResponse geo_set_location_point(String data){
+        String method = "set_android_location_point";
+        return httpPostGEO(method, "", data);
+    }
+
+    DOTResponse geo_set_house_search(String data){
+        String method = "set_android_house_search";
+        return httpPostGEO(method, "", data);
+    }
+
+    DOTResponse geo_get_search_cache(String searchString){
+        String method = "get_android_cache_data";
+        Location mLocation = MainApplication.getInstance().getLocation();
+        String params = "";
+        try {
+             params += "search=" + URLEncoder.encode(searchString, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        params += "&latitude=" + mLocation.getLatitude();
+        params += "&longitude=" + mLocation.getLongitude();
+        return httpGetGEO(method, params);
+    }
+
+    DOTResponse geo_get_search_house_cache(String searchString){
+        String method = "get_android_house_search";
+        Location mLocation = MainApplication.getInstance().getLocation();
+        String params = "";
+        try {
+            params += "search=" + URLEncoder.encode(searchString, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        params += "&latitude=" + mLocation.getLatitude();
+        params += "&longitude=" + mLocation.getLongitude();
+        return httpGetGEO(method, params);
+    }
+
+    DOTResponse geo_get_location_point(Double latitude, Double longitude){
+        String method = "get_android_location_point";
+        String params = "";
+        params += "&latitude=" + latitude;
+        params += "&longitude=" + longitude;
+        return httpGetGEO(method, params);
+    }
+
 
     public DOTResponse profile_login(String phone, String type){
         String method = "profile/login";
@@ -188,6 +248,40 @@ public class DOT {
 
     }
 
+    private DOTResponse httpPostGEO(String method, String params, String body){
+        DOTResponse result = new DOTResponse(500);
+        RequestBody requestBody = RequestBody.create(JSON, body);
+        String main_url = "http://" + GEOIP + ":" + GEOPort + "/" + method + "?" + params;
+
+
+        Response response = null;
+        try {
+            Request request = new Request.Builder()
+                    .url(main_url)
+                    .post(requestBody)
+                    .build();
+            response = httpClient.newCall(request).execute();
+            //Log.d(TAG, "httpGet main_ur success");
+        } catch (IOException e) {
+            e.printStackTrace();
+            //Log.d(TAG, "httpGet main_ur unsuccessful");
+        }
+
+        if (response != null){
+            String responseBody = "";
+            try {
+                responseBody = response.body().string();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            result.Set(response.code(), responseBody);
+
+        }
+
+        return result;
+
+    }
+
     private DOTResponse httpGet(String method, String params){
         DOTResponse result = new DOTResponse(500);
 
@@ -221,6 +315,36 @@ public class DOT {
                 e.printStackTrace();
                 //Log.d(TAG, "httpGet reserve unsuccessful");
             }
+        }
+
+        if (response != null){
+            String responseBody = "";
+            try {
+                responseBody = response.body().string();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            result.Set(response.code(), responseBody);
+
+        }
+
+        return result;
+    }
+
+    private DOTResponse httpGetGEO(String method, String params){
+        DOTResponse result = new DOTResponse(500);
+
+        String main_url = "http://" + GEOIP + ":" + GEOPort + "/" + method + "?" + params;
+        Response response = null;
+        try {
+            Request request = new Request.Builder()
+                    .url(main_url)
+                    .build();
+            response = httpClient.newCall(request).execute();
+            //Log.d(TAG, "httpGet main_ur success");
+        } catch (IOException e) {
+            e.printStackTrace();
+            //Log.d(TAG, "httpGet main_ur unsuccessful");
         }
 
         if (response != null){

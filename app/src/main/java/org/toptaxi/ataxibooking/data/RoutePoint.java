@@ -139,6 +139,16 @@ public class RoutePoint implements Parcelable {
         if (data.has("ln"))this.Longitude = data.getDouble("ln");
         if (data.has("note"))this.Note = data.getString("note");
 
+        if (data.has("place_id"))this.PlaceId = data.getString("place_id");
+        if (data.has("name"))this.Name = data.getString("name");
+        if (data.has("description"))this.Description = data.getString("description");
+        if (data.has("latitude"))this.Latitude = data.getDouble("latitude");
+        if (data.has("longitude"))this.Longitude = data.getDouble("longitude");
+        if (data.has("longitude"))this.Longitude = data.getDouble("longitude");
+        if (data.has("place_type"))this.PlaceType = data.getInt("place_type");
+        if (data.has("place_types"))this.PlaceTypes = data.getString("place_types");
+
+
     }
 
     public void updateFromPlaceID(){
@@ -270,6 +280,20 @@ public class RoutePoint implements Parcelable {
         cursor.close();
     }
 
+    public JSONObject toJSON() throws JSONException {
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("place_id", PlaceId);
+        jsonObject.put("name", Name);
+        jsonObject.put("description", Description);
+        jsonObject.put("house_number", HouseNumber);
+        jsonObject.put("note", Note);
+        jsonObject.put("latitude", String.valueOf(Latitude));
+        jsonObject.put("longitude", String.valueOf(Longitude));
+        jsonObject.put("place_type", String.valueOf(PlaceType));
+        jsonObject.put("place_types", PlaceTypes);
+        return jsonObject;
+    }
+
 
     public void setFromPlace(Place data){
         PlaceId = data.getId();
@@ -280,7 +304,7 @@ public class RoutePoint implements Parcelable {
         PlaceType = getRoutePointType(data.getPlaceTypes());
         PlaceTypes = data.getPlaceTypes().toString();
 
-        Log.d(TAG, "setFromPlace Name = " + Name + "; PlaceID = " + PlaceId);
+        //Log.d(TAG, "setFromPlace Name = " + Name + "; PlaceID = " + PlaceId);
 
         /*
         for (int itemID = 0; itemID < data.getPlaceTypes().size(); itemID++){

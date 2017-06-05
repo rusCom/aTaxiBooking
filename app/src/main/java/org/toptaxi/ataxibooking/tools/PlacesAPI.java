@@ -32,6 +32,38 @@ public class PlacesAPI {
 
 
     public static ArrayList<RoutePoint> getHouseSearch(RoutePoint streetRoutePoint, String house, String splash){
+        String searchString = "";
+        String[] splitString = streetRoutePoint.getFullAddress().split(", ");
+        for (int itemID = 0; itemID < splitString.length; itemID++){
+            searchString += splitString[itemID];
+            if (itemID == 0){searchString += ", " + house;
+                if (!splash.equals(""))searchString += "/" + splash;
+            }
+            if (itemID < (splitString.length - 1)){searchString += ", ";}
+        }
+
+        searchString = splitString[0] + " " + house + " " + splash;
+
+        DOTResponse dotResponse = MainApplication.getInstance().getnDot().geo_get_search_house_cache(searchString);
+        if (dotResponse.getCode() == 400){return getHouseSearchAPIClient(streetRoutePoint, house, splash);}
+
+        ArrayList<RoutePoint> resultList = new ArrayList<>();
+        try {
+            JSONArray places = new JSONArray(dotResponse.getBody());
+            for (int itemID = 0; itemID < places.length(); itemID++){
+                RoutePoint routePoint = new RoutePoint();
+                routePoint.setFromJSON(places.getJSONObject(itemID));
+                resultList.add(routePoint);
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return resultList;
+    }
+
+
+    private static ArrayList<RoutePoint> getHouseSearchAPIClient(RoutePoint streetRoutePoint, String house, String splash){
         GoogleApiClient mGoogleApiClient = MainApplication.getInstance().getGoogleApiClient();
         ArrayList<RoutePoint> resultList = new ArrayList<>();
         String searchString = "";
@@ -45,7 +77,7 @@ public class PlacesAPI {
         }
 
         searchString = splitString[0] + " " + house + " " + splash;
-        Log.d(TAG, "getHouseSearch searchString = " + searchString);
+        //Log.d(TAG, "getHouseSearch searchString = " + searchString);
 
         Location mLocation = MainApplication.getInstance().getLocation();
         LatLngBounds mLatLngBounds = null;
@@ -63,12 +95,12 @@ public class PlacesAPI {
         Status status = autocompletePredictions.getStatus();
         if (status.isSuccess()){
             for (AutocompletePrediction prediction : autocompletePredictions) {
-                Log.d(TAG, "getHouseSearch prediction = " + prediction.getFullText(null) + ";" + prediction.getPlaceId() + ";" + prediction.getPlaceTypes().toString() + ";" + RoutePoint.getRoutePointType(prediction.getPlaceTypes()));
+                //Log.d(TAG, "getHouseSearch prediction = " + prediction.getFullText(null) + ";" + prediction.getPlaceId() + ";" + prediction.getPlaceTypes().toString() + ";" + RoutePoint.getRoutePointType(prediction.getPlaceTypes()));
                 if (RoutePoint.getRoutePointType(prediction.getPlaceTypes()) != Constants.ROUTE_POINT_TYPE_UNKNOWN){
                     RoutePoint routePoint = RoutePoint.getFromPlaceId(prediction.getPlaceId());
                     if (routePoint != null){
                         if (routePoint.isAddSearch(MainApplication.getInstance().getLocation())){
-                            Log.d(TAG, "getHouseSearch routePoint = " + routePoint.getFullAddress());
+                            //Log.d(TAG, "getHouseSearch routePoint = " + routePoint.getFullAddress());
                             resultList.add(routePoint);
                         }
                     }
@@ -77,10 +109,80 @@ public class PlacesAPI {
         }
         autocompletePredictions.release();
 
+
+        try {
+            JSONObject cacheData = new JSONObject();
+            cacheData.put("search_string", searchString);
+            mLocation = MainApplication.getInstance().getLocation();
+            cacheData.put("latitude", String.valueOf(mLocation.getLatitude()));
+            cacheData.put("longitude", String.valueOf(mLocation.getLongitude()));
+            JSONArray places = new JSONArray();
+            for (int itemID = 0; itemID < resultList.size(); itemID++){
+                places.put(resultList.get(itemID).toJSON());
+            }
+            cacheData.put("places", places);
+            Log.d(TAG, cacheData.toString());
+            MainApplication.getInstance().getnDot().geo_set_house_search(cacheData.toString());
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+
+
         return resultList;
     }
 
     public static ArrayList<RoutePoint> getBySearch(String searchString){
+        ArrayList<RoutePoint> resultList = null;
+        DOTResponse dotResponse = MainApplication.getInstance().getnDot().geo_get_search_cache(searchString);
+        if (dotResponse.getCode() == 400){
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            resultList = getBySearchAPIClient(searchString);
+            try {
+                JSONObject cacheData = new JSONObject();
+                JSONArray places = new JSONArray();
+                for (int itemID = 0; itemID < resultList.size(); itemID++){
+                    places.put(resultList.get(itemID).toJSON());
+                }
+                cacheData.put("search_string", searchString);
+                Location mLocation = MainApplication.getInstance().getLocation();
+                cacheData.put("latitude", String.valueOf(mLocation.getLatitude()));
+                cacheData.put("longitude", String.valueOf(mLocation.getLongitude()));
+                cacheData.put("places", places);
+                //Log.d(TAG, "getBySearch cacheData = " + cacheData.toString());
+                MainApplication.getInstance().getnDot().geo_set_search_cache(cacheData.toString());
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+        }
+        else {
+            //Log.d(TAG, dotResponse.getBody());
+            resultList = new ArrayList<>();
+            try {
+                JSONArray places = new JSONArray(dotResponse.getBody());
+                for (int itemID = 0; itemID < places.length(); itemID++){
+                    RoutePoint routePoint = new RoutePoint();
+                    routePoint.setFromJSON(places.getJSONObject(itemID));
+                    resultList.add(routePoint);
+                }
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+
+
+
+        return resultList;
+    }
+
+    private static ArrayList<RoutePoint> getBySearchAPIClient(String searchString){
         GoogleApiClient mGoogleApiClient = MainApplication.getInstance().getGoogleApiClient();
         ArrayList<RoutePoint> resultList = new ArrayList<>();
 
@@ -175,6 +277,20 @@ public class PlacesAPI {
     }
 
     public static RoutePoint getByLocation(Double Latitude, Double Longitude){
+        DOTResponse dotResponse = MainApplication.getInstance().getnDot().geo_get_location_point(Latitude, Longitude);
+        if (dotResponse.getCode() == 400){return getByLocationAPIClient(Latitude, Longitude);}
+
+        RoutePoint routePoint = new RoutePoint();
+        try {
+            routePoint.setFromJSON(new JSONObject(dotResponse.getBody()));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        //Log.d(TAG, dotResponse.getBody());
+        return routePoint;
+    }
+
+    private static RoutePoint getByLocationAPIClient(Double Latitude, Double Longitude){
         RoutePoint resultRoutePoint = null;
         String httpRequest = "https://maps.googleapis.com/maps/api/geocode/json?latlng=" + String.valueOf(Latitude) +"," + String.valueOf(Longitude);
         httpRequest += "&language=" + Locale.getDefault().toString();
@@ -237,11 +353,19 @@ public class PlacesAPI {
             e.printStackTrace();
         }
 
+
+        try {
+            JSONObject cacheData = new JSONObject();
+            cacheData.put("latitude", String.valueOf(Latitude));
+            cacheData.put("longitude", String.valueOf(Longitude));
+            cacheData.put("point", resultRoutePoint.toJSON());
+            //Log.d(TAG, "setdata = " + cacheData.toString());
+            MainApplication.getInstance().getnDot().geo_set_location_point(cacheData.toString());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
         return resultRoutePoint;
     }
 
-
-    public static void SetGetByLocationCache(Double Latitude, Double Longitude, RoutePoint routePoint){
-        
-    }
 }

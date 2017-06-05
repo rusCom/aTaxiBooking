@@ -15,6 +15,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
@@ -37,16 +38,17 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class AddressActivity extends AppCompatActivity implements RoutePointsAdapter.OnRoutePointClickListener {
-    //private static String TAG = "#########" + AddressActivity.class.getName();
+    private static String TAG = "#########" + AddressActivity.class.getName();
     RecyclerView rvRoutePoints;
     RoutePointsAdapter routePointsAdapter;
     RoutePoint routePoint;
     EditText edRoutePointSearch;
     RelativeLayout rlFastRoutePoint;
     private Timer timer = new Timer();
-    private final int DELAY = 500; //milliseconds of delay for timer
+    private final int DELAY = 1000; //milliseconds of delay for timer
     ProgressBar progressBar;
     Button btnMap;
+    GetRoutePointsTask getRoutePointsTask;
 
 
     @Override
@@ -95,7 +97,13 @@ public class AddressActivity extends AppCompatActivity implements RoutePointsAda
                 else {
                     rlFastRoutePoint.setVisibility(View.GONE);
                     btnMap.setVisibility(View.GONE);
-                    if (edRoutePointSearch.getText().toString().length() > 2) {
+                    if (edRoutePointSearch.getText().toString().length() > 3) {
+                        if (getRoutePointsTask != null){
+                            getRoutePointsTask.cancel(true);
+                        }
+                        new GetRoutePointsTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, edRoutePointSearch.getText().toString());
+                        //getRoutePointsTask.
+                        /*
                         progressBar.setVisibility(View.VISIBLE);
                         timer.cancel();
                         timer = new Timer();
@@ -103,7 +111,7 @@ public class AddressActivity extends AppCompatActivity implements RoutePointsAda
                                 new TimerTask() {
                                     @Override
                                     public void run() {
-                                        //Log.d(TAG, "start search");
+                                        Log.d(TAG, "start search");
                                         final List<RoutePoint> routePoints = PlacesAPI.getBySearch(edRoutePointSearch.getText().toString());
                                         runOnUiThread(new Runnable() {
                                             @Override
@@ -112,13 +120,15 @@ public class AddressActivity extends AppCompatActivity implements RoutePointsAda
                                                 routePointsAdapter.notifyDataSetChanged();
                                                 rvRoutePoints.setVisibility(View.VISIBLE);
                                                 progressBar.setVisibility(View.GONE);
-                                                //Log.d(TAG, "stop search");
+
+                                                Log.d(TAG, "stop search");
                                             }
                                         });
                                     }
                                 },
                                 DELAY
                         );
+                        */
                     }
                 }
             }
@@ -151,6 +161,40 @@ public class AddressActivity extends AppCompatActivity implements RoutePointsAda
 
         initViewPager();
 
+    }
+
+    private class GetRoutePointsTask extends AsyncTask<String, Void, List<RoutePoint>>{
+        @Override
+        protected void onPreExecute() {
+            //Log.d(TAG, "GetRoutePointsTask onPreExecute");
+            super.onPreExecute();
+            getRoutePointsTask = this;
+            progressBar.setVisibility(View.VISIBLE);
+        }
+
+        @Override
+        protected List<RoutePoint> doInBackground(String... params) {
+            //Log.d(TAG, "GetRoutePointsTask doInBackground " + params[0]);
+            return PlacesAPI.getBySearch(params[0]);
+        }
+
+        @Override
+        protected void onPostExecute(List<RoutePoint> routePoints) {
+            //Log.d(TAG, "GetRoutePointsTask onPostExecute");
+            super.onPostExecute(routePoints);
+            routePointsAdapter.setRoutePoints(routePoints, Constants.ROUTE_POINT_ADAPTER_FAST_ROUTE_POINT);
+            routePointsAdapter.notifyDataSetChanged();
+            rvRoutePoints.setVisibility(View.VISIBLE);
+            progressBar.setVisibility(View.GONE);
+        }
+
+        @Override
+        protected void onCancelled() {
+            //Log.d(TAG, "GetRoutePointsTask onCancelled");
+            super.onCancelled();
+            progressBar.setVisibility(View.GONE);
+
+        }
     }
 
 

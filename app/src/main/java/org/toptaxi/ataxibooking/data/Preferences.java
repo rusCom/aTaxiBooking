@@ -5,6 +5,7 @@ import android.util.Log;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.toptaxi.ataxibooking.MainApplication;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -63,6 +64,10 @@ public class Preferences {
             location.setLatitude(LastLocation.getDouble("lt"));
             location.setLongitude(LastLocation.getDouble("ln"));
             //Log.d(TAG, "LastLocation = " + location.toString());
+        }
+        if (data.has("geo")){
+            JSONObject geo = data.getJSONObject("geo");
+            MainApplication.getInstance().getnDot().setGEO(geo.getString("ip"), geo.getInt("port"));
         }
         // Доп Услуги по заказам
         JSONObject wishTaxi = data.getJSONObject("wish").getJSONObject("taxi");

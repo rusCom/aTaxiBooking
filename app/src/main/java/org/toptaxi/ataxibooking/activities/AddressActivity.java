@@ -24,6 +24,7 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 
+import org.toptaxi.ataxibooking.MainActivity;
 import org.toptaxi.ataxibooking.MainApplication;
 import org.toptaxi.ataxibooking.adapters.RoutePointsAdapter;
 import org.toptaxi.ataxibooking.data.Constants;
@@ -88,6 +89,9 @@ public class AddressActivity extends AppCompatActivity implements RoutePointsAda
 
             @Override
             public void afterTextChanged(Editable editable) {
+                if (getRoutePointsTask != null){
+                    getRoutePointsTask.cancel(true);
+                }
                 rvRoutePoints.setVisibility(View.GONE);
                 if (edRoutePointSearch.getText().toString().equals("")){
                     rlFastRoutePoint.setVisibility(View.VISIBLE);
@@ -98,9 +102,7 @@ public class AddressActivity extends AppCompatActivity implements RoutePointsAda
                     rlFastRoutePoint.setVisibility(View.GONE);
                     btnMap.setVisibility(View.GONE);
                     if (edRoutePointSearch.getText().toString().length() > 3) {
-                        if (getRoutePointsTask != null){
-                            getRoutePointsTask.cancel(true);
-                        }
+
                         new GetRoutePointsTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, edRoutePointSearch.getText().toString());
                         //getRoutePointsTask.
                         /*
@@ -166,7 +168,7 @@ public class AddressActivity extends AppCompatActivity implements RoutePointsAda
     private class GetRoutePointsTask extends AsyncTask<String, Void, List<RoutePoint>>{
         @Override
         protected void onPreExecute() {
-            //Log.d(TAG, "GetRoutePointsTask onPreExecute");
+            Log.d(TAG, "GetRoutePointsTask onPreExecute");
             super.onPreExecute();
             getRoutePointsTask = this;
             progressBar.setVisibility(View.VISIBLE);
@@ -174,13 +176,23 @@ public class AddressActivity extends AppCompatActivity implements RoutePointsAda
 
         @Override
         protected List<RoutePoint> doInBackground(String... params) {
-            //Log.d(TAG, "GetRoutePointsTask doInBackground " + params[0]);
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            if (this.isCancelled()){
+                Log.d(TAG, "GetRoutePointsTask onCancelled");
+                return null;
+            }
+            Log.d(TAG, "GetRoutePointsTask doInBackground " + params[0]);
+
             return PlacesAPI.getBySearch(params[0]);
         }
 
         @Override
         protected void onPostExecute(List<RoutePoint> routePoints) {
-            //Log.d(TAG, "GetRoutePointsTask onPostExecute");
+            Log.d(TAG, "GetRoutePointsTask onPostExecute");
             super.onPostExecute(routePoints);
             routePointsAdapter.setRoutePoints(routePoints, Constants.ROUTE_POINT_ADAPTER_FAST_ROUTE_POINT);
             routePointsAdapter.notifyDataSetChanged();
@@ -190,7 +202,7 @@ public class AddressActivity extends AppCompatActivity implements RoutePointsAda
 
         @Override
         protected void onCancelled() {
-            //Log.d(TAG, "GetRoutePointsTask onCancelled");
+            Log.d(TAG, "GetRoutePointsTask onCancelled");
             super.onCancelled();
             progressBar.setVisibility(View.GONE);
 
@@ -286,6 +298,14 @@ public class AddressActivity extends AppCompatActivity implements RoutePointsAda
             }
         }
         super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (MainApplication.getInstance().getGoogleApiClient() == null){
+            finish();
+        }
     }
 
     @Override

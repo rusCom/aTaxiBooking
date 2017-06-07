@@ -38,7 +38,7 @@ public class Account {
         SharedPreferences sPref = PreferenceManager.getDefaultSharedPreferences(MainApplication.getInstance());
         SharedPreferences.Editor editor = sPref.edit();
         editor.putInt("user_agreement_version", MainApplication.getInstance().getPreferences().getUserAgreementVersion());
-        Log.d(TAG, "user_agreement_version = " + MainApplication.getInstance().getPreferences().getUserAgreementVersion());
+        //Log.d(TAG, "user_agreement_version = " + MainApplication.getInstance().getPreferences().getUserAgreementVersion());
         UserAgreementVersion = MainApplication.getInstance().getPreferences().getUserAgreementVersion();
         editor.apply();
     }

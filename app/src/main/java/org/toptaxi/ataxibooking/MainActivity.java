@@ -13,6 +13,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
@@ -34,6 +35,9 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.places.Places;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -56,6 +60,7 @@ import com.mikepenz.materialdrawer.model.interfaces.IProfile;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.toptaxi.ataxibooking.activities.HisOrdersActivity;
+import org.toptaxi.ataxibooking.activities.SplashActivity;
 import org.toptaxi.ataxibooking.data.Constants;
 import org.toptaxi.ataxibooking.data.Driver;
 import org.toptaxi.ataxibooking.dialogs.NewVersionDialog;
@@ -72,7 +77,7 @@ import org.toptaxi.ataxibooking.tools.PlacesAPI;
 
 import java.util.Locale;
 
-public class MainActivity extends FragmentActivity implements OnMapReadyCallback, OnMainDataChangeListener, Drawer.OnDrawerItemClickListener {
+public class MainActivity extends FragmentActivity implements OnMapReadyCallback, OnMainDataChangeListener, Drawer.OnDrawerItemClickListener, GoogleApiClient.ConnectionCallbacks {
     private static String TAG = "#########" + MainActivity.class.getName();
 
 
@@ -93,15 +98,19 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     IProfile profile;
     long back_pressed;
     PrimaryDrawerItem menuBalanceItem, menuMapTypeItem;
+    private GoogleApiClient mGoogleApiClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        //Log.d(TAG, "onCreate");
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+
 
         mGeocoder = new Geocoder(this, Locale.getDefault());
 
@@ -123,9 +132,18 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     protected void onStart() {
         super.onStart();
-        MainApplication.getInstance().setOnMainDataChangeListener(this);
-        MainApplication.getInstance().setMainActivity(this);
-        generateView();
+        if (MainApplication.getInstance().getGoogleApiClient() == null){
+            //Log.d(TAG, "google api cline = null");
+            Intent splashIntent = new Intent(MainActivity.this, SplashActivity.class);
+            startActivity(splashIntent);
+            finish();
+        }
+        else {
+            MainApplication.getInstance().setOnMainDataChangeListener(this);
+            MainApplication.getInstance().setMainActivity(this);
+            generateView();
+        }
+
     }
 
     @Override
@@ -620,6 +638,17 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
             alertDialog.create();
             alertDialog.show();
         }
+    }
+
+    @Override
+    public void onConnected(@Nullable Bundle bundle) {
+        Log.d(TAG, "google api client connected");
+        MainApplication.getInstance().setGoogleApiClient(mGoogleApiClient);
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+
     }
 
     private class OrderDenyTask extends AsyncTask<Void, Void, DOTResponse> {

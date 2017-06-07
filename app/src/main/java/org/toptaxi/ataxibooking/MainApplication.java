@@ -297,7 +297,7 @@ public class MainApplication extends Application implements LocationListener {
             }
         }
         else {
-            getDataThread.interrupt();
+            if (getDataThread != null){getDataThread.interrupt();}
             IsGetDataThread = false;
             if (mGoogleApiClient != null)
                 if (mGoogleApiClient.isConnected())

@@ -137,11 +137,7 @@ public class PlacesAPI {
         ArrayList<RoutePoint> resultList = null;
         DOTResponse dotResponse = MainApplication.getInstance().getnDot().geo_get_search_cache(searchString);
         if (dotResponse.getCode() == 400){
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+
             resultList = getBySearchAPIClient(searchString);
             try {
                 JSONObject cacheData = new JSONObject();
@@ -162,7 +158,7 @@ public class PlacesAPI {
 
         }
         else {
-            //Log.d(TAG, dotResponse.getBody());
+            Log.d(TAG, "getBySearch body = " + dotResponse.getBody());
             resultList = new ArrayList<>();
             try {
                 JSONArray places = new JSONArray(dotResponse.getBody());
@@ -185,6 +181,7 @@ public class PlacesAPI {
     private static ArrayList<RoutePoint> getBySearchAPIClient(String searchString){
         GoogleApiClient mGoogleApiClient = MainApplication.getInstance().getGoogleApiClient();
         ArrayList<RoutePoint> resultList = new ArrayList<>();
+        if (mGoogleApiClient == null)return resultList;
 
         Location mLocation = MainApplication.getInstance().getLocation();
         LatLngBounds mLatLngBounds = null;

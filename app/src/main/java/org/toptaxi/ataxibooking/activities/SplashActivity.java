@@ -132,23 +132,6 @@ public class SplashActivity extends AppCompatActivity implements GoogleApiClient
                 }
 
             }
-            /*
-            else if (!((LocationManager)getSystemService(Context.LOCATION_SERVICE)).isProviderEnabled(LocationManager.GPS_PROVIDER)){
-                AlertDialog.Builder dialog = new AlertDialog.Builder(this);
-                dialog.setMessage(getString(R.string.gps_network_not_enabled));
-                dialog.setPositiveButton("Открыть настройки", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface paramDialogInterface, int paramInt) {
-                        // TODO Auto-generated method stub
-                        Intent myIntent = new Intent( Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                        startActivity(myIntent);
-                        finish();
-                        //get gps
-                    }
-                });
-                dialog.show();
-            }
-            */
             // Если подключение к плей сервсиу уже есть
             else {
                 //startMainActivity();
@@ -200,19 +183,6 @@ public class SplashActivity extends AppCompatActivity implements GoogleApiClient
             else {
                 MainApplication.getInstance().showToast("HTTP Error");
             }
-            /*
-            if (result == Constants.DOT_REST_OK){
-                GetDataTask getDataTask = new GetDataTask();
-                if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.HONEYCOMB)
-                    getDataTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-                else
-                    getDataTask.execute();
-            }
-            else {
-                MainApplication.getInstance().showToastType(result);
-                finish();
-            }
-            */
         }
     }
 

@@ -59,8 +59,10 @@ public class DOT {
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
-        params += "&latitude=" + mLocation.getLatitude();
-        params += "&longitude=" + mLocation.getLongitude();
+        if (mLocation != null){
+            params += "&latitude=" + mLocation.getLatitude();
+            params += "&longitude=" + mLocation.getLongitude();
+        }
         return httpGetGEO(method, params);
     }
 
@@ -249,7 +251,8 @@ public class DOT {
     }
 
     private DOTResponse httpPostGEO(String method, String params, String body){
-        DOTResponse result = new DOTResponse(500);
+        DOTResponse result = new DOTResponse(400);
+        if (GEOIP.equals(""))return result;
         RequestBody requestBody = RequestBody.create(JSON, body);
         String main_url = "http://" + GEOIP + ":" + GEOPort + "/" + method + "?" + params;
 
@@ -332,7 +335,8 @@ public class DOT {
     }
 
     private DOTResponse httpGetGEO(String method, String params){
-        DOTResponse result = new DOTResponse(500);
+        DOTResponse result = new DOTResponse(400);
+        if (GEOIP.equals(""))return result;
 
         String main_url = "http://" + GEOIP + ":" + GEOPort + "/" + method + "?" + params;
         Response response = null;

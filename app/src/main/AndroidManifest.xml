@@ -32,33 +32,49 @@
         </activity>
         <activity
             android:name=".MainActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:launchMode="singleTop"/>
         <activity
             android:name=".activities.AddressActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:launchMode="singleTop"/>
         <activity
             android:name=".activities.ChooseHouseActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:launchMode="singleTop" />
         <activity
             android:name=".activities.NewOrderActivity"
             android:screenOrientation="portrait"
+            android:launchMode="singleTop"
             android:windowSoftInputMode="adjustPan" />
         <activity
             android:name=".activities.LoginActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:launchMode="singleTop" />
         <activity
             android:name=".activities.AccountActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:launchMode="singleTop" />
         <activity
             android:name=".activities.PayTypeActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:launchMode="singleTop" />
         <activity
             android:name=".activities.WishActivity"
-            android:screenOrientation="portrait" />
-        <activity android:name=".activities.LoginPhoneActivity" />
-        <activity android:name=".activities.LoginGetTokenActivity" />
-        <activity android:name=".activities.ChooseOnMapActivity" />
-        <activity android:name=".activities.HisOrdersActivity"></activity>
+            android:screenOrientation="portrait"
+            android:launchMode="singleTop" />
+        <activity android:name=".activities.LoginPhoneActivity"
+            android:screenOrientation="portrait"
+            android:launchMode="singleTop"/>
+        <activity android:name=".activities.LoginGetTokenActivity"
+            android:screenOrientation="portrait"
+            android:launchMode="singleTop"/>
+        <activity android:name=".activities.ChooseOnMapActivity"
+            android:screenOrientation="portrait"
+            android:launchMode="singleTop"/>
+        <activity android:name=".activities.HisOrdersActivity"
+            android:screenOrientation="portrait"
+            android:launchMode="singleTop"/>
     </application>
 
 </manifest>

@@ -11,6 +11,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.toptaxi.ataxibooking.MainApplication;
+import org.toptaxi.ataxibooking.tools.DOTResponse;
 import org.toptaxi.ataxibooking.tools.DateTimeTools;
 import org.toptaxi.ataxibooking.R;
 
@@ -488,49 +489,65 @@ public class Order {
         Distance = 0;
         Duration = 0;
         if (getRouteCount() > 1){
-            String request = "https://maps.googleapis.com/maps/api/distancematrix/json?origins=" + getRoutePoint(0).getLatitude() + "," + getRoutePoint(0).getLongitude() + "&destinations=";
+            Integer distance = 0;
             for (int itemID = 1; itemID < getRouteCount(); itemID++){
-                request += getRoutePoint(itemID).getLatitude() + "," + getRoutePoint(itemID).getLongitude();
-                if (itemID < (getRouteCount() - 1))request += "|";
+                RoutePoint routePointL = getRoutePoint(itemID - 1);
+                RoutePoint routePoint = getRoutePoint(itemID);
+                distance += getDistanceMatrix(String.valueOf(routePointL.getLatitude()),
+                        String.valueOf(routePointL.getLongitude()),
+                        String.valueOf(routePoint.getLatitude()),
+                        String.valueOf(routePoint.getLongitude()));
             }
-            //request += "&key=" + MainApplication.getInstance().getResources().getString(R.string.web_google_maps_key);
-            request += "&language=" + Locale.getDefault();
+            Distance = distance;
+            isCalc = true;
 
-            //Log.d(TAG, "calcDistance request = " + request);
+        }
+        return isCalc;
+    }
+
+    private Integer getDistanceMatrix(String blt, String bln, String elt, String eln){
+        Integer result = 0;
+        DOTResponse dotResponse = MainApplication.getInstance().getnDot().geo_get_distance(blt, bln, elt, eln);
+        if (dotResponse.getCode() == 200){
             try {
-                URL url = new URL(request);
-                HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-                urlConnection.setRequestMethod("GET");
-                urlConnection.connect();InputStream inputStream = urlConnection.getInputStream();
-                StringBuffer buffer = new StringBuffer();
-                BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    buffer.append(line);
-                }
-
-                String resultJson = buffer.toString();
-                //Log.d(TAG, "calcDistance resultJson = " + resultJson);
-                JSONObject jsonObject = new JSONObject(resultJson);
-                if (jsonObject.getString("status").equals("OK")){
-                    JSONArray elements = jsonObject.getJSONArray("rows").getJSONObject(0).getJSONArray("elements");
-                    for (int itemID = 0; itemID < elements.length(); itemID++){
-                        Distance += elements.getJSONObject(itemID).getJSONObject("distance").getInt("value");
-                        Duration += elements.getJSONObject(itemID).getJSONObject("duration").getInt("value");
-                    }
-                }
-                isCalc = true;
-
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
+                JSONObject data = new JSONObject(dotResponse.getBody());
+                result = data.getInt("dst");
             } catch (JSONException e) {
                 e.printStackTrace();
             }
+            Log.d(TAG, "calcDistance from cache " + result);
         }
-        return isCalc;
+        else {
+            String request = "https://maps.googleapis.com/maps/api/distancematrix/json?origins=" + blt + "," + bln + "&destinations=" + elt + "," + eln;
+            Log.d(TAG, "calcDistance request = " + request);
+            String response = MainApplication.getInstance().getnDot().httpGet2(request);
+
+            if (!response.equals("")){
+                try {
+                    JSONObject jsonObject = new JSONObject(response);
+                    Log.d(TAG, "calcDistance response = " + jsonObject.toString());
+                    Integer distance = 0;
+                    if (jsonObject.getString("status").equals("OK")){
+                        JSONArray elements = jsonObject.getJSONArray("rows").getJSONObject(0).getJSONArray("elements");
+                        for (int itemID = 0; itemID < elements.length(); itemID++){
+                            distance += elements.getJSONObject(itemID).getJSONObject("distance").getInt("value");
+                        }
+                    }
+                    result = distance;
+                    JSONObject data = new JSONObject();
+                    data.put("blt", blt);
+                    data.put("bln", bln);
+                    data.put("elt", elt);
+                    data.put("eln", eln);
+                    data.put("dst", String.valueOf(distance));
+                    MainApplication.getInstance().getnDot().httpPostGEO("set_google_distance", "", data.toString());
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+
+        }
+        return result;
     }
 
 }

@@ -2,8 +2,10 @@ package org.toptaxi.ataxibooking.tools;
 
 import android.content.Context;
 import android.location.Location;
-import android.util.Log;
 
+
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.toptaxi.ataxibooking.MainApplication;
 import org.toptaxi.ataxibooking.R;
 
@@ -34,6 +36,28 @@ public class DOT {
         this.GEOIP = GEOIP;
         this.GEOPort = GEOPort;
     }
+
+    public DOTResponse geo_get_distance(String blt, String bln, String elt, String eln){
+        String method = "get_distance";
+        String params = "blt=" + blt;
+        params += "&bln=" + bln;
+        params += "&elt=" + elt;
+        params += "&eln=" + eln;
+        return httpGetGEO(method, params);
+    }
+
+    public DOTResponse geo_set_distances(String origins, String destinations, String result){
+        JSONObject data = new JSONObject();
+        try {
+            data.put("origins", origins);
+            data.put("destinations", destinations);
+            data.put("result", result);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return httpPostGEO("set_google_distance", "", data.toString());
+    }
+
 
     DOTResponse geo_set_search_cache(String data){
         String method = "set_android_cache_data";
@@ -250,7 +274,7 @@ public class DOT {
 
     }
 
-    private DOTResponse httpPostGEO(String method, String params, String body){
+    public DOTResponse httpPostGEO(String method, String params, String body){
         DOTResponse result = new DOTResponse(400);
         if (GEOIP.equals(""))return result;
         RequestBody requestBody = RequestBody.create(JSON, body);
@@ -283,6 +307,20 @@ public class DOT {
 
         return result;
 
+    }
+
+    public String httpGet2(String requestString){
+        String result = "";
+        Request request = new Request.Builder()
+                .url(requestString)
+                .build();
+        try {
+            Response response = httpClient.newCall(request).execute();
+            result = response.body().string();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return result;
     }
 
     private DOTResponse httpGet(String method, String params){

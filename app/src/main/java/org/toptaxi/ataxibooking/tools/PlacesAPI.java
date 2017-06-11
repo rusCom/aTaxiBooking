@@ -352,12 +352,14 @@ public class PlacesAPI {
 
 
         try {
-            JSONObject cacheData = new JSONObject();
-            cacheData.put("latitude", String.valueOf(Latitude));
-            cacheData.put("longitude", String.valueOf(Longitude));
-            cacheData.put("point", resultRoutePoint.toJSON());
-            //Log.d(TAG, "setdata = " + cacheData.toString());
-            MainApplication.getInstance().getnDot().geo_set_location_point(cacheData.toString());
+            if (resultRoutePoint != null){
+                JSONObject cacheData = new JSONObject();
+                cacheData.put("latitude", String.valueOf(Latitude));
+                cacheData.put("longitude", String.valueOf(Longitude));
+                cacheData.put("point", resultRoutePoint.toJSON());
+                //Log.d(TAG, "setdata = " + cacheData.toString());
+                MainApplication.getInstance().getnDot().geo_set_location_point(cacheData.toString());
+            }
         } catch (JSONException e) {
             e.printStackTrace();
         }

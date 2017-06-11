@@ -11,9 +11,14 @@ import android.support.v7.app.AppCompatActivity;
 import android.telephony.PhoneNumberFormattingTextWatcher;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
+import android.view.WindowManager;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -38,6 +43,7 @@ public class AccountActivity extends AppCompatActivity {
         edPhone = (EditText)findViewById(R.id.edAccountActivityPhone);
         edCode = (EditText)findViewById(R.id.edAccountActivityCode);
 
+        findViewById(R.id.btnTitleLeft).setBackgroundResource(R.drawable.ic_arrow_back);
         findViewById(R.id.btnTitleRight).setBackgroundResource(R.drawable.ic_check);
 
         llConfirmPhone = (LinearLayout)findViewById(R.id.llAccountActivityConfirmPhone);
@@ -48,6 +54,32 @@ public class AccountActivity extends AppCompatActivity {
         edName.setText(MainApplication.getInstance().getAccount().getName());
         edPhone.setText(MainApplication.getInstance().getAccount().getPhone());
         edCode.setText("");
+
+        edPhone.setOnKeyListener(new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View v, int keyCode, KeyEvent event) {
+                if ((event.getAction() == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
+                    Log.d(TAG, "on Done click");
+                    onRightButtonClick(v);
+                    return true;
+                }
+                return false;
+            }
+        });
+
+        edCode.setOnKeyListener(new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View v, int keyCode, KeyEvent event) {
+                if ((event.getAction() == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
+                    Log.d(TAG, "on Done click");
+                    btnAccountActivityConfirmPhoneClick(v);
+                    return true;
+                }
+                return false;
+            }
+        });
+
+
 
         llConfirmPhone.setVisibility(View.GONE);
 
@@ -79,7 +111,8 @@ public class AccountActivity extends AppCompatActivity {
     }
 
     public boolean validateMail(){
-        if (!edMail.getText().toString().equals("") && !isValidEmail(((EditText)findViewById(R.id.edAccountActivityMail)).getText())){
+        Log.d(TAG, "validateMail |" + edMail.getText().toString() + "|");
+        if ((!edMail.getText().toString().equals("")) && (!isValidEmail(((EditText)findViewById(R.id.edAccountActivityMail)).getText()))){
             ((TextInputLayout)findViewById(R.id.ilAccountActivityMail)).setError(getResources().getString(R.string.edAccountActivityMailError));
             findViewById(R.id.edAccountActivityMail).requestFocus();
             return false;
@@ -122,12 +155,16 @@ public class AccountActivity extends AppCompatActivity {
                 JSONObject data = new JSONObject();
                 try {
                     data.put("name", edName.getText().toString());
-                    data.put("email", edMail.getText().toString());
+                    if (edMail.getText().toString().trim().equals(""))data.put("email", " ");
+                    else data.put("email", edMail.getText().toString().trim());
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
                 //String accountData = edName.getText().toString() + "|" + edMail.getText().toString() + "|";
                 (new SaveAccountDataTask(this)).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, data.toString());
+            }
+            else {
+                finish();
             }
 
         }
@@ -184,6 +221,7 @@ public class AccountActivity extends AppCompatActivity {
 
         @Override
         protected DOTResponse doInBackground(String... strings) {
+            // new DOTResponse(200);
             return MainApplication.getInstance().getnDot().profile_check_phone_code(strings[0], strings[1]);
             //return MainApplication.getInstance().getDOT().getDataType("check_new_phone_code", strings[0]);
         }
@@ -197,9 +235,19 @@ public class AccountActivity extends AppCompatActivity {
                 MainApplication.getInstance().getAccount().setPhone(edPhone.getText().toString());
                 //edPhone.setText(MainApplication.getInstance().getAccount().getPhone());
                 edCode.setText("");
+
             }
             else if ((result.getCode() == 400) && (!result.getBody().equals("")))  {
                 MainApplication.getInstance().showToast(result.getBody());
+                edCode.requestFocus();
+                edCode.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                        inputMethodManager.showSoftInput(edCode, InputMethodManager.SHOW_IMPLICIT);
+                    }
+                }, 1000);
+
             }
             else {
                 MainApplication.getInstance().showToast("HTTP Error " + String.valueOf(result.getCode()));
@@ -223,6 +271,7 @@ public class AccountActivity extends AppCompatActivity {
 
         @Override
         protected DOTResponse doInBackground(String... strings) {
+            //return new DOTResponse(200);
             return MainApplication.getInstance().getnDot().profile_check_phone(strings[0]);
             //return MainApplication.getInstance().getDOT().getDataType("check_new_phone", strings[0]);
         }
@@ -233,6 +282,14 @@ public class AccountActivity extends AppCompatActivity {
             if (progressDialog.isShowing())progressDialog.dismiss();
             if (result.getCode() == 200){
                 llConfirmPhone.setVisibility(View.VISIBLE);
+                edCode.requestFocus();
+                edCode.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                        inputMethodManager.showSoftInput(edCode, InputMethodManager.SHOW_IMPLICIT);
+                    }
+                }, 1000);
             }
             else if ((result.getCode() == 400) && (!result.getBody().equals("")))  {
                 MainApplication.getInstance().showToast(result.getBody());
@@ -261,6 +318,7 @@ public class AccountActivity extends AppCompatActivity {
 
         @Override
         protected DOTResponse doInBackground(String... strings) {
+            Log.d(TAG, "doInBackground data = " + strings[0]);
             DOTResponse res = MainApplication.getInstance().getnDot().profile_set(strings[0]);
             if (res.getCode() == 200){
                 DOTResponse res2 = MainApplication.getInstance().getnDot().profile_get();

@@ -123,7 +123,6 @@ public class RoutePoint implements Parcelable {
         this.Longitude = Longitude;
         this.PlaceType = PlaceType;
         this.PlaceTypes = Types;
-
     }
 
 

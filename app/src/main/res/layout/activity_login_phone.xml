@@ -30,9 +30,10 @@
             android:id="@+id/textView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="Пожалуйста введите номер телефона" />
+            android:layout_gravity="center_vertical|center_horizontal"
+            android:text="Пожалуйста введите свой номер телефона для продолжения работы"
+            android:textAlignment="center"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
 
             <EditText
                 android:id="@+id/edActivityLoginPhone"
@@ -47,7 +48,7 @@
         <Button
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/btnActivityLoginGetPassword"
+            android:text="Далее"
             android:id="@+id/btnActivityLoginGetPassword"
             android:layout_margin="@dimen/activity_margin"
             android:background="@drawable/btn_main"

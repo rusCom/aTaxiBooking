@@ -78,7 +78,8 @@
             android:layout_height="wrap_content"
             android:text="@string/btnAccountActivityConfirmPhone"
             android:onClick="btnAccountActivityConfirmPhoneClick"
-            android:id="@+id/btnAccountActivityConfirmPhone"/>
+            android:id="@+id/btnAccountActivityConfirmPhone"
+            android:background="@drawable/btn_main"/>
     </LinearLayout>
 
 

@@ -18,6 +18,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -269,6 +270,7 @@ public class SplashActivity extends AppCompatActivity implements GoogleApiClient
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
+        Log.d(TAG, "onConnected");
         isGooglePlayConnect = true;
         MainApplication.getInstance().setGoogleApiClient(mGoogleApiClient);
         //Log.d(TAG, "onConnected");
@@ -283,6 +285,7 @@ public class SplashActivity extends AppCompatActivity implements GoogleApiClient
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+        Log.d(TAG, "onConnectionFailed " + connectionResult.getErrorCode());
         if (connectionResult.getErrorCode() == ConnectionResult.SERVICE_VERSION_UPDATE_REQUIRED){
             AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
             alertDialog.setMessage("Для корректной работы приложения необходимо обновить Сервисы Google Play");
@@ -299,7 +302,7 @@ public class SplashActivity extends AppCompatActivity implements GoogleApiClient
             alertDialog.create();
             alertDialog.show();
         }
-        if (connectionResult.getErrorCode() == ConnectionResult.SERVICE_MISSING){
+        else if (connectionResult.getErrorCode() == ConnectionResult.SERVICE_MISSING){
             AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
             alertDialog.setMessage("Для корректной работы приложения необходимо установить Сервисы Google Play");
             alertDialog.setPositiveButton("Ok", new DialogInterface.OnClickListener() {

@@ -387,24 +387,6 @@ public class DOT {
         String result = response.body().string();
         response.body().close();
         return result;
-        /*
-        String result = "";
-        URL url = new URL(request);
-        HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-        urlConnection.setRequestMethod("GET");
-        urlConnection.connect();InputStream inputStream = urlConnection.getInputStream();
-        StringBuffer buffer = new StringBuffer();
-        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-
-        String line;
-        while ((line = reader.readLine()) != null) {
-            buffer.append(line);
-        }
-
-        result = buffer.toString();
-
-        return result;
-        */
     }
 
 

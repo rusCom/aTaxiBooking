@@ -253,32 +253,6 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         imgview.setLayoutParams(l);
         imgview.startAnimation(animationRotateCenter);
 
-        /*
-
-        DisplayMetrics displaymetrics = getResources().getDisplayMetrics();
-
-        RotateAnimation rAnim = new RotateAnimation(0, 360, displaymetrics.widthPixels/2, di);
-        rAnim.setRepeatMode(Animation.REVERSE);
-        rAnim.setRepeatCount(Animation.INFINITE);
-        rAnim.setInterpolator(new LinearInterpolator());
-        rAnim.setDuration(1000L);
-
-        ImageView imgview = (ImageView) findViewById(R.id.ivRadar);
-        imgview.startAnimation(rAnim);
-        */
-
-        /*
-
-
-        mRadarView.setShowCircles(true);
-
-        DisplayMetrics displaymetrics = getResources().getDisplayMetrics();
-        int width = (int) (displaymetrics.widthPixels * 0.8);
-        RelativeLayout.LayoutParams l = new RelativeLayout.LayoutParams(width, width);
-        l.addRule(RelativeLayout.CENTER_IN_PARENT);
-        mRadarView.setLayoutParams(l);
-        mRadarView.startAnimation();
-        */
 
         fabSearchAddress = (FloatingActionButton)findViewById(R.id.fabMainActivitySearchAddress);
         fabSearchAddress.setOnClickListener(new View.OnClickListener() {
@@ -624,19 +598,19 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 
     public void cancelOrder(){
         if (MainApplication.getInstance().getOrder().getStatus() != Constants.ORDER_STATE_NEW_ORDER){
-            AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
-            alertDialog.setMessage("Отменить заказ");
-            alertDialog.setPositiveButton("Да", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialogInterface, int i) {
-                    //MainApplication.getInstance().getDOT().sendDataResult("order_deny", "");
-                    //MainApplication.getInstance().getnDot().orders_deny();
-                    new OrderDenyTask(MainActivity.this).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-                }
-            });
-            alertDialog.setNegativeButton("Нет" , null);
-            alertDialog.create();
-            alertDialog.show();
+            if (MainApplication.getInstance().getOrder().getCanDeny()){
+                AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
+                alertDialog.setMessage("Отменить заказ");
+                alertDialog.setPositiveButton("Да", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        new OrderDenyTask(MainActivity.this).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                    }
+                });
+                alertDialog.setNegativeButton("Нет" , null);
+                alertDialog.create();
+                alertDialog.show();
+            }
         }
     }
 
@@ -795,6 +769,9 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                 ((TextView)findViewById(R.id.btnSetPickUpCaption)).setText(getString(R.string.btnPickUpMainActivity));
                 viewRoutePoint = routePoint;
                 if (routePoint.getPlaceType() != Constants.ROUTE_POINT_TYPE_UNKNOWN)(findViewById(R.id.btnSetPickUp)).setEnabled(true);
+            }
+            else {
+
             }
 
         }

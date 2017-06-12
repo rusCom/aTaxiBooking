@@ -78,7 +78,7 @@
                         android:layout_centerHorizontal="true"
                         android:layout_marginBottom="15dp"
                         android:gravity="center"
-                        android:text="@string/btnPickUpMainActivity"
+                        android:text="@string/btnPickUpChoseOnMapActivity"
                         android:textAppearance="?android:attr/textAppearanceLarge"
                         android:textStyle="bold" />
                 </RelativeLayout>

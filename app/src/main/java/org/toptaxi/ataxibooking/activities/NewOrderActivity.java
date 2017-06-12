@@ -11,6 +11,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -33,6 +34,7 @@ import org.toptaxi.ataxibooking.tools.DOTResponse;
 import java.util.Calendar;
 
 public class NewOrderActivity extends AppCompatActivity implements DateTimePickerDialog.OnDateTimePickerDialogListener, RoutePointsAdapter.OnRoutePointClickListener {
+    private static String TAG = "#########" + NewOrderActivity.class.getName();
     boolean IsCalc = false;
     RoutePointsAdapter routePointsAdapter;
     RecyclerView rvRoutePoints;
@@ -197,12 +199,16 @@ public class NewOrderActivity extends AppCompatActivity implements DateTimePicke
         }
 
         if (MainApplication.getInstance().getPreferences().IsWishList()){
+            //Log.d(TAG, "ViewWishButton enable");
             btnWishList.setVisibility(View.VISIBLE);
             if (MainApplication.getInstance().getOrder().getWishsText().equals(""))btnWishList.setText("ПОЖЕЛАНИЯ К ЗАКАЗУ");
             else {btnWishList.setText("ПОЖЕЛАНИЯ К ЗАКАЗУ\n" + MainApplication.getInstance().getOrder().getWishsText());}
 
         }
-        else btnWishList.setVisibility(View.GONE);
+        else {
+            //Log.d(TAG, "ViewWishButton disable");
+            btnWishList.setVisibility(View.GONE);
+        }
 
         if (MainApplication.getInstance().getPreferences().IsPrior())btnPrior.setVisibility(View.VISIBLE);
         else btnPrior.setVisibility(View.GONE);

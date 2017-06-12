@@ -6,6 +6,7 @@ import android.support.v7.widget.CardView;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -144,6 +145,13 @@ public class WishActivity extends AppCompatActivity {
         //if (swCheck.isChecked())f
 
         findViewById(R.id.btnTitleRight).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                setWish();
+            }
+        });
+
+        (findViewById(R.id.btnActivityWishOK)).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 setWish();

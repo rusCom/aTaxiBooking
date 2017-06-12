@@ -710,6 +710,8 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         }
 
         drawer.addItem(new PrimaryDrawerItem().withName(getString(R.string.menuProfileItem)).withIcon(FontAwesome.Icon.faw_address_card).withSelectable(false).withIdentifier(Constants.MENU_PROFILE));
+        if (MainApplication.getInstance().getPreferences().IsShare())
+            drawer.addItem(new PrimaryDrawerItem().withName(getString(R.string.menuShareItem)).withIcon(FontAwesome.Icon.faw_share_alt).withSelectable(false).withIdentifier(Constants.MENU_SHARE));
         //drawer.addItem(new PrimaryDrawerItem().withName(getString(R.string.menuHistoryItem)).withIcon(FontAwesome.Icon.faw_history).withSelectable(false).withIdentifier(Constants.MENU_HISTORY));
         menuMapTypeItem = new PrimaryDrawerItem().withName(getString(R.string.menuMapTypeItem)).withIcon(FontAwesome.Icon.faw_map).withSelectable(false).withIdentifier(Constants.MENU_MAP_TYPE);
         drawer.addItem(menuMapTypeItem);
@@ -739,6 +741,13 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                 break;
             case Constants.MENU_HISTORY:
                 startActivity(new Intent(MainActivity.this, HisOrdersActivity.class));
+                break;
+            case Constants.MENU_SHARE:
+                Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
+                sharingIntent.setType("text/plain");
+                sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Subject Here");
+                sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, MainApplication.getInstance().getPreferences().getShareText());
+                startActivity(Intent.createChooser(sharingIntent, "Share via"));
                 break;
 
         }

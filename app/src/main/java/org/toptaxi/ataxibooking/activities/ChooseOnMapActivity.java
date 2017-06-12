@@ -145,7 +145,7 @@ public class ChooseOnMapActivity extends AppCompatActivity implements OnMapReady
             if (routePoint != null){
                 ((TextView)findViewById(R.id.tvAddressLine)).setText(routePoint.getName());
                 ((TextView)findViewById(R.id.tvAddressLocality)).setText(routePoint.getDescription());
-                ((TextView)findViewById(R.id.btnSetPickUpCaption)).setText(getString(R.string.btnPickUpMainActivity));
+                ((TextView)findViewById(R.id.btnSetPickUpCaption)).setText(getString(R.string.btnPickUpChoseOnMapActivity));
                 viewRoutePoint = routePoint;
                 if (routePoint.getPlaceType() != Constants.ROUTE_POINT_TYPE_UNKNOWN)(findViewById(R.id.btnSetPickUpMapActivity)).setEnabled(true);
             }

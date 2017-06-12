@@ -1,15 +1,16 @@
 <resources>
-    <string name="app_name">Заказ такси Уфа</string>
+    <string name="app_name">Заказ такси</string>
 
     <string name="captionMainActivityNewOrder">Откуда Вас забрать</string>
     <string name="captionMainActivitySearchDriver">Ищем Вам автомобиль</string>
-    <string name="captionMainActivityDriveToClient">Автомобиль подъезжает</string>
+    <string name="captionMainActivityDriveToClient">Вам назначен</string>
     <string name="captionMainActivityDriverAtClient">Вас ожидает</string>
     <string name="captionMainActivityClientInCar">В пути</string>
     <string name="captionSearchAddress">Поиск адреса &#8230;</string>
 
 
-    <string name="btnPickUpMainActivity">Заказать</string>
+    <string name="btnPickUpMainActivity">Я здесь</string>
+    <string name="btnPickUpChoseOnMapActivity">Подтвердить</string>
     <string name="btnPickUpMainActivitySearch">Ищем Вас &#8230;</string>
     <string name="btnFind">Поиск</string>
 
@@ -59,6 +60,7 @@
     <string name="menuHistoryItem">История</string>
     <string name="menuMapTypeItem">Спутник</string>
     <string name="menuProfileItem">Профиль</string>
+    <string name="menuShareItem">Посоветовать</string>
     <!-- RoutePointItem -->
     <string name="edRoutePointNote">Место встречи, вход</string>
     <!-- OrdersItems -->

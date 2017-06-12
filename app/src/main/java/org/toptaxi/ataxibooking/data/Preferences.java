@@ -12,11 +12,11 @@ import java.util.List;
 
 public class Preferences {
     private static String TAG = "#########" + Preferences.class.getName();
-    private Boolean PayTypeBonus, CalcTypeTaximeter, PaTypePromoCode, PriorOrder, ViewDistance = false;
+    private Boolean PayTypeBonus, CalcTypeTaximeter, PaTypePromoCode, PriorOrder, ViewDistance = false, Share;
     private List<PayType> payTypes;
     private Integer WishValueAddition = -1, WishValueAdditionStep = 20, WishCheck = -1, WishConditioner = -1, WishSmoke = -1, WishNoSmoke = -1, WishChildren = -1, PriorTime = 45;
     private Integer UserAgreementVersion = 0, AndroidAppVersion = 0;
-    private String UserAgreementLink = "";
+    private String UserAgreementLink = "", ShareText;
     private Location location;
 
 
@@ -26,6 +26,8 @@ public class Preferences {
         PaTypePromoCode     = false;
         PriorOrder          = false;
         ViewDistance        = false;
+        Share               = false;
+        ShareText           = "";
         PriorTime           = 45;
         location            = null;
         payTypes = new ArrayList<>();
@@ -69,6 +71,10 @@ public class Preferences {
             JSONObject geo = data.getJSONObject("geo");
             MainApplication.getInstance().getnDot().setGEO(geo.getString("ip"), geo.getInt("port"));
         }
+
+        if (data.has("share")){this.Share = data.getBoolean("share");}
+        if (data.has("share_text")){this.ShareText = data.getString("share_text");}
+
         // Доп Услуги по заказам
         JSONObject wishTaxi = data.getJSONObject("wish").getJSONObject("taxi");
         if (wishTaxi.has("value_addition")){WishValueAddition      = wishTaxi.getInt("value_addition");}
@@ -86,7 +92,7 @@ public class Preferences {
 
     public Boolean IsWishList(){
         Boolean result = false;
-        if (getWishValueAddition() >=0) result = true;
+        if (getWishValueAddition() > 0) result = true;
         if (getWishCheck() >=0)         result = true;
         if (getWishConditioner() >=0)   result = true;
         if (getWishSmoke() >=0)         result = true;
@@ -101,6 +107,14 @@ public class Preferences {
 
     Integer getUserAgreementVersion() {
         return UserAgreementVersion;
+    }
+
+    public Boolean IsShare(){
+        return (Share) && (!ShareText.equals(""));
+    }
+
+    public String getShareText() {
+        return ShareText;
     }
 
     Integer getAndroidAppVersion() {

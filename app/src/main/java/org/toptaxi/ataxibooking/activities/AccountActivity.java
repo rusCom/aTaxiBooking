@@ -27,6 +27,8 @@ import org.toptaxi.ataxibooking.data.Constants;
 import org.toptaxi.ataxibooking.R;
 import org.toptaxi.ataxibooking.tools.DOTResponse;
 
+import java.util.regex.Pattern;
+
 public class AccountActivity extends AppCompatActivity {
     private static String TAG = "#########" + AccountActivity.class.getName();
     AlertDialog dialog;
@@ -130,8 +132,12 @@ public class AccountActivity extends AppCompatActivity {
     }
 
     public static boolean isValidEmail(CharSequence target) {
-        return !TextUtils.isEmpty(target) && android.util.Patterns.EMAIL_ADDRESS.matcher(target).matches();
+        //MainApplication.getInstance().showToast("valid email !" + target + "!" + android.util.Patterns.EMAIL_ADDRESS.matcher(target).matches());
+
+        return !TextUtils.isEmpty(target.toString()) && android.util.Patterns.EMAIL_ADDRESS.matcher(target.toString()).matches();
     }
+
+
 
     public void onRightButtonClick(View v){
         if (dialog != null && dialog.isShowing())dialog.dismiss();

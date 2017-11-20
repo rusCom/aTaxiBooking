@@ -14,15 +14,15 @@ import org.toptaxi.ataxibooking.R;
 
 
 public class PayTypesAdapter extends RecyclerView.Adapter<PayTypesAdapter.PayTypeHolder>{
-    private static String TAG = "#########" + PayTypesAdapter.class.getName();
+    //private static String TAG = "#########" + PayTypesAdapter.class.getName();
     private static OnPayTypeClickListener onPayTypeClickListener;
 
     public interface OnPayTypeClickListener{
         void PayTypeClick(PayType payType);
     }
 
-    public void setOnPayTypeClickListener(OnPayTypeClickListener onPayTypeClickListener) {
-        this.onPayTypeClickListener = onPayTypeClickListener;
+    public void setOnPayTypeClickListener(OnPayTypeClickListener PayTypeClickListener) {
+        onPayTypeClickListener = PayTypeClickListener;
     }
 
     public PayTypesAdapter() {
@@ -49,6 +49,7 @@ public class PayTypesAdapter extends RecyclerView.Adapter<PayTypesAdapter.PayTyp
         viewHolder.tvName.setText(MainApplication.getInstance().getPreferences().getPayTypes().get(position).getCardCaption());
         viewHolder.tvDescription.setText(MainApplication.getInstance().getPreferences().getPayTypes().get(position).getCardDescription());
         viewHolder.ivType.setImageResource(MainApplication.getInstance().getPreferences().getPayTypes().get(position).getCardImage());
+        //Log.d(TAG, "onBindViewHolder pos = " + position + ";caption = " + MainApplication.getInstance().getPreferences().getPayTypes().get(position).getCardCaption());
     }
 
 

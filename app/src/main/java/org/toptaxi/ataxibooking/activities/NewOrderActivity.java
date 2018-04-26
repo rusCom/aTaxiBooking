@@ -16,6 +16,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.google.android.gms.location.places.Place;
@@ -24,6 +25,7 @@ import com.google.android.gms.location.places.ui.PlacePicker;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.toptaxi.ataxibooking.MainApplication;
+import org.toptaxi.ataxibooking.adapters.MenuRoutePointAdapter;
 import org.toptaxi.ataxibooking.adapters.RoutePointsAdapter;
 import org.toptaxi.ataxibooking.data.Constants;
 import org.toptaxi.ataxibooking.data.RoutePoint;
@@ -40,6 +42,9 @@ public class NewOrderActivity extends AppCompatActivity implements DateTimePicke
     RecyclerView rvRoutePoints;
     ImageButton btnAddOrder;
     Button btnWishList, btnPrior, btnPayType;
+    MenuRoutePointAdapter menuRoutePointAdapter;
+    AlertDialog menuRoutePointDialog;
+    ListView menuRoutePointDialogItems;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,7 +55,12 @@ public class NewOrderActivity extends AppCompatActivity implements DateTimePicke
         btnWishList = (Button) findViewById(R.id.btnNewOrderActivityWishList);
         btnPrior    = (Button) findViewById(R.id.btnNewOrderActivityTime);
         btnPayType  = (Button) findViewById(R.id.btnNewOrderActivityPaymentType);
-        //btnAddOrder.setEnabled(false);
+
+        menuRoutePointAdapter = new MenuRoutePointAdapter(this, R.layout.menu_action_item, MainApplication.getInstance().getMenuRoutePointItems());
+        menuRoutePointDialogItems = new ListView(this);
+        menuRoutePointDialogItems.setAdapter(menuRoutePointAdapter);
+        //listViewItems.setOnItemClickListener(this);
+
 
 
         rvRoutePoints = (RecyclerView)findViewById(R.id.rvNewOrderRoutePoints);
@@ -170,7 +180,7 @@ public class NewOrderActivity extends AppCompatActivity implements DateTimePicke
         */
 
         if (MainApplication.getInstance().getOrder().getRouteCount() == 1){
-            ((EditText)findViewById(R.id.edTitle)).setHint("Куда поедите");
+            ((EditText)findViewById(R.id.edTitle)).setHint("Куда поедете");
             btnPrior.setEnabled(MainApplication.getInstance().getPreferences().getCalcTypeTaximeter());
             btnWishList.setEnabled(MainApplication.getInstance().getPreferences().getCalcTypeTaximeter());
             btnPayType.setEnabled(MainApplication.getInstance().getPreferences().getCalcTypeTaximeter());
@@ -237,20 +247,6 @@ public class NewOrderActivity extends AppCompatActivity implements DateTimePicke
         else {
             new AddOrderTask(this).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         }
-        /*
-        if (MainApplication.getInstance().getOrder().getRouteCount() == 1){
-            if (MainApplication.getInstance().getPreferences().getCalcTypeTaximeter())new AddOrderTask(this).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-            else {
-                AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
-                alertDialog.setMessage(getString(R.string.dlgNewOrderActivityNotHaveTaximeter));
-                alertDialog.setPositiveButton(getString(R.string.dlgOk), null);
-                alertDialog.create();
-                alertDialog.show();
-            }
-
-        }
-        else new AddOrderTask(this).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-        */
     }
 
     public void btnPayTypeClick(View view){
@@ -284,12 +280,26 @@ public class NewOrderActivity extends AppCompatActivity implements DateTimePicke
 
     @Override
     public void RoutePointClick(RoutePoint routePoint, int position) {
-        if (routePoint == null){
+        Log.d(TAG, "RoutePointClick position = " + position);
+        Log.d(TAG, "RoutePointClick count = " + MainApplication.getInstance().getOrder().getRouteCount());
+
+
+
             if (!IsCalc){
-                Intent intent = new Intent(NewOrderActivity.this, AddressActivity.class);
-                startActivityForResult(intent, Constants.ACTIVITY_ADDRESS);
+                // Нажали на "Добавить адрес"
+                if (MainApplication.getInstance().getOrder().getRouteCount() == position){
+                    Intent intent = new Intent(NewOrderActivity.this, AddressActivity.class);
+                    startActivityForResult(intent, Constants.ACTIVITY_ADDRESS);
+                }
+                else{
+                    menuRoutePointDialog = new AlertDialog.Builder(NewOrderActivity.this)
+                            .setView(menuRoutePointDialogItems)
+                            .show();
+
+                }
             }
-        }
+
+
     }
 
     private class AddOrderTask extends AsyncTask<Void, Void, DOTResponse>{

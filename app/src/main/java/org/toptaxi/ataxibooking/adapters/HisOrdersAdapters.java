@@ -101,7 +101,7 @@ public class HisOrdersAdapters extends BaseAdapter {
             view.findViewById(R.id.llHisOrderCaption).setBackgroundResource(order.getCaptionColor());
             RoutePoint routePoint = order.getRoutePoint(0);
             if (routePoint != null){
-                ((TextView)view.findViewById(R.id.tvRoutePointHisOrderFromName)).setText(routePoint.getName());
+                ((TextView)view.findViewById(R.id.tvRoutePointHisOrderFromName)).setText(routePoint.getAddress());
                 if (routePoint.getDescription().equals(""))view.findViewById(R.id.tvRoutePointHisOrderFromDescription).setVisibility(View.GONE);
                 else {
                     view.findViewById(R.id.tvRoutePointHisOrderFromDescription).setVisibility(View.VISIBLE);
@@ -111,7 +111,7 @@ public class HisOrdersAdapters extends BaseAdapter {
             if (order.getRouteCount() > 1){
                 routePoint = order.getRoutePoint(order.getRouteCount() - 1);
                 ((ImageView)view.findViewById(R.id.ivRoutePointHisOrderToImage)).setImageResource(R.mipmap.ic_conformation_destination);
-                ((TextView)view.findViewById(R.id.tvRoutePointHisOrderToName)).setText(routePoint.getName());
+                ((TextView)view.findViewById(R.id.tvRoutePointHisOrderToName)).setText(routePoint.getAddress());
                 if (routePoint.getDescription().equals(""))view.findViewById(R.id.tvRoutePointHisOrderToDescription).setVisibility(View.GONE);
                 else {
                     view.findViewById(R.id.tvRoutePointHisOrderToDescription).setVisibility(View.VISIBLE);

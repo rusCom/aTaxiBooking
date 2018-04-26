@@ -60,6 +60,11 @@ public class Constants {
     public static final int DOT_NEW_VERSION     = 108;
     public static final int DOT_BLOCKED         = 109;
 
-    public static final int DATABASE_VERSION    = 4;
+    public static final int DATABASE_VERSION    = 9;
+
+
+    public static final int MENU_ROUTE_POINT_EDIT   = 1;
+    public static final int MENU_ROUTE_POINT_DELETE = 2;
+    public static final int MENU_ROUTE_POINT_NEW    = 3;
 
 }

@@ -1,7 +1,10 @@
 package org.toptaxi.ataxibooking.tools;
 
 
+import android.content.ContentValues;
+import android.content.SharedPreferences;
 import android.location.Location;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -18,6 +21,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.toptaxi.ataxibooking.MainApplication;
+import org.toptaxi.ataxibooking.R;
 import org.toptaxi.ataxibooking.data.Constants;
 import org.toptaxi.ataxibooking.data.DOT;
 import org.toptaxi.ataxibooking.data.RoutePoint;
@@ -135,236 +139,89 @@ public class PlacesAPI {
 
     public static ArrayList<RoutePoint> getBySearch(String searchString){
         ArrayList<RoutePoint> resultList = null;
-        DOTResponse dotResponse = MainApplication.getInstance().getnDot().geo_get_search_cache(searchString);
-        if (dotResponse.getCode() == 400){
-
-            resultList = getBySearchAPIClient(searchString);
-            try {
-                JSONObject cacheData = new JSONObject();
-                JSONArray places = new JSONArray();
-                for (int itemID = 0; itemID < resultList.size(); itemID++){
-                    places.put(resultList.get(itemID).toJSON());
-                }
-                cacheData.put("search_string", searchString);
-                Location mLocation = MainApplication.getInstance().getLocation();
-                cacheData.put("latitude", String.valueOf(mLocation.getLatitude()));
-                cacheData.put("longitude", String.valueOf(mLocation.getLongitude()));
-                cacheData.put("places", places);
-                //Log.d(TAG, "getBySearch cacheData = " + cacheData.toString());
-                MainApplication.getInstance().getnDot().geo_set_search_cache(cacheData.toString());
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-
-        }
-        else {
-            Log.d(TAG, "getBySearch body = " + dotResponse.getBody());
+        DOTResponse dotResponse = MainApplication.getInstance().getnDot().GeoPlacesAutocomplete(searchString);
+        if (dotResponse.getCode() == 200){
             resultList = new ArrayList<>();
             try {
-                JSONArray places = new JSONArray(dotResponse.getBody());
-                for (int itemID = 0; itemID < places.length(); itemID++){
-                    RoutePoint routePoint = new RoutePoint();
-                    routePoint.setFromJSON(places.getJSONObject(itemID));
-                    resultList.add(routePoint);
-                }
-
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        }
-
-
-
-        return resultList;
-    }
-
-    private static ArrayList<RoutePoint> getBySearchAPIClient(String searchString){
-        GoogleApiClient mGoogleApiClient = MainApplication.getInstance().getGoogleApiClient();
-        ArrayList<RoutePoint> resultList = new ArrayList<>();
-        if (mGoogleApiClient == null)return resultList;
-
-        Location mLocation = MainApplication.getInstance().getLocation();
-        LatLngBounds mLatLngBounds = null;
-        if (mLocation != null){
-            LatLng southWest = new LatLng((mLocation.getLatitude() - 0.2), (mLocation.getLongitude() - 0.2));
-            LatLng northEast = new LatLng((mLocation.getLatitude() + 0.2), (mLocation.getLongitude() + 0.2));
-            mLatLngBounds = new LatLngBounds(southWest, northEast);
-        }
-
-        AutocompleteFilter autocompleteFilter = new AutocompleteFilter.Builder()
-                .setTypeFilter(AutocompleteFilter.TYPE_FILTER_ADDRESS)
-                .build();
-
-        PendingResult<AutocompletePredictionBuffer> result = Places.GeoDataApi.getAutocompletePredictions(mGoogleApiClient, searchString, mLatLngBounds, autocompleteFilter);
-        AutocompletePredictionBuffer autocompletePredictions = result.await(10, TimeUnit.SECONDS);
-        Status status = autocompletePredictions.getStatus();
-        if (status.isSuccess()){
-            for (AutocompletePrediction prediction : autocompletePredictions) {
-                //Log.d(TAG, "getBySearch prediction = " + prediction.getFullText(null) + ";" + prediction.getPlaceId() + ";" + prediction.getPlaceTypes().toString() + ";" + RoutePoint.getRoutePointType(prediction.getPlaceTypes()));
-                if (RoutePoint.getRoutePointType(prediction.getPlaceTypes()) != Constants.ROUTE_POINT_TYPE_UNKNOWN){
-                    RoutePoint routePoint = RoutePoint.getFromPlaceId(prediction.getPlaceId());
-                    if (routePoint != null){
-                        if (routePoint.isAddSearch(MainApplication.getInstance().getLocation())){
+                JSONObject data = new JSONObject(dotResponse.getBody());
+                if (data.has("response"))
+                    if (data.getString("response").equals("OK")){
+                        JSONArray results = data.getJSONArray("results");
+                        for (int itemID = 0; itemID < results.length(); itemID++){
+                            RoutePoint routePoint = new RoutePoint();
+                            routePoint.setFromJSON(results.getJSONObject(itemID));
                             resultList.add(routePoint);
                         }
                     }
+
+
+                } catch (JSONException e) {
+                e.printStackTrace();
                 }
             }
-        }
-        autocompletePredictions.release();
-
-        autocompleteFilter = new AutocompleteFilter.Builder()
-                .setTypeFilter(AutocompleteFilter.TYPE_FILTER_ESTABLISHMENT)
-                .build();
-
-        result = Places.GeoDataApi.getAutocompletePredictions(mGoogleApiClient, searchString, mLatLngBounds, autocompleteFilter);
-        autocompletePredictions = result.await(10, TimeUnit.SECONDS);
-        status = autocompletePredictions.getStatus();
-        if (status.isSuccess()){
-            for (AutocompletePrediction prediction : autocompletePredictions) {
-                //Log.d(TAG, "getBySearch prediction = " + prediction.getFullText(null) + ";" + prediction.getPlaceId() + ";" + prediction.getPlaceTypes().toString() + ";" + RoutePoint.getRoutePointType(prediction.getPlaceTypes()));
-                if (RoutePoint.getRoutePointType(prediction.getPlaceTypes()) != Constants.ROUTE_POINT_TYPE_UNKNOWN){
-                    RoutePoint routePoint = RoutePoint.getFromPlaceId(prediction.getPlaceId());
-                    if (routePoint != null){
-                        if (routePoint.isAddSearch(MainApplication.getInstance().getLocation())){
-                            boolean IsAdd = true;
-                            for (int itemID = 0; itemID < resultList.size(); itemID++){
-                                if (resultList.get(itemID).getPlaceId().equals(routePoint.getPlaceId()))
-                                    IsAdd = false;
-                            }
-                            if (IsAdd) resultList.add(routePoint);
-                        }
-                    }
-                }
-            }
-        }
-        autocompletePredictions.release();
-
-
-
-        autocompleteFilter = new AutocompleteFilter.Builder()
-                .setTypeFilter(AutocompleteFilter.TYPE_FILTER_GEOCODE)
-                .build();
-
-        result = Places.GeoDataApi.getAutocompletePredictions(mGoogleApiClient, searchString, mLatLngBounds, autocompleteFilter);
-        autocompletePredictions = result.await(10, TimeUnit.SECONDS);
-        status = autocompletePredictions.getStatus();
-        if (status.isSuccess()){
-            for (AutocompletePrediction prediction : autocompletePredictions) {
-                //Log.d(TAG, "getBySearch prediction = " + prediction.getFullText(null) + ";" + prediction.getPlaceId() + ";" + prediction.getPlaceTypes().toString() + ";" + RoutePoint.getRoutePointType(prediction.getPlaceTypes()));
-                if (RoutePoint.getRoutePointType(prediction.getPlaceTypes()) != Constants.ROUTE_POINT_TYPE_UNKNOWN){
-                    RoutePoint routePoint = RoutePoint.getFromPlaceId(prediction.getPlaceId());
-                    if (routePoint != null){
-                        if (routePoint.isAddSearch(MainApplication.getInstance().getLocation())){
-                            boolean IsAdd = true;
-                            for (int itemID = 0; itemID < resultList.size(); itemID++){
-                                if (resultList.get(itemID).getPlaceId().equals(routePoint.getPlaceId()))
-                                    IsAdd = false;
-                            }
-                            if (IsAdd) resultList.add(routePoint);
-                        }
-                    }
-                }
-            }
-        }
-        autocompletePredictions.release();
-
-
         return resultList;
     }
 
-    public static RoutePoint getByLocation(Double Latitude, Double Longitude){
-        DOTResponse dotResponse = MainApplication.getInstance().getnDot().geo_get_location_point(Latitude, Longitude);
-        if (dotResponse.getCode() == 400){return getByLocationAPIClient(Latitude, Longitude);}
 
-        RoutePoint routePoint = new RoutePoint();
-        try {
-            routePoint.setFromJSON(new JSONObject(dotResponse.getBody()));
-        } catch (JSONException e) {
-            e.printStackTrace();
+
+    public static RoutePoint Geocode(Double Latitude, Double Longitude){
+        RoutePoint routePoint = null;
+        DOTResponse dotResponse = MainApplication.getInstance().getnDot().GeoGeocode(Latitude, Longitude);
+        if (dotResponse.getCode() == 200){
+            try {
+                JSONObject data = new JSONObject(dotResponse.getBody());
+                if (data.has("response"))
+                    if (data.getString("response").equals("OK")){
+                        routePoint = new RoutePoint();
+                        routePoint.setFromJSON(data.getJSONObject("result"));
+                    }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
         }
-        //Log.d(TAG, dotResponse.getBody());
         return routePoint;
     }
 
-    private static RoutePoint getByLocationAPIClient(Double Latitude, Double Longitude){
-        RoutePoint resultRoutePoint = null;
-        String httpRequest = "https://maps.googleapis.com/maps/api/geocode/json?latlng=" + String.valueOf(Latitude) +"," + String.valueOf(Longitude);
-        httpRequest += "&language=" + Locale.getDefault().toString();
-        //Log.d(TAG, "getByLocation httpRequest = " + httpRequest);
-        try {
-            JSONObject result = new JSONObject(DOT.httpGet(httpRequest));
-            if (result.getString("status").equals("OK")){
-                ArrayList<RoutePoint> routePoints = new ArrayList<>();
-                JSONArray routePointsJSON = result.getJSONArray("results");
-                for (int routePointItem = 0; routePointItem < routePointsJSON.length(); routePointItem++){
-                    JSONObject point = routePointsJSON.getJSONObject(routePointItem);
-                    int PlaceType = Constants.ROUTE_POINT_TYPE_UNKNOWN;
-                    //Log.d(TAG, "getByLocation point = " + point.toString());
-                    JSONArray address_components = point.getJSONArray("address_components");
-                    String Name = "", HouseNumber = "", StreetName = "";
-                    JSONArray types = new JSONArray();
-                    for (int itemID = 0; itemID < address_components.length(); itemID++){
-                        JSONObject address_component = address_components.getJSONObject(itemID);
-                        types = address_component.getJSONArray("types");
-                        if (types.toString().contains("street_number")){
-                            HouseNumber = address_component.getString("short_name");
-                            PlaceType = Constants.ROUTE_POINT_TYPE_HOUSE;
-                        }
-                        else if (types.toString().contains("route")){
-                            if (PlaceType == Constants.ROUTE_POINT_TYPE_UNKNOWN){
-                                StreetName = address_component.getString("long_name");
-                                PlaceType = Constants.ROUTE_POINT_TYPE_STREET;
+    public static void SetPopular(Location mLocation) {
+        if (mLocation != null) {
+            // Проверяем на последний запрос. Если клиент передвинулся более чем на 10 км
+            SharedPreferences sPref = PreferenceManager.getDefaultSharedPreferences(MainApplication.getInstance());
+            Location lastLocation = new Location(mLocation);
+            lastLocation.setLatitude(sPref.getFloat("lastFastRoutePointLatitude", 0));
+            lastLocation.setLongitude(sPref.getFloat("lastFastRoutePointLongitude", 0));
+            if (lastLocation.distanceTo(mLocation) > 10000) {
+                SharedPreferences.Editor editor = sPref.edit();
+                editor.putFloat("lastFastRoutePointLatitude", (float) mLocation.getLatitude());
+                editor.putFloat("lastFastRoutePointLongitude", (float) mLocation.getLongitude());
+                editor.apply();
+                DOTResponse dotResponse = MainApplication.getInstance().getnDot().GeoPlacesPopular(mLocation.getLatitude(), mLocation.getLongitude());
+                if (dotResponse.getCode() == 200) {
+                    try {
+                        JSONObject data = new JSONObject(dotResponse.getBody());
+                        if (data.has("response"))
+                            if (data.getString("response").equals("OK")) {
+                                JSONArray results = data.getJSONArray("results");
+                                for (int itemID = 0; itemID < results.length(); itemID++){
+                                    JSONObject object = results.getJSONObject(itemID);
+                                    ContentValues cv = new ContentValues();
+                                    cv.put("UID", object.getString("uid"));
+                                    cv.put("Name", object.getString("name"));
+                                    cv.put("Dsc", object.getString("dsc"));
+                                    cv.put("Lt", object.getDouble("lt"));
+                                    cv.put("Ln", object.getDouble("ln"));
+                                    cv.put("Kind", object.getString("kind"));
+                                    MainApplication.getInstance().getDataBase().insert("RoutePoint", null, cv);
+                                    cv.clear();
+                                }
                             }
-                            else StreetName = address_component.getString("short_name");
-                        }
-                        else if (types.toString().contains("train_station")){
-                            PlaceType = Constants.ROUTE_POINT_TYPE_STATION;
-                            Name = address_component.getString("long_name");
-                        }
-                        else if (types.toString().contains("airport")){
-                            PlaceType = Constants.ROUTE_POINT_TYPE_AIRPORT;
-                            Name = address_component.getString("long_name");
-                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
                     }
-                    if (StreetName.equals("Unnamed Road"))PlaceType = Constants.ROUTE_POINT_TYPE_UNKNOWN;
 
-                    if (PlaceType != Constants.ROUTE_POINT_TYPE_UNKNOWN){
-                        if (Name.equals("")){
-                            Name = StreetName;
-                            if (!HouseNumber.equals(""))Name += ", " + HouseNumber;
-                        }
-                        String Description = point.getString("formatted_address").replace(Name + ", ", "");
-                        Description = Description.trim();
-                        Double lat = point.getJSONObject("geometry").getJSONObject("location").getDouble("lat");
-                        Double lng = point.getJSONObject("geometry").getJSONObject("location").getDouble("lng");
-                        RoutePoint routePoint = new RoutePoint();
-                        routePoint.setAllData(point.getString("place_id"), Name, Description, lat, lng, PlaceType, types.toString());
-                        routePoints.add(routePoint);
-                    }
                 }
-                if (routePoints.size() == 1)resultRoutePoint = routePoints.get(0);
-                else if (routePoints.size() > 1)resultRoutePoint = routePoints.get(routePoints.size() - 1);
             }
-        } catch (JSONException | IOException e) {
-            e.printStackTrace();
         }
-
-
-        try {
-            if (resultRoutePoint != null){
-                JSONObject cacheData = new JSONObject();
-                cacheData.put("latitude", String.valueOf(Latitude));
-                cacheData.put("longitude", String.valueOf(Longitude));
-                cacheData.put("point", resultRoutePoint.toJSON());
-                //Log.d(TAG, "setdata = " + cacheData.toString());
-                MainApplication.getInstance().getnDot().geo_set_location_point(cacheData.toString());
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        return resultRoutePoint;
     }
 
 }

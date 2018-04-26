@@ -136,18 +136,18 @@ public class ChooseOnMapActivity extends AppCompatActivity implements OnMapReady
         }
         @Override
         protected RoutePoint doInBackground(LatLng... latLngs) {
-            return PlacesAPI.getByLocation(latLngs[0].latitude, latLngs[0].longitude);
+            return PlacesAPI.Geocode(latLngs[0].latitude, latLngs[0].longitude);
         }
 
         @Override
         protected void onPostExecute(RoutePoint routePoint) {
             super.onPostExecute(routePoint);
             if (routePoint != null){
-                ((TextView)findViewById(R.id.tvAddressLine)).setText(routePoint.getName());
+                ((TextView)findViewById(R.id.tvAddressLine)).setText(routePoint.getAddress());
                 ((TextView)findViewById(R.id.tvAddressLocality)).setText(routePoint.getDescription());
                 ((TextView)findViewById(R.id.btnSetPickUpCaption)).setText(getString(R.string.btnPickUpChoseOnMapActivity));
                 viewRoutePoint = routePoint;
-                if (routePoint.getPlaceType() != Constants.ROUTE_POINT_TYPE_UNKNOWN)(findViewById(R.id.btnSetPickUpMapActivity)).setEnabled(true);
+                if (!routePoint.getKind().equals(""))(findViewById(R.id.btnSetPickUpMapActivity)).setEnabled(true);
             }
 
         }

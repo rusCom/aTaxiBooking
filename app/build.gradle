@@ -2,7 +2,8 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 25
-    buildToolsVersion '26.0.2'
+    buildToolsVersion '27.0.3'
+    compileOptions.encoding = 'UTF-8' // write your encoding here
     defaultConfig {
         applicationId "org.toptaxi.ataxibooking"
         minSdkVersion 14

@@ -578,7 +578,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     public void setRouteDataView(){
         RoutePoint firstRoutePoint = MainApplication.getInstance().getOrder().getRoutePoint(0);
         if (firstRoutePoint != null){
-            ((TextView)findViewById(R.id.tvMainActivityPickupName)).setText(firstRoutePoint.getName());
+            ((TextView)findViewById(R.id.tvMainActivityPickupName)).setText(firstRoutePoint.getAddress());
             ((TextView)findViewById(R.id.tvMainActivityPickupDescription)).setText(firstRoutePoint.getDescription());
         }
         ((TextView)findViewById(R.id.tvMainActivityDestinationName)).setText("По факту ...");
@@ -589,7 +589,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         else {
             RoutePoint lastRoutePoint = MainApplication.getInstance().getOrder().getRoutePoint(MainApplication.getInstance().getOrder().getRouteCount() - 1);
             if (lastRoutePoint != null){
-                ((TextView)findViewById(R.id.tvMainActivityDestinationName)).setText(lastRoutePoint.getName());
+                ((TextView)findViewById(R.id.tvMainActivityDestinationName)).setText(lastRoutePoint.getAddress());
                 ((TextView)findViewById(R.id.tvMainActivityDestinationDescription)).setText(lastRoutePoint.getDescription());
             }
         }
@@ -766,23 +766,19 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         }
         @Override
         protected RoutePoint doInBackground(LatLng... latLngs) {
-            return PlacesAPI.getByLocation(latLngs[0].latitude, latLngs[0].longitude);
+            return PlacesAPI.Geocode(latLngs[0].latitude, latLngs[0].longitude);
         }
 
         @Override
         protected void onPostExecute(RoutePoint routePoint) {
             super.onPostExecute(routePoint);
             if (routePoint != null){
-                ((TextView)findViewById(R.id.tvAddressLine)).setText(routePoint.getName());
+                ((TextView)findViewById(R.id.tvAddressLine)).setText(routePoint.getAddress());
                 ((TextView)findViewById(R.id.tvAddressLocality)).setText(routePoint.getDescription());
                 ((TextView)findViewById(R.id.btnSetPickUpCaption)).setText(getString(R.string.btnPickUpMainActivity));
                 viewRoutePoint = routePoint;
-                if (routePoint.getPlaceType() != Constants.ROUTE_POINT_TYPE_UNKNOWN)(findViewById(R.id.btnSetPickUp)).setEnabled(true);
+                if (!routePoint.getKind().equals(""))(findViewById(R.id.btnSetPickUp)).setEnabled(true);
             }
-            else {
-
-            }
-
         }
     }
 

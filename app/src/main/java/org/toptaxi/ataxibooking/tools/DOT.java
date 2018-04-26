@@ -2,6 +2,7 @@ package org.toptaxi.ataxibooking.tools;
 
 import android.content.Context;
 import android.location.Location;
+import android.util.Log;
 
 
 import org.json.JSONException;
@@ -37,25 +38,10 @@ public class DOT {
         this.GEOPort = GEOPort;
     }
 
-    public DOTResponse geo_get_distance(String blt, String bln, String elt, String eln){
-        String method = "get_distance";
-        String params = "blt=" + blt;
-        params += "&bln=" + bln;
-        params += "&elt=" + elt;
-        params += "&eln=" + eln;
-        return httpGetGEO(method, params);
-    }
-
-    public DOTResponse geo_set_distances(String origins, String destinations, String result){
-        JSONObject data = new JSONObject();
-        try {
-            data.put("origins", origins);
-            data.put("destinations", destinations);
-            data.put("result", result);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return httpPostGEO("set_google_distance", "", data.toString());
+    public DOTResponse geo_distance_get(String route){
+        String method = "distance/get";
+        String params = "key=" + mContext.getResources().getString(R.string.restToken);
+        return httpPostGEO(method, params, route);
     }
 
 
@@ -72,6 +58,37 @@ public class DOT {
     DOTResponse geo_set_house_search(String data){
         String method = "set_android_house_search";
         return httpPostGEO(method, "", data);
+    }
+
+
+
+    DOTResponse GeoGeocode(Double Latitude, Double Longitude){
+        String method = "geocode";
+        String params = "lt=" + String.valueOf(Latitude) + "&ln=" + String.valueOf(Longitude);
+        return httpGetGEO(method, params);
+    }
+
+    public DOTResponse GeoPlacesPopular(Double Latitude, Double Longitude){
+        String method = "places/popular";
+        String params = "lt=" + String.valueOf(Latitude) + "&ln=" + String.valueOf(Longitude);
+        //Log.d(TAG, "GeoPlacesPopular params = " + params);
+        return httpGetGEO(method, params);
+    }
+
+    DOTResponse GeoPlacesAutocomplete(String searchString){
+        String method = "places/autocomplete";
+        Location mLocation = MainApplication.getInstance().getLocation();
+        String params = "";
+        try {
+            params += "text=" + URLEncoder.encode(searchString, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        if (mLocation != null){
+            params += "&lt=" + mLocation.getLatitude();
+            params += "&ln=" + mLocation.getLongitude();
+        }
+        return httpGetGEO(method, params);
     }
 
     DOTResponse geo_get_search_cache(String searchString){
@@ -329,7 +346,7 @@ public class DOT {
         String main_url = "http://" + mContext.getResources().getString(R.string.mainRestIP) + ":" + mContext.getResources().getString(R.string.restPort) + "/" + method + "?" + params;
         String reserve_url = "http://" + mContext.getResources().getString(R.string.reserveRestIP) + ":" + mContext.getResources().getString(R.string.restPort) + "/" + method + "?" + params;
 
-        //Log.d(TAG, "httpGet main_url = " + main_url + ";reserve_url = " + reserve_url);
+
 
 
         //OkHttpClient client = new OkHttpClient();
@@ -369,14 +386,19 @@ public class DOT {
 
         }
 
+        //Log.d(TAG, "httpGet main_url = " + main_url + ";reserve_url = " + reserve_url);
+        //Log.d(TAG, "result = " + result.getBody());
+
         return result;
     }
 
     private DOTResponse httpGetGEO(String method, String params){
         DOTResponse result = new DOTResponse(400);
         if (GEOIP.equals(""))return result;
+        params += "&key=" + mContext.getResources().getString(R.string.restToken);
 
         String main_url = "http://" + GEOIP + ":" + GEOPort + "/" + method + "?" + params;
+
         Response response = null;
         try {
             Request request = new Request.Builder()
@@ -399,6 +421,8 @@ public class DOT {
             result.Set(response.code(), responseBody);
 
         }
+        Log.d(TAG, "httpGetGEO main_url = " + main_url);
+        Log.d(TAG, "httpGetGEO responseBody = " + result.getBody());
 
         return result;
     }

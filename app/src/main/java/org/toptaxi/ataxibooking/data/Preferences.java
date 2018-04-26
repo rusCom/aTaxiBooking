@@ -6,6 +6,7 @@ import android.util.Log;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.toptaxi.ataxibooking.MainApplication;
+import org.toptaxi.ataxibooking.tools.PlacesAPI;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -70,6 +71,12 @@ public class Preferences {
         if (data.has("geo")){
             JSONObject geo = data.getJSONObject("geo");
             MainApplication.getInstance().getnDot().setGEO(geo.getString("ip"), geo.getInt("port"));
+            new Thread(){
+                @Override
+                public void run() {
+                    PlacesAPI.SetPopular(getLocation());
+                }
+            }.start();
         }
 
         if (data.has("share")){this.Share = data.getBoolean("share");}

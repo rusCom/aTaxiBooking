@@ -51,7 +51,7 @@ public class ChooseHouseActivity extends FragmentActivity implements RoutePoints
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
 
         streetRoutePoint = getIntent().getParcelableExtra(RoutePoint.class.getCanonicalName());
-        ((EditText)findViewById(R.id.edTitle)).setHint(streetRoutePoint.getName());
+        ((EditText)findViewById(R.id.edTitle)).setHint(streetRoutePoint.getAddress());
 
         routePointsAdapter = new RoutePointsAdapter();
         routePointsAdapter.setOnRoutePointClickListener(this);

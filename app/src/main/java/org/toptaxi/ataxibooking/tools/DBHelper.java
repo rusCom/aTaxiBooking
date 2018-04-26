@@ -19,23 +19,24 @@ public class DBHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
         String SQL = "create table RoutePoint(" +
-                "Id text primary key," +
+                "UID text primary key," +
                 "Name text,"+
-                "Address text,"+
-                "Latitude float,"+
-                "Longitude float,"+
-                "PlaceType integer,"+
+                "Dsc text,"+
+                "Lt float,"+
+                "Ln float,"+
+                "Kind string,"+
                 "count integer," +
-                "rating integer"+
+                "rating integer,"+
+                "self integer" +
                 ")";
         sqLiteDatabase.execSQL(SQL);
-        Log.d(TAG, "create table RoutePoint");
+        //Log.d(TAG, "create table RoutePoint");
         SQL = "create table RoutePointNote(" +
-                "Id text primary key," +
+                "UID text primary key," +
                 "Note text"+
                 ")";
         sqLiteDatabase.execSQL(SQL);
-        Log.d(TAG, "create table RoutePointNote");
+        //Log.d(TAG, "create table RoutePointNote");
 
         SharedPreferences sPref = PreferenceManager.getDefaultSharedPreferences(MainApplication.getInstance());
         SharedPreferences.Editor editor = sPref.edit();

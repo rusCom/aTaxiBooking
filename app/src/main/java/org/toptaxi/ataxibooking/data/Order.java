@@ -212,7 +212,7 @@ public class Order {
     public String getFirstPointInfo(){
         if (routePoints != null)
             if (routePoints.size() > 0){
-                return routePoints.get(0).getName();
+                return routePoints.get(0).getAddress();
             }
         return null;
     }
@@ -220,7 +220,7 @@ public class Order {
     public String getLastPointInfo(){
         if (routePoints != null)
             if (routePoints.size() > 1){
-                return routePoints.get(routePoints.size() - 1).getName();
+                return routePoints.get(routePoints.size() - 1).getAddress();
             }
         return null;
     }
@@ -489,65 +489,37 @@ public class Order {
         Distance = 0;
         Duration = 0;
         if (getRouteCount() > 1){
-            Integer distance = 0;
-            for (int itemID = 1; itemID < getRouteCount(); itemID++){
-                RoutePoint routePointL = getRoutePoint(itemID - 1);
-                RoutePoint routePoint = getRoutePoint(itemID);
-                distance += getDistanceMatrix(String.valueOf(routePointL.getLatitude()),
-                        String.valueOf(routePointL.getLongitude()),
-                        String.valueOf(routePoint.getLatitude()),
-                        String.valueOf(routePoint.getLongitude()));
+            try {
+
+                JSONArray route = new JSONArray();
+                for (int itemID = 0; itemID < getRouteCount(); itemID++) {
+                    RoutePoint routePoint = getRoutePoint(itemID);
+                    JSONObject route_point = new JSONObject();
+                    route_point.put("lt", String.valueOf(routePoint.getLatitude()));
+                    route_point.put("ln", String.valueOf(routePoint.getLongitude()));
+                    route.put(route_point);
+                }
+                JSONObject calc = new JSONObject();
+                calc.put("route", route);
+                DOTResponse response = MainApplication.getInstance().getnDot().geo_distance_get(calc.toString());
+                Log.d(TAG, "calcDistance " + calc.toString());
+                Log.d(TAG, "response " + response.getBody());
+                if (response.getCode() == 200){
+                    JSONObject jResponse = new JSONObject(response.getBody());
+                    if (jResponse.has("response")){
+                        if (jResponse.getString("response").equals("OK")){
+                            Distance = jResponse.getInt("distance");
+                        }
+                    }
+                }
+
+            } catch (JSONException e) {
+                e.printStackTrace();
             }
-            Distance = distance;
             isCalc = true;
 
         }
         return isCalc;
-    }
-
-    private Integer getDistanceMatrix(String blt, String bln, String elt, String eln){
-        Integer result = 0;
-        DOTResponse dotResponse = MainApplication.getInstance().getnDot().geo_get_distance(blt, bln, elt, eln);
-        if (dotResponse.getCode() == 200){
-            try {
-                JSONObject data = new JSONObject(dotResponse.getBody());
-                result = data.getInt("dst");
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-            Log.d(TAG, "calcDistance from cache " + result);
-        }
-        else {
-            String request = "https://maps.googleapis.com/maps/api/distancematrix/json?origins=" + blt + "," + bln + "&destinations=" + elt + "," + eln;
-            Log.d(TAG, "calcDistance request = " + request);
-            String response = MainApplication.getInstance().getnDot().httpGet2(request);
-
-            if (!response.equals("")){
-                try {
-                    JSONObject jsonObject = new JSONObject(response);
-                    Log.d(TAG, "calcDistance response = " + jsonObject.toString());
-                    Integer distance = 0;
-                    if (jsonObject.getString("status").equals("OK")){
-                        JSONArray elements = jsonObject.getJSONArray("rows").getJSONObject(0).getJSONArray("elements");
-                        for (int itemID = 0; itemID < elements.length(); itemID++){
-                            distance += elements.getJSONObject(itemID).getJSONObject("distance").getInt("value");
-                        }
-                    }
-                    result = distance;
-                    JSONObject data = new JSONObject();
-                    data.put("blt", blt);
-                    data.put("bln", bln);
-                    data.put("elt", elt);
-                    data.put("eln", eln);
-                    data.put("dst", String.valueOf(distance));
-                    MainApplication.getInstance().getnDot().httpPostGEO("set_google_distance", "", data.toString());
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-
-        }
-        return result;
     }
 
 }

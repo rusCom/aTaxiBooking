@@ -2,8 +2,7 @@
 <resources>
     <string name="mainRestIP">api1.toptaxi.org</string>
     <string name="reserveRestIP">api2.toptaxi.org</string>
-    <string name="restPort">5876</string>
+    <string name="restPort">8589</string>
     <string name="restToken">550DCB8D5A47292CF7A5B67D639C09A6</string>
     <string name="places_api_key">AIzaSyDNlWvQbTGsMB7BOpeC1EmK9nxwXz9dqhY</string>
-    <string name="distance_matrix_api_key">AIzaSyDrdR3ngS3F7rfAce8vJVbMjSd5VdC8kcM</string>
 </resources>

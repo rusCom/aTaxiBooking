@@ -2,17 +2,13 @@ package org.toptaxi.ataxibooking.data;
 
 
 import android.content.ContentValues;
-import android.content.SharedPreferences;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.location.Location;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.places.AutocompleteFilter;
@@ -22,29 +18,23 @@ import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.PlaceBuffer;
 import com.google.android.gms.location.places.Places;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.LatLngBounds;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.toptaxi.ataxibooking.MainApplication;
-import org.toptaxi.ataxibooking.R;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 public class RoutePoint implements Parcelable {
     private static String TAG = "#########" + RoutePoint.class.getName();
-    private String PlaceId = "", Name = "", Description = "", HouseNumber = "", Note = "";
+    private String PlaceId = "", Address = "", Description = "", HouseNumber = "", Note = "";
     private Double Latitude = 0.0, Longitude = 0.0, MapLatitude = 0.0, MapLongitude = 0.0;
     private Integer PlaceType = 0;
     private String PlaceTypes = "";
+    private String Kind = "", UID = "";
 
     public RoutePoint() {
 
@@ -52,7 +42,7 @@ public class RoutePoint implements Parcelable {
 
     public String getCalcString(){
         String result = "|"; //PlaceId + "|";
-        result += getName() + "|";
+        result += getAddress() + "|";
         result += getDescription() + "|";
         result += HouseNumber + "|";
         result += Latitude + "|";
@@ -63,7 +53,7 @@ public class RoutePoint implements Parcelable {
 
     public JSONObject getCalcJSON() throws JSONException {
         JSONObject data = new JSONObject();
-        data.put("address", Name);
+        data.put("address", Address);
         if (!Note.equals(""))data.put("note", Note);
         if (MapLatitude == 0.0)data.put("lt", String.valueOf(Latitude));
         else data.put("lt", String.valueOf(MapLatitude));
@@ -76,13 +66,17 @@ public class RoutePoint implements Parcelable {
     public JSONObject getJSON() throws JSONException {
         JSONObject data = new JSONObject();
         data.put("place_id", PlaceId);
-        data.put("name", Name);
+        data.put("name", Address);
         data.put("dsc", Description);
         data.put("lt", Latitude);
         data.put("ln", Longitude);
         data.put("type", PlaceType);
         data.put("types", PlaceTypes);
         return data;
+    }
+
+    public String getKind() {
+        return Kind;
     }
 
     public void setMapLocation(LatLng target){
@@ -96,12 +90,13 @@ public class RoutePoint implements Parcelable {
         //String SQL = "insert"
 
         String[] args = {PlaceId, Note};
-        MainApplication.getInstance().getDataBase().execSQL("INSERT OR REPLACE INTO RoutePointNote (Id, Note) VALUES (?, ?)", args);
+        String SQL = "INSERT OR REPLACE INTO RoutePointNote (UID, Note) VALUES (?, ?)";
+        MainApplication.getInstance().getDataBase().execSQL(SQL, args);
         //Log.d(TAG, "set Note = " + Note + " to database");
     }
 
     public void setNoteFromHistory(){
-        String SQL = "select * from RoutePointNote where ID = ?";
+        String SQL = "select * from RoutePointNote where UID = ?";
         Cursor cursor = MainApplication.getInstance().getDataBase().rawQuery(SQL, new String[]{PlaceId});
         if (cursor.moveToFirst()){
             this.Note = cursor.getString(cursor.getColumnIndex("Note"));
@@ -115,37 +110,20 @@ public class RoutePoint implements Parcelable {
         return Note;
     }
 
-    public void setAllData(String PlaceID, String Name, String Description, Double Latitude, Double Longitude, Integer PlaceType, String Types){
-        this.PlaceId = PlaceID;
-        this.Name = Name;
-        this.Description = Description;
-        this.Latitude = Latitude;
-        this.Longitude = Longitude;
-        this.PlaceType = PlaceType;
-        this.PlaceTypes = Types;
-    }
 
-
-
-    public String getPlaceId() {
-        return PlaceId;
-    }
 
     public void setFromJSON(JSONObject data) throws JSONException {
-        if (data.has("address"))this.Name = data.getString("address");
+        if (data.has("uid"))this.PlaceId = data.getString("uid");
+        if (data.has("uid"))this.UID = data.getString("uid");
+        if (data.has("address"))this.Address = data.getString("address");
+        else if (data.has("name"))this.Address = data.getString("name");
         if (data.has("dsc"))this.Description = data.getString("dsc");
         if (data.has("lt"))this.Latitude = data.getDouble("lt");
         if (data.has("ln"))this.Longitude = data.getDouble("ln");
-        if (data.has("note"))this.Note = data.getString("note");
+        if (data.has("kind"))this.Kind = data.getString("kind");
 
-        if (data.has("place_id"))this.PlaceId = data.getString("place_id");
-        if (data.has("name"))this.Name = data.getString("name");
-        if (data.has("description"))this.Description = data.getString("description");
-        if (data.has("latitude"))this.Latitude = data.getDouble("latitude");
-        if (data.has("longitude"))this.Longitude = data.getDouble("longitude");
-        if (data.has("longitude"))this.Longitude = data.getDouble("longitude");
-        if (data.has("place_type"))this.PlaceType = data.getInt("place_type");
-        if (data.has("place_types"))this.PlaceTypes = data.getString("place_types");
+
+
 
 
     }
@@ -157,7 +135,7 @@ public class RoutePoint implements Parcelable {
             Iterator<Place> placeIterator = places.iterator();
             if (placeIterator.hasNext()){
                 Place place = placeIterator.next();
-                Name = place.getName().toString();
+                Address = place.getName().toString();
                 Description = place.getAddress().toString();
                 Latitude = place.getLatLng().latitude;
                 Longitude = place.getLatLng().longitude;
@@ -168,61 +146,9 @@ public class RoutePoint implements Parcelable {
         places.release();
     }
 
-    public static void getFastRoutePointAirportAndStation(Location mLocation) throws IOException, JSONException {
-        //Log.d(TAG, "getFastRoutePointAirportAndStation start");
-        if (mLocation != null){
-            // Проверяем на последний запрос. Если клиент передвинулся более чем на 10 км
-            SharedPreferences sPref = PreferenceManager.getDefaultSharedPreferences(MainApplication.getInstance());
-            Location lastLocation = new Location(mLocation);
-            lastLocation.setLatitude(sPref.getFloat("lastFastRoutePointLatitude", 0));
-            lastLocation.setLongitude(sPref.getFloat("lastFastRoutePointLongitude", 0));
-            if (lastLocation.distanceTo(mLocation) > 10000){
-                SharedPreferences.Editor editor = sPref.edit();
-                editor.putFloat("lastFastRoutePointLatitude", (float) mLocation.getLatitude());
-                editor.putFloat("lastFastRoutePointLongitude", (float) mLocation.getLongitude());
-                editor.apply();
-                String httpRequest = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?";
-                httpRequest += "location="+String.valueOf(mLocation.getLatitude())+"," + String.valueOf(mLocation.getLongitude());
-                httpRequest += "&types=airport|train_station&radius=50000";
-                httpRequest += "&key=" + MainApplication.getInstance().getResources().getString(R.string.places_api_key);
-                httpRequest += "&language=" + Locale.getDefault().toString();
-                Log.d(TAG, "getFastRoutePointAirportAndStation httpRequest = " + httpRequest);
-                JSONObject result = new JSONObject(DOT.httpGet(httpRequest));
-                Log.d(TAG, "getFastRoutePointAirportAndStation result = " + result.toString());
-                if (result.getString("status").equals("OK")){
-                    MainApplication.getInstance().getDataBase().delete("RoutePoint", "PlaceType in (?, ?)", new String[]{String.valueOf(Constants.ROUTE_POINT_TYPE_AIRPORT), String.valueOf(Constants.ROUTE_POINT_TYPE_STATION)});
-                    JSONArray results = result.getJSONArray("results");
-                    for (int itemID = 0; itemID < results.length(); itemID++){
-                        JSONObject place = results.getJSONObject(itemID);
-                        JSONObject geometry = place.getJSONObject("geometry");
-                        JSONObject location = geometry.getJSONObject("location");
-                        Integer placeType = 0;
-                        if (place.getString("types").contains("airport"))placeType = Constants.ROUTE_POINT_TYPE_AIRPORT;
-                        if (place.getString("types").contains("train_station"))placeType = Constants.ROUTE_POINT_TYPE_STATION;
-
-                        //Log.d(TAG, "getFastRoutePointAirportAndStation name = " + place.getString("name") + " placeType = " + String.valueOf(placeType));
-                        if ((placeType != 0) & (!place.getString("vicinity").equals("Russia"))){
-                            ContentValues cv = new ContentValues();
-                            cv.put("Id", place.getString("place_id"));
-                            cv.put("Name", place.getString("name"));
-                            cv.put("Address", place.getString("vicinity"));
-                            cv.put("Latitude", location.getString("lat"));
-                            cv.put("Longitude", location.getString("lng"));
-                            cv.put("PlaceType", placeType);
-                            if (place.has("rating")){cv.put("rating", place.getString("rating"));}
-                            else {cv.put("rating", "0");}
-                            MainApplication.getInstance().getDataBase().insert("RoutePoint", null, cv);
-                            cv.clear();
-                        }
-                    }
-                }
-
-            }
 
 
-        }
-        //else Log.d(TAG, "getFastRoutePointAirportAndStation location = null");
-    }
+
 
 
     public Boolean isAddSearch(Location location){
@@ -246,19 +172,21 @@ public class RoutePoint implements Parcelable {
         return false;
     }
 
-    public void addDatabaseHistory(){
+    void addDatabaseHistory(){
         // Проверяем, есть ли запись с таким ID
-        Cursor cursor = MainApplication.getInstance().getDataBase().rawQuery("select * from RoutePoint where Id = ? ", new String[]{PlaceId});
+        String SQL = "select * from RoutePoint where UID = ?";
+        Cursor cursor = MainApplication.getInstance().getDataBase().rawQuery(SQL, new String[]{UID});
         if (cursor.getCount() == 0){ // если точка маршрута новая
             //Log.d(TAG, "addDatabaseHistory insert data");
             ContentValues cv = new ContentValues();
-            cv.put("Id", PlaceId);
-            cv.put("Name", Name);
-            cv.put("Address", Description);
-            cv.put("Latitude", Latitude);
-            cv.put("Longitude", Longitude);
-            cv.put("PlaceType", PlaceType);
+            cv.put("UID", UID);
+            cv.put("Name", Address);
+            cv.put("Dsc", Description);
+            cv.put("Lt", Latitude);
+            cv.put("Ln", Longitude);
+            cv.put("Kind", Kind);
             cv.put("count", 0);
+            cv.put("self", 1);
             MainApplication.getInstance().getDataBase().insert("RoutePoint", null, cv);
         }
         else { // Обновляем данные по записи
@@ -266,13 +194,8 @@ public class RoutePoint implements Parcelable {
             if (cursor.moveToFirst()){
                 Integer count = cursor.getInt(cursor.getColumnIndex("count")) + 1;
                 ContentValues cv = new ContentValues();
-                cv.put("Name", Name);
-                cv.put("Address", Description);
-                cv.put("Latitude", Latitude);
-                cv.put("Longitude", Longitude);
-                cv.put("PlaceType", PlaceType);
                 cv.put("count", count);
-                MainApplication.getInstance().getDataBase().update("RoutePoint", cv, "Id = ?", new String[]{PlaceId});
+                MainApplication.getInstance().getDataBase().update("RoutePoint", cv, "UID = ?", new String[]{UID});
             }
 
         }
@@ -282,7 +205,7 @@ public class RoutePoint implements Parcelable {
     public JSONObject toJSON() throws JSONException {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("place_id", PlaceId);
-        jsonObject.put("name", Name);
+        jsonObject.put("name", Address);
         jsonObject.put("description", Description);
         jsonObject.put("house_number", HouseNumber);
         jsonObject.put("note", Note);
@@ -296,20 +219,12 @@ public class RoutePoint implements Parcelable {
 
     public void setFromPlace(Place data){
         PlaceId = data.getId();
-        Name = data.getName().toString();
+        Address = data.getName().toString();
         Description = data.getAddress().toString();
         Latitude = data.getLatLng().latitude;
         Longitude = data.getLatLng().longitude;
         PlaceType = getRoutePointType(data.getPlaceTypes());
         PlaceTypes = data.getPlaceTypes().toString();
-
-        //Log.d(TAG, "setFromPlace Name = " + Name + "; PlaceID = " + PlaceId);
-
-        /*
-        for (int itemID = 0; itemID < data.getPlaceTypes().size(); itemID++){
-            if (data.getPlaceTypes().get(itemID) == 1020){PlaceType = Constants.ROUTE_POINT_TYPE_STREET;}
-        }
-        */
     }
 
     public void setPlaceType(Integer placeType) {
@@ -320,28 +235,12 @@ public class RoutePoint implements Parcelable {
         HouseNumber = houseNumber;
     }
 
-    public String getName() {
-        return Name.replace("улица", "").replace("ул.", "").trim();
+    public String getAddress() {
+        return Address;
     }
 
     public String getDescription() {
-        //Log.d(TAG, "getDescription Description = " + Description + ";Name = " + Name);
-        String result = Description.replace(Name + ",", "");
-        String[] splitString = result.split(", ");
-        //Log.d(TAG, "splitString splitString.length=" + splitString.length);
-        result = "";
-        for (int itemID = 0; itemID < splitString.length; itemID++){
-            if (itemID < (splitString.length - 1))result += splitString[itemID];
-            if (itemID < (splitString.length - 2)){result += ", ";}
-            // Смотрим последний элемент, если это цифра, то не подставляем в поиск
-            if (itemID == (splitString.length - 1)){
-                if (!TextUtils.isDigitsOnly(splitString[itemID]))result += ", " + splitString[itemID];
-
-            }
-            //Log.d(TAG, "splitString itemID=" + itemID + " value = " + splitString[itemID]);
-        }
-        result = result.replace(", Россия", "");
-        return result.trim();
+        return Description;
     }
 
     public String getFullAddress(){return Description;}
@@ -354,11 +253,11 @@ public class RoutePoint implements Parcelable {
         return PlaceType;
     }
 
-    public Double getLatitude() {
+    Double getLatitude() {
         return Latitude;
     }
 
-    public Double getLongitude() {
+    Double getLongitude() {
         return Longitude;
     }
 
@@ -367,9 +266,9 @@ public class RoutePoint implements Parcelable {
         ArrayList<RoutePoint> resultList = new ArrayList<>();
         String SQL = "";
         switch (Type){
-            case Constants.FAST_ROUTE_POINT_HISTORY:SQL = "select * from RoutePoint where PlaceType not in (100, 101) order by count desc limit 10";break;
-            case Constants.FAST_ROUTE_POINT_AIRPORT:SQL = "select * from RoutePoint where PlaceType = " + String.valueOf(Constants.ROUTE_POINT_TYPE_AIRPORT) + " order by rating desc";break;
-            case Constants.FAST_ROUTE_POINT_STATION:SQL = "select * from RoutePoint where PlaceType = " + String.valueOf(Constants.ROUTE_POINT_TYPE_STATION) + " order by rating desc";break;
+            case Constants.FAST_ROUTE_POINT_HISTORY:SQL = "select * from RoutePoint where Kind not in ('airport', 'railway') and self = 1 order by count desc limit 10";break;
+            case Constants.FAST_ROUTE_POINT_AIRPORT:SQL = "select * from RoutePoint where Kind = 'airport' order by rating desc";break;
+            case Constants.FAST_ROUTE_POINT_STATION:SQL = "select * from RoutePoint where Kind = 'railway' order by rating desc";break;
 
         }
         if (!SQL.equals("")){
@@ -377,15 +276,12 @@ public class RoutePoint implements Parcelable {
             if (cursor.moveToFirst()){
                 do {
                     RoutePoint routePoint = new RoutePoint();
-                    routePoint.setAllData(
-                            cursor.getString(cursor.getColumnIndex("Id")),
-                            cursor.getString(cursor.getColumnIndex("Name")),
-                            cursor.getString(cursor.getColumnIndex("Address")),
-                            cursor.getDouble(cursor.getColumnIndex("Latitude")),
-                            cursor.getDouble(cursor.getColumnIndex("Longitude")),
-                            cursor.getInt(cursor.getColumnIndex("PlaceType")),
-                            ""
-                    );
+                    routePoint.UID = cursor.getString(cursor.getColumnIndex("UID"));
+                    routePoint.Address = cursor.getString(cursor.getColumnIndex("Name"));
+                    routePoint.Description = cursor.getString(cursor.getColumnIndex("Dsc"));
+                    routePoint.Latitude = cursor.getDouble(cursor.getColumnIndex("Lt"));
+                    routePoint.Longitude = cursor.getDouble(cursor.getColumnIndex("Ln"));
+                    routePoint.Kind = cursor.getString(cursor.getColumnIndex("Kind"));
                     resultList.add(routePoint);
                 }while (cursor.moveToNext());
             }
@@ -394,50 +290,7 @@ public class RoutePoint implements Parcelable {
         return resultList;
     }
 
-    public static ArrayList<RoutePoint> getBySearch(String searchString){
-        GoogleApiClient mGoogleApiClient = MainApplication.getInstance().getGoogleApiClient();
-        //Log.d(TAG, "getBySearch searchString = " + searchString);
-        //Log.d(TAG, "getBySearch mGoogleApiClient = " + mGoogleApiClient.toString());
-        ArrayList<RoutePoint> resultList = new ArrayList<>();
-        /*
-        AutocompleteFilter autocompleteFilter = new AutocompleteFilter.Builder()
-                .setTypeFilter(AutocompleteFilter.TYPE_FILTER_GEOCODE)
-                .build();
-               */
-        Location mLocation = MainApplication.getInstance().getLocation();
-        LatLngBounds mLatLngBounds = null;
-        if (mLocation != null){
-            LatLng southWest = new LatLng((mLocation.getLatitude() - 0.2), (mLocation.getLongitude() - 0.2));
-            LatLng northEast = new LatLng((mLocation.getLatitude() + 0.2), (mLocation.getLongitude() + 0.2));
-            mLatLngBounds = new LatLngBounds(southWest, northEast);
-        }
 
-        PendingResult<AutocompletePredictionBuffer> result = Places.GeoDataApi.getAutocompletePredictions(mGoogleApiClient, searchString, mLatLngBounds, null);
-        AutocompletePredictionBuffer autocompletePredictions = result.await(10, TimeUnit.SECONDS);
-        Status status = autocompletePredictions.getStatus();
-        if (status.isSuccess()){
-            for (AutocompletePrediction prediction : autocompletePredictions) {
-                //Log.d(TAG, "getBySearch prediction = " + prediction.)
-
-                Log.d(TAG, "getBySearch prediction = " + prediction.getPrimaryText(null) + ";" + prediction.getPlaceTypes().toString());
-                if (getRoutePointType(prediction.getPlaceTypes()) != Constants.ROUTE_POINT_TYPE_UNKNOWN){
-                    RoutePoint routePoint = new RoutePoint();
-                    routePoint.setAllData(prediction.getPlaceId(), prediction.getPrimaryText(null).toString(), prediction.getSecondaryText(null).toString(), null, null, getRoutePointType(prediction.getPlaceTypes()), prediction.getPlaceTypes().toString());
-                    resultList.add(routePoint);
-                }
-
-                /*
-                RoutePoint routePoint = getFromPlaceId(prediction.getPlaceId());
-                if (routePoint != null) {
-                    resultList.add(routePoint);
-                }
-                */
-            }
-        }
-        autocompletePredictions.release();
-
-        return resultList;
-    }
 
     public static int getRoutePointType(List<Integer> PlacesTypes){
         int PlaceType = Constants.ROUTE_POINT_TYPE_UNKNOWN;
@@ -573,25 +426,27 @@ public class RoutePoint implements Parcelable {
     }
 
     protected RoutePoint(Parcel in) {
-        PlaceId     = in.readString();
-        Name        = in.readString();
+        UID         = in.readString();
+        Address     = in.readString();
         Description = in.readString();
         Latitude    = in.readDouble();
         Longitude   = in.readDouble();
-        PlaceType   = in.readInt();
+        Kind        = in.readString();
         HouseNumber = in.readString();
+        Note        = in.readString();
 
     }
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(PlaceId);
-        dest.writeString(Name);
+        dest.writeString(UID);
+        dest.writeString(Address);
         dest.writeString(Description);
         dest.writeDouble(Latitude);
         dest.writeDouble(Longitude);
-        dest.writeInt(PlaceType);
+        dest.writeString(Kind);
         dest.writeString(HouseNumber);
+        dest.writeString(Note);
     }
 
     @Override

@@ -38,6 +38,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.toptaxi.ataxibooking.data.Constants;
 import org.toptaxi.ataxibooking.data.DOT;
+import org.toptaxi.ataxibooking.data.MenuRoutePointItem;
 import org.toptaxi.ataxibooking.data.Preferences;
 import org.toptaxi.ataxibooking.tools.DOTResponse;
 import org.toptaxi.ataxibooking.tools.OnMainDataChangeListener;
@@ -46,8 +47,11 @@ import org.toptaxi.ataxibooking.data.Drivers;
 import org.toptaxi.ataxibooking.data.Order;
 import org.toptaxi.ataxibooking.data.RoutePoint;
 import org.toptaxi.ataxibooking.tools.DBHelper;
+import org.toptaxi.ataxibooking.tools.PlacesAPI;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public class MainApplication extends Application implements LocationListener {
@@ -75,6 +79,7 @@ public class MainApplication extends Application implements LocationListener {
     SQLiteDatabase dataBase;
     int mapViewType = 0;
     private org.toptaxi.ataxibooking.tools.DOT nDot;
+    private List<MenuRoutePointItem> menuRoutePointItems;
 
     @Override
     public void onCreate() {
@@ -110,6 +115,16 @@ public class MainApplication extends Application implements LocationListener {
         if (mGoogleApiClient != null)
             if (mGoogleApiClient.isConnected())
                 mGoogleApiClient.disconnect();
+    }
+
+    public List<MenuRoutePointItem> getMenuRoutePointItems(){
+        if (menuRoutePointItems == null){
+            menuRoutePointItems = new ArrayList<>();
+            menuRoutePointItems.add(new MenuRoutePointItem(Constants.MENU_ROUTE_POINT_EDIT, "Изменить"));
+            menuRoutePointItems.add(new MenuRoutePointItem(Constants.MENU_ROUTE_POINT_DELETE, "Удалить"));
+            menuRoutePointItems.add(new MenuRoutePointItem(Constants.MENU_ROUTE_POINT_NEW, "Добавить"));
+        }
+        return menuRoutePointItems;
     }
 
     public int getMapViewType() {
@@ -406,14 +421,7 @@ public class MainApplication extends Application implements LocationListener {
             new Thread(){
                 @Override
                 public void run() {
-                    //Log.d(TAG, "getFastRoutePointAirportAndStation start");
-                    try {
-                        RoutePoint.getFastRoutePointAirportAndStation(lLocation);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
+                    PlacesAPI.SetPopular(lLocation);
                 }
             }.start();
 

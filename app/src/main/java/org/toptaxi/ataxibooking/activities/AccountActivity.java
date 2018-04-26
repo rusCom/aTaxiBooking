@@ -47,6 +47,7 @@ public class AccountActivity extends AppCompatActivity {
 
         findViewById(R.id.btnTitleLeft).setBackgroundResource(R.drawable.ic_arrow_back);
         findViewById(R.id.btnTitleRight).setBackgroundResource(R.drawable.ic_check);
+        ((EditText)findViewById(R.id.edTitle)).setText("Настройка профиля");
 
         llConfirmPhone = (LinearLayout)findViewById(R.id.llAccountActivityConfirmPhone);
 

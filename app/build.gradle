@@ -1,16 +1,15 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 25
+    compileSdkVersion 27
     buildToolsVersion '27.0.3'
     compileOptions.encoding = 'UTF-8' // write your encoding here
     defaultConfig {
         applicationId "org.toptaxi.ataxibooking"
         minSdkVersion 14
-        targetSdkVersion 25
+        targetSdkVersion 27
         versionCode 6
         versionName "0.06"
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
         release {
@@ -32,17 +31,16 @@ dependencies {
     compile('com.mikepenz:materialdrawer:5.3.2@aar') {
         transitive = true
     }
-
-    compile 'com.android.support:appcompat-v7:25.3.1'
-    compile 'com.android.support:design:25.3.1'
-    compile 'com.android.support:cardview-v7:25.3.1'
-    compile 'com.android.support:recyclerview-v7:25.3.1'
-    compile 'com.google.android.gms:play-services-maps:11.0.0'
-    compile 'com.google.android.gms:play-services-places:11.0.0'
-    compile 'com.google.android.gms:play-services-location:11.0.0'
+    compile 'com.android.support:support-compat:27.1.1'
+    compile 'com.android.support:design:27.1.1'
+    compile 'com.android.support:cardview-v7:27.1.1'
+    compile 'com.android.support:recyclerview-v7:27.1.1'
+    compile 'com.google.android.gms:play-services-maps:15.0.1'
+    compile 'com.google.android.gms:play-services-places:15.0.1'
+    compile 'com.google.android.gms:play-services-location:15.0.1'
     compile 'com.mikepenz:iconics-core:2.8.2@aar'
     compile 'com.mikepenz:fontawesome-typeface:4.7.0.0@aar'
-    compile 'com.squareup.okhttp3:okhttp:3.3.1'
-    compile 'com.android.support.constraint:constraint-layout:1.0.0-beta4'
+    compile 'com.squareup.okhttp3:okhttp:3.7.0'
+    compile 'com.android.support.constraint:constraint-layout:1.1.1'
     testCompile 'junit:junit:4.12'
 }

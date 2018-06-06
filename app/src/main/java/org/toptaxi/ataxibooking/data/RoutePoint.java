@@ -19,6 +19,7 @@ import com.google.android.gms.location.places.PlaceBuffer;
 import com.google.android.gms.location.places.Places;
 import com.google.android.gms.maps.model.LatLng;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.toptaxi.ataxibooking.MainApplication;
@@ -30,6 +31,7 @@ import java.util.concurrent.TimeUnit;
 
 public class RoutePoint implements Parcelable {
     private static String TAG = "#########" + RoutePoint.class.getName();
+
     private String PlaceId = "", Address = "", Description = "", HouseNumber = "", Note = "";
     private Double Latitude = 0.0, Longitude = 0.0, MapLatitude = 0.0, MapLongitude = 0.0;
     private Integer PlaceType = 0;
@@ -85,6 +87,10 @@ public class RoutePoint implements Parcelable {
 
     }
 
+    public String getPlaceId() {
+        return PlaceId;
+    }
+
     public void setNote(String note) {
         Note = note;
         //String SQL = "insert"
@@ -121,11 +127,47 @@ public class RoutePoint implements Parcelable {
         if (data.has("lt"))this.Latitude = data.getDouble("lt");
         if (data.has("ln"))this.Longitude = data.getDouble("ln");
         if (data.has("kind"))this.Kind = data.getString("kind");
+    }
 
+    public void setFromGeocode(JSONObject data, Double Lt, Double Ln) throws JSONException {
+        Log.d(TAG, "setFromGeocode data = " + data.toString());
+        if (data.has("status")){
+            if (data.getString("status").equals("OK")){
+                JSONArray results = data.getJSONArray("results");
+                if (results.length() > 0){
+                    JSONObject result = results.getJSONObject(0);
+                    PlaceId = result.getString("place_id");
+                    JSONArray address_components = result.getJSONArray("address_components");
+                    String street_number = "";
+                    for (int itemID = 0; itemID < address_components.length(); itemID++){
+                        JSONObject address_component = address_components.getJSONObject(itemID);
+                        JSONArray types = address_component.getJSONArray("types");
+                        if (types.getString(0).equals("street_number")){street_number = address_component.getString("long_name");}
+                        if (types.getString(0).equals("route")){Address = address_component.getString("long_name");}
+                        if (types.getString(0).equals("locality")){Description = address_component.getString("long_name");}
+                    }
+                    if (!street_number.equals("")){Address += ", " + street_number;}
+                }
+            }
+        }
+    }
 
-
-
-
+    public void setFromDetails(JSONObject data) throws JSONException {
+        Log.d(TAG, "setFromDetails data = " + data.toString());
+        if (data.has("status")){
+            if (data.getString("status").equals("OK")){
+                JSONObject result = data.getJSONObject("result");
+                PlaceId = result.getString("place_id");
+                Address = result.getString("name");
+                Description = result.getString("vicinity");
+                JSONArray types = result.getJSONArray("types");
+                Kind = types.getString(0);
+                JSONObject geometry = result.getJSONObject("geometry");
+                JSONObject location = geometry.getJSONObject("location");
+                Latitude = location.getDouble("lat");
+                Longitude = location.getDouble("lng");
+            }
+        }
     }
 
     public void updateFromPlaceID(){

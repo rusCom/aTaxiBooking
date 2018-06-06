@@ -1,6 +1,8 @@
 package org.toptaxi.ataxibooking.activities;
 
 import android.Manifest;
+import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
@@ -91,12 +93,55 @@ public class ChooseOnMapActivity extends AppCompatActivity implements OnMapReady
         findViewById(R.id.btnSetPickUpMapActivity).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                addRoute(viewRoutePoint);
+
+                /*
                 Intent intent = new Intent();
                 setResult(RESULT_OK, intent);
                 intent.putExtra(RoutePoint.class.getCanonicalName(), viewRoutePoint);
                 finish();
+                */
             }
         });
+    }
+
+    public void addRoute(RoutePoint routePoint)
+    {
+        (new AddRoutePointTask(this)).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, routePoint);
+    }
+
+    private class AddRoutePointTask extends AsyncTask<RoutePoint, Void, RoutePoint>{
+        ProgressDialog progressDialog;
+        Context mContext;
+
+        public AddRoutePointTask(Context mContext) {
+            this.mContext = mContext;
+            progressDialog = new ProgressDialog(mContext);
+            progressDialog.setMessage(getResources().getString(R.string.dlgCheckData));
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            progressDialog.show();
+        }
+
+        @Override
+        protected RoutePoint doInBackground(RoutePoint... routePoints) {
+            return PlacesAPI.Details(routePoints[0].getPlaceId());
+        }
+
+        @Override
+        protected void onPostExecute(RoutePoint routePoint) {
+            super.onPostExecute(routePoint);
+            if (progressDialog.isShowing())progressDialog.dismiss();
+            if (routePoint != null){
+                Intent intent = new Intent();
+                setResult(RESULT_OK, intent);
+                intent.putExtra(RoutePoint.class.getCanonicalName(), routePoint);
+                finish();
+            }
+        }
     }
 
     @Override
@@ -125,6 +170,8 @@ public class ChooseOnMapActivity extends AppCompatActivity implements OnMapReady
         });
     }
 
+
+
     private class GetAddressByGPS extends AsyncTask<LatLng, Void, RoutePoint>{
         @Override
         protected void onPreExecute() {
@@ -147,7 +194,7 @@ public class ChooseOnMapActivity extends AppCompatActivity implements OnMapReady
                 ((TextView)findViewById(R.id.tvAddressLocality)).setText(routePoint.getDescription());
                 ((TextView)findViewById(R.id.btnSetPickUpCaption)).setText(getString(R.string.btnPickUpChoseOnMapActivity));
                 viewRoutePoint = routePoint;
-                if (!routePoint.getKind().equals(""))(findViewById(R.id.btnSetPickUpMapActivity)).setEnabled(true);
+                (findViewById(R.id.btnSetPickUpMapActivity)).setEnabled(true);
             }
 
         }

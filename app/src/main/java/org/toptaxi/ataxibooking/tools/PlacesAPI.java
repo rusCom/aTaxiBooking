@@ -163,6 +163,22 @@ public class PlacesAPI {
     }
 
 
+    public static RoutePoint Details(String place_id){
+        RoutePoint routePoint = null;
+        DOTResponse dotResponse = MainApplication.getInstance().getnDot().httpGetGEO("details", "placeid=" + place_id);
+        if (dotResponse.getCode() == 200){
+            try {
+                JSONObject data = new JSONObject(dotResponse.getBody());
+                routePoint = new RoutePoint();
+                routePoint.setFromDetails(data);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+        return routePoint;
+    }
+
+
 
     public static RoutePoint Geocode(Double Latitude, Double Longitude){
         RoutePoint routePoint = null;
@@ -170,15 +186,11 @@ public class PlacesAPI {
         if (dotResponse.getCode() == 200){
             try {
                 JSONObject data = new JSONObject(dotResponse.getBody());
-                if (data.has("response"))
-                    if (data.getString("response").equals("OK")){
-                        routePoint = new RoutePoint();
-                        routePoint.setFromJSON(data.getJSONObject("result"));
-                    }
+                routePoint = new RoutePoint();
+                routePoint.setFromGeocode(data, Latitude, Longitude);
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-
         }
         return routePoint;
     }

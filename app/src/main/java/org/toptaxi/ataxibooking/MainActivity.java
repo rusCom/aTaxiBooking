@@ -7,13 +7,10 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.location.Geocoder;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
@@ -25,8 +22,6 @@ import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.view.animation.LinearInterpolator;
-import android.view.animation.RotateAnimation;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -35,9 +30,6 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.location.places.Places;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -59,30 +51,26 @@ import com.mikepenz.materialdrawer.model.interfaces.IProfile;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.toptaxi.ataxibooking.activities.AccountActivity;
+import org.toptaxi.ataxibooking.activities.AddressActivity;
 import org.toptaxi.ataxibooking.activities.HisOrdersActivity;
+import org.toptaxi.ataxibooking.activities.NewOrderActivity;
 import org.toptaxi.ataxibooking.activities.SplashActivity;
 import org.toptaxi.ataxibooking.data.Constants;
 import org.toptaxi.ataxibooking.data.Driver;
+import org.toptaxi.ataxibooking.data.RoutePoint;
 import org.toptaxi.ataxibooking.dialogs.NewVersionDialog;
 import org.toptaxi.ataxibooking.dialogs.UserAgreementDialog;
 import org.toptaxi.ataxibooking.tools.DOTResponse;
 import org.toptaxi.ataxibooking.tools.OnMainDataChangeListener;
-import org.toptaxi.ataxibooking.tools.RadarView;
-import org.toptaxi.ataxibooking.activities.AccountActivity;
-import org.toptaxi.ataxibooking.activities.AddressActivity;
-import org.toptaxi.ataxibooking.activities.ChooseHouseActivity;
-import org.toptaxi.ataxibooking.activities.NewOrderActivity;
-import org.toptaxi.ataxibooking.data.RoutePoint;
 import org.toptaxi.ataxibooking.tools.PlacesAPI;
 
-import java.util.Locale;
 
-public class MainActivity extends FragmentActivity implements OnMapReadyCallback, OnMainDataChangeListener, Drawer.OnDrawerItemClickListener, GoogleApiClient.ConnectionCallbacks {
+public class MainActivity extends FragmentActivity implements OnMapReadyCallback, OnMainDataChangeListener, Drawer.OnDrawerItemClickListener {
     private static String TAG = "#########" + MainActivity.class.getName();
 
 
     private GoogleMap mMap;
-    Geocoder mGeocoder;
     ImageButton btnSetPickup;
     EditText edMainActivityTitle;
     RoutePoint viewRoutePoint;
@@ -90,7 +78,6 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     ImageView ivCentralPickUp;
     LinearLayout llRoutePoints;
     CardView llCarInfo;
-    static RadarView mRadarView = null;
     FloatingActionButton fabCallDriver, fabCancelOrder, fabSearchAddress;
     String callIntentPhone;
     protected Drawer drawer;
@@ -98,7 +85,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     IProfile profile;
     long back_pressed;
     PrimaryDrawerItem menuBalanceItem, menuMapTypeItem;
-    private GoogleApiClient mGoogleApiClient;
+    Boolean isOnMapClick = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -110,9 +97,6 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-
-
-        mGeocoder = new Geocoder(this, Locale.getDefault());
 
         initialInterface();
         generateDrawer();
@@ -184,15 +168,14 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     public void initialInterface() {
-        rlNewOrder = (RelativeLayout) findViewById(R.id.rlMainActivityNewOrder);
-        rlOrderSearchDriver = (RelativeLayout) findViewById(R.id.rlMainActivityOrderSearchDriver);
-        llRoutePoints = (LinearLayout) findViewById(R.id.llMainActivityRoutePoints);
-        llCarInfo = (CardView) findViewById(R.id.llMainActivityCarInfo);
+        rlNewOrder = findViewById(R.id.rlMainActivityNewOrder);
+        rlOrderSearchDriver = findViewById(R.id.rlMainActivityOrderSearchDriver);
+        llRoutePoints = findViewById(R.id.llMainActivityRoutePoints);
+        llCarInfo = findViewById(R.id.llMainActivityCarInfo);
 
-        btnSetPickup = (ImageButton) findViewById(R.id.btnSetPickUp);
-        edMainActivityTitle = (EditText) findViewById(R.id.edTitle);
-        //mRadarView = (RadarView) findViewById(R.id.radarView);
-        ivCentralPickUp = (ImageView) findViewById(R.id.ivMainActivityCentralPickUp);
+        btnSetPickup = findViewById(R.id.btnSetPickUp);
+        edMainActivityTitle = findViewById(R.id.edTitle);
+        ivCentralPickUp = findViewById(R.id.ivMainActivityCentralPickUp);
 
         (findViewById(R.id.btnSetPickUp)).setEnabled(false);
         ((TextView)findViewById(R.id.tvAddressLine)).setText(getString(R.string.captionSearchAddress));
@@ -230,13 +213,16 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         btnSetPickup.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                isOnMapClick = true;
 
-                //addRoutePoint(viewRoutePoint);
+                addRoutePoint(viewRoutePoint);
+                /*
                 viewRoutePoint.setMapLocation(mMap.getCameraPosition().target);
                 viewRoutePoint.setNoteFromHistory();
                 MainApplication.getInstance().getOrder().addRoutePoint(viewRoutePoint);
                 Intent intent = new Intent(MainActivity.this, NewOrderActivity.class);
                 startActivityForResult(intent, Constants.ACTIVITY_NEW_ORDER);
+                */
             }
         });
 
@@ -249,12 +235,12 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         l.addRule(RelativeLayout.CENTER_IN_PARENT);
 
 
-        ImageView imgview = (ImageView) findViewById(R.id.ivRadar);
+        ImageView imgview = findViewById(R.id.ivRadar);
         imgview.setLayoutParams(l);
         imgview.startAnimation(animationRotateCenter);
 
 
-        fabSearchAddress = (FloatingActionButton)findViewById(R.id.fabMainActivitySearchAddress);
+        fabSearchAddress = findViewById(R.id.fabMainActivitySearchAddress);
         fabSearchAddress.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -262,7 +248,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
             }
         });
 
-        fabCallDriver = (FloatingActionButton) findViewById(R.id.fabMainActivityCallDriver);
+        fabCallDriver =  findViewById(R.id.fabMainActivityCallDriver);
         fabCallDriver.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -270,7 +256,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
             }
         });
 
-        fabCancelOrder = (FloatingActionButton)findViewById(R.id.fabMainActivityCancelOrder);
+        fabCancelOrder = findViewById(R.id.fabMainActivityCancelOrder);
         fabCancelOrder.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -369,10 +355,12 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        //Log.d(TAG, "onActivityResult requestCode = " + requestCode + ";resultCode = " + resultCode);
+        Log.d(TAG, "onActivityResult requestCode = " + requestCode + ";resultCode = " + resultCode);
+
         if (requestCode == Constants.ACTIVITY_ADDRESS){
             if (resultCode == RESULT_OK){
                 RoutePoint routePoint = data.getParcelableExtra(RoutePoint.class.getCanonicalName());
+                isOnMapClick = false;
                 addRoutePoint(routePoint);
             }
         }
@@ -382,6 +370,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                 addRoutePoint(routePoint);
             }
         }
+
     }
 
     @Override
@@ -614,16 +603,6 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
-    @Override
-    public void onConnected(@Nullable Bundle bundle) {
-        Log.d(TAG, "google api client connected");
-        MainApplication.getInstance().setGoogleApiClient(mGoogleApiClient);
-    }
-
-    @Override
-    public void onConnectionSuspended(int i) {
-
-    }
 
     private class OrderDenyTask extends AsyncTask<Void, Void, DOTResponse> {
         ProgressDialog progressDialog;
@@ -657,23 +636,6 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                     e.printStackTrace();
                 }
             }
-            /*
-            if (result.getCode() == 200){
-                if (!MainApplication.getInstance().getOrder().setCalcData(result.getBody())){
-                    MainApplication.getInstance().showToast("Ошибка при расчете стоимости");
-                    MainApplication.getInstance().getOrder().setCalcSucces(false);
-                }
-            }
-            else if ((result.getCode() == 400) && (!result.getBody().equals("")))  {
-                MainApplication.getInstance().showToast(result.getBody());
-                MainApplication.getInstance().getOrder().setCalcSucces(false);
-            }
-            else {
-                MainApplication.getInstance().showToast("HTTP Error");
-                MainApplication.getInstance().getOrder().setCalcSucces(false);
-            }
-            generateView();
-            */
         }
 
     }
@@ -777,13 +739,52 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                 ((TextView)findViewById(R.id.tvAddressLocality)).setText(routePoint.getDescription());
                 ((TextView)findViewById(R.id.btnSetPickUpCaption)).setText(getString(R.string.btnPickUpMainActivity));
                 viewRoutePoint = routePoint;
-                if (!routePoint.getKind().equals(""))(findViewById(R.id.btnSetPickUp)).setEnabled(true);
+                (findViewById(R.id.btnSetPickUp)).setEnabled(true);
             }
         }
     }
 
+    private class AddRoutePointTask extends AsyncTask<RoutePoint, Void, RoutePoint>{
+        ProgressDialog progressDialog;
+        Context mContext;
+
+        public AddRoutePointTask(Context mContext) {
+            this.mContext = mContext;
+            progressDialog = new ProgressDialog(mContext);
+            progressDialog.setMessage(getResources().getString(R.string.dlgCheckData));
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            progressDialog.show();
+        }
+
+        @Override
+        protected RoutePoint doInBackground(RoutePoint... routePoints) {
+            return PlacesAPI.Details(routePoints[0].getPlaceId());
+        }
+
+        @Override
+        protected void onPostExecute(RoutePoint routePoint) {
+            super.onPostExecute(routePoint);
+            if (progressDialog.isShowing())progressDialog.dismiss();
+            if (routePoint != null){
+                if (isOnMapClick)routePoint.setMapLocation(mMap.getCameraPosition().target);
+                routePoint.setNoteFromHistory();
+                MainApplication.getInstance().getOrder().addRoutePoint(routePoint);
+                Intent intent = new Intent(MainActivity.this, NewOrderActivity.class);
+                startActivityForResult(intent, Constants.ACTIVITY_NEW_ORDER);
+            }
+        }
+    }
+
+
+
     public void addRoutePoint(RoutePoint routePoint){
         //Log.d(TAG, "addRoutePoint routePoint = " + routePoint.getName() + ";" + routePoint.getPlaceType());
+        (new AddRoutePointTask(this)).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, routePoint);
+        /*
         if (routePoint.getPlaceType() == Constants.ROUTE_POINT_TYPE_STREET){
             Intent intent = new Intent(MainActivity.this, ChooseHouseActivity.class);
             intent.putExtra(RoutePoint.class.getCanonicalName(), routePoint);
@@ -794,7 +795,10 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
             Intent intent = new Intent(MainActivity.this, NewOrderActivity.class);
             startActivityForResult(intent, Constants.ACTIVITY_NEW_ORDER);
         }
+        */
     }
+
+
 
 
 }

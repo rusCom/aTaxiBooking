@@ -392,12 +392,12 @@ public class DOT {
         return result;
     }
 
-    private DOTResponse httpGetGEO(String method, String params){
+    public DOTResponse httpGetGEO(String method, String params){
         DOTResponse result = new DOTResponse(400);
         if (GEOIP.equals(""))return result;
         params += "&key=" + mContext.getResources().getString(R.string.restToken);
 
-        String main_url = "http://" + GEOIP + ":" + GEOPort + "/" + method + "?" + params;
+        String main_url = "http://" + GEOIP + ":" + GEOPort + "/places/google?method=" + method + "&" + params;
 
         Response response = null;
         try {
@@ -422,7 +422,7 @@ public class DOT {
 
         }
         Log.d(TAG, "httpGetGEO main_url = " + main_url);
-        Log.d(TAG, "httpGetGEO responseBody = " + result.getBody());
+        //Log.d(TAG, "httpGetGEO responseBody = " + result.getBody());
 
         return result;
     }

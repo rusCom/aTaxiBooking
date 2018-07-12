@@ -45,16 +45,6 @@ public class DOT {
     }
 
 
-    DOTResponse geo_set_search_cache(String data){
-        String method = "set_android_cache_data";
-        return httpPostGEO(method, "", data);
-    }
-
-    DOTResponse geo_set_location_point(String data){
-        String method = "set_android_location_point";
-        return httpPostGEO(method, "", data);
-    }
-
     DOTResponse geo_set_house_search(String data){
         String method = "set_android_house_search";
         return httpPostGEO(method, "", data);
@@ -91,21 +81,6 @@ public class DOT {
         return httpGetGEO(method, params);
     }
 
-    DOTResponse geo_get_search_cache(String searchString){
-        String method = "get_android_cache_data";
-        Location mLocation = MainApplication.getInstance().getLocation();
-        String params = "";
-        try {
-             params += "search=" + URLEncoder.encode(searchString, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-        if (mLocation != null){
-            params += "&latitude=" + mLocation.getLatitude();
-            params += "&longitude=" + mLocation.getLongitude();
-        }
-        return httpGetGEO(method, params);
-    }
 
     DOTResponse geo_get_search_house_cache(String searchString){
         String method = "get_android_house_search";
@@ -118,14 +93,6 @@ public class DOT {
         }
         params += "&latitude=" + mLocation.getLatitude();
         params += "&longitude=" + mLocation.getLongitude();
-        return httpGetGEO(method, params);
-    }
-
-    DOTResponse geo_get_location_point(Double latitude, Double longitude){
-        String method = "get_android_location_point";
-        String params = "";
-        params += "&latitude=" + latitude;
-        params += "&longitude=" + longitude;
         return httpGetGEO(method, params);
     }
 

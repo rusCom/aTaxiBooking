@@ -40,7 +40,14 @@ dependencies {
     compile 'com.google.android.gms:play-services-location:15.0.1'
     compile 'com.mikepenz:iconics-core:2.8.2@aar'
     compile 'com.mikepenz:fontawesome-typeface:4.7.0.0@aar'
-    compile 'com.squareup.okhttp3:okhttp:3.7.0'
+    compile 'com.squareup.okhttp3:okhttp:3.8.0'
     compile 'com.android.support.constraint:constraint-layout:1.1.1'
+
+    compile 'com.squareup.retrofit2:retrofit:2.3.0'
+    compile 'com.squareup.retrofit2:converter-gson:2.3.0'
+    compile 'io.reactivex.rxjava2:rxjava:2.1.5'
+    compile 'io.reactivex.rxjava2:rxandroid:2.0.1'
+    compile 'com.squareup.retrofit2:adapter-rxjava2:2.3.0'
+
     testCompile 'junit:junit:4.12'
 }

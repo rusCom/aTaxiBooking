@@ -27,6 +27,11 @@ import org.toptaxi.ataxibooking.data.Constants;
 import org.toptaxi.ataxibooking.data.RoutePoint;
 import org.toptaxi.ataxibooking.tools.PlacesAPI;
 
+import retrofit2.http.GET;
+import retrofit2.http.Query;
+
+
+
 public class ChooseOnMapActivity extends AppCompatActivity implements OnMapReadyCallback {
     private GoogleMap mMap;
     RoutePoint viewRoutePoint;

@@ -2,7 +2,7 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 27
-    buildToolsVersion '27.0.3'
+    buildToolsVersion '28.0.3'
     compileOptions.encoding = 'UTF-8' // write your encoding here
     defaultConfig {
         applicationId "org.toptaxi.ataxibooking"
@@ -24,30 +24,30 @@ android {
 
 
 dependencies {
-    compile fileTree(include: ['*.jar'], dir: 'libs')
-    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    androidTestImplementation('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
-    compile('com.mikepenz:materialdrawer:5.3.2@aar') {
+    implementation('com.mikepenz:materialdrawer:5.3.2@aar') {
         transitive = true
     }
-    compile 'com.android.support:support-compat:27.1.1'
-    compile 'com.android.support:design:27.1.1'
-    compile 'com.android.support:cardview-v7:27.1.1'
-    compile 'com.android.support:recyclerview-v7:27.1.1'
-    compile 'com.google.android.gms:play-services-maps:15.0.1'
-    compile 'com.google.android.gms:play-services-places:15.0.1'
-    compile 'com.google.android.gms:play-services-location:15.0.1'
-    compile 'com.mikepenz:iconics-core:2.8.2@aar'
-    compile 'com.mikepenz:fontawesome-typeface:4.7.0.0@aar'
-    compile 'com.squareup.okhttp3:okhttp:3.8.0'
-    compile 'com.android.support.constraint:constraint-layout:1.1.1'
+    implementation 'com.android.support:support-compat:27.1.1'
+    implementation 'com.android.support:design:27.1.1'
+    implementation 'com.android.support:cardview-v7:27.1.1'
+    implementation 'com.android.support:recyclerview-v7:27.1.1'
+    implementation 'com.google.android.gms:play-services-maps:16.0.0'
+    implementation 'com.google.android.gms:play-services-places:16.0.0'
+    implementation 'com.google.android.gms:play-services-location:16.0.0'
+    implementation 'com.mikepenz:iconics-core:2.8.2@aar'
+    implementation 'com.mikepenz:fontawesome-typeface:4.7.0.0@aar'
+    implementation 'com.squareup.okhttp3:okhttp:3.10.0'
+    implementation 'com.android.support.constraint:constraint-layout:1.1.3'
 
-    compile 'com.squareup.retrofit2:retrofit:2.3.0'
-    compile 'com.squareup.retrofit2:converter-gson:2.3.0'
-    compile 'io.reactivex.rxjava2:rxjava:2.1.5'
-    compile 'io.reactivex.rxjava2:rxandroid:2.0.1'
-    compile 'com.squareup.retrofit2:adapter-rxjava2:2.3.0'
+    implementation 'com.squareup.retrofit2:retrofit:2.3.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.3.0'
+    implementation 'io.reactivex.rxjava2:rxjava:2.1.5'
+    implementation 'io.reactivex.rxjava2:rxandroid:2.0.1'
+    implementation 'com.squareup.retrofit2:adapter-rxjava2:2.3.0'
 
-    testCompile 'junit:junit:4.12'
+    testImplementation 'junit:junit:4.12'
 }
